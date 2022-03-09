@@ -1,10 +1,13 @@
-project('src', 'c',
+project('tinc', 'c',
   version : '0.1',
-  default_options : ['warning_level=3'])
+  default_options : ['warning_level=3', 'c_std=c89'])
 
+base_src = [
+  'src/main.c',
+  'src/lexer.c',
+  'src/scanner.c'
+]
 
-base_src = run_command('find', 'src', '-name', '*.c', check: true).stdout().strip()
+exe = executable('tinc', base_src, install : true)
 
-exe = executable('src', base_src, install : true)
-
-test('test', exe)
+test('test_main', exe, args : 'src/test_main.c')
