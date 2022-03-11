@@ -1,7 +1,7 @@
 #include "scanner.h"
 #include "token.h"
+#include "utils.h"
 #include <assert.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +9,7 @@
 typedef struct {
     char *src;
     int src_len;
-    int start;
+    int curr;
     int index;
     int line;
     int len;
@@ -21,7 +21,7 @@ scanner *scanner_new(char *src) {
     scanner *s = malloc(sizeof(scanner));
     s->src = src;
     s->src_len = strlen(src);
-    s->start = 0;
+    s->curr = 0;
     s->index = 0;
     s->line = 0;
     s->len = 0;
@@ -44,11 +44,12 @@ bool scanner_add_token(scanner *s, token t) {
 }
 
 token *scan_file(char *path, int *size) {
-    // Read file
     FILE *fd;
     int len;
     char *src;
     scanner *s;
+
+    /* Read file */
     fd = fopen(path, "rb");
     if (fd != NULL) {
         fseek(fd, 0, SEEK_END);
@@ -58,7 +59,7 @@ token *scan_file(char *path, int *size) {
         fread(src, len, 1, fd);
         fclose(fd);
 
-        // Scan it
+        /* Scan it */
         s = scanner_new(src);
         assert(s != NULL);
 
@@ -120,10 +121,10 @@ token *scan_file(char *path, int *size) {
             case 'Z':
                 break;
             case ' ': {
-                t.ident.name = &s->src[s->start];
-                t.ident.size = s->index - s->start;
+                t.ident.name = &s->src[s->curr];
+                t.ident.size = s->index - s->curr;
                 scanner_add_token(s, t);
-                s->start = s->index;
+                s->curr = s->index;
                 break;
             }
             case '\n':
@@ -132,7 +133,7 @@ token *scan_file(char *path, int *size) {
             default:
                 break;
             }
-            s->start++;
+            s->curr++;
         }
 
         *size = s->len;
