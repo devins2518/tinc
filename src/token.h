@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "utils.h"
+
 typedef enum {
     auto_kw,
     break_kw,
@@ -36,17 +38,11 @@ typedef enum {
     while_kw
 } keyword;
 
-typedef struct {
-    char *name;
-    int size;
-} ident;
+typedef string ident;
 
 typedef enum { float_const, int_const, enum_const, char_const } constant;
 
-typedef struct {
-    char *start;
-    int size;
-} string_lit;
+typedef string string_lit;
 
 typedef enum {
     lbracket_op,    /* [ */
@@ -79,7 +75,21 @@ typedef enum {
     doubleand_op,   /* && */
     doubleor_op,    /* || */
     ternaryq_op,    /* ? */
-    ternaryc_op     /* : */
+    ternaryc_op,    /* : */
+    eq_op,          /* = */
+    stareq_op,      /* *= */
+    diveq_op,       /* /= */
+    percenteq_op,   /* %= */
+    pluseq_op,      /* += */
+    minuseq_op,     /* -= */
+    shiftleq_op,    /* <<= */
+    shiftreq_op,    /* >>= */
+    andeq_op,       /* &= */
+    xoreq_op,       /* ^= */
+    oreq_op,        /* |= */
+    comma_op,       /* , */
+    hash_op,        /* # */
+    dblhash_op      /* ## */
 } op;
 
 typedef enum {
@@ -105,6 +115,48 @@ typedef union {
     string_lit string_lit;
     op op;
     punct punct;
-} token;
+} lexing_token;
+
+typedef enum {
+    lbracket_multi, /* [ */
+    rbracket_multi, /* ] */
+    lparen_multi,   /* ( */
+    rparen_multi,   /* ) */
+    star_multi,     /* * */
+    comma_multi,    /* , */
+    colon_multi,    /* : */
+    eq_multi,       /* = */
+    hash_multi,     /* # */
+    period_multi,   /* . */
+    and_multi,      /* & */
+    lt_multi,       /* < */
+    gt_multi,       /* > */
+    plus_multi,     /* + */
+    minus_multi,    /* - */
+    bang_multi,     /* ! */
+    div_multi,      /* / */
+    percent_multi,  /* % */
+    xor_multi,      /* ^ */
+    or_multi        /* | */
+} multi;
+
+typedef struct {
+    int span_start;
+    int span_end;
+    const char *msg;
+} error;
+
+typedef union {
+    keyword keyword;
+    ident ident;
+    constant constant;
+    string_lit string_lit;
+    op op;
+    punct punct;
+    multi multi;
+    error error;
+} scanning_token;
+
+error error_new(int start, int end, const char *msg);
 
 #endif

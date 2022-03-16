@@ -5,7 +5,9 @@ project('tinc', 'c',
 base_src = [
   'src/main.c',
   'src/lexer.c',
-  'src/scanner.c'
+  'src/scanner.c',
+  'src/token.c',
+  'src/utils.c',
 ]
 
 exe = executable('tinc', base_src, install : true)
