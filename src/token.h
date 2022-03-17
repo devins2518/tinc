@@ -155,6 +155,7 @@ typedef union {
     punct punct;
     multi multi;
     error error;
+    int space;
 } scanning_token;
 
 error error_new(int start, int end, const char *msg);

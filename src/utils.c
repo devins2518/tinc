@@ -1,6 +1,8 @@
 #include "utils.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-string string_new(const char *str, int len) {
+string string_new(char *str, int len) {
     string s;
     s.str = str;
     s.len = len;
@@ -37,4 +39,26 @@ bool string_eq_char(const string *a, const char *b) {
     }
 
     return ret;
+}
+
+string read_file(char *path) {
+    FILE *fd;
+    int len;
+    char *src;
+    string s;
+    fd = fopen(path, "rb");
+    if (fd == NULL) {
+        printf("Could not open path %s\n", path);
+        exit(EXIT_FAILURE);
+    }
+    fseek(fd, 0, SEEK_END);
+    len = ftell(fd);
+    fseek(fd, 0, SEEK_SET);
+    src = malloc(len + 1);
+    fread(src, len, 1, fd);
+    fclose(fd);
+    s.str = src;
+    s.len = len;
+
+    return s;
 }

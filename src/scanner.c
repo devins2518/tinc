@@ -274,6 +274,11 @@ void scanner_scan_string_lit(scanner *s, scanning_token *t) {
     t->string_lit = str;
 }
 
+void scanner_scan_constant(scanner *s, scanning_token *t) {
+    printf("unimplemented");
+    abort();
+}
+
 scanning_token *scan_file(char *path, int *size) {
     FILE *fd;
     int len;
@@ -366,6 +371,8 @@ scanning_token *scan_file(char *path, int *size) {
                 break;
             }
             case ' ':
+                t.space = 1;
+                scanner_add_token(s, t);
                 break;
             case '\n':
                 s->line++;
