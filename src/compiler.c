@@ -29,6 +29,9 @@ void convert_to_logical_newline(string *src) {
             case '/':
                 src->str[i] = '\\';
                 string_rem_char(src, i + 1, 2);
+                if (src->str[i + 1] == '\n') {
+                    string_rem_char(src, i, 2);
+                }
                 break;
             case '\'':
                 src->str[i] = '^';
@@ -53,6 +56,10 @@ void convert_to_logical_newline(string *src) {
             default:
                 break;
             }
+        }
+        /* Join physical new lines into logical new lines. */
+        else if (src->str[i] == '\\' && src->str[i + 1] == '\n') {
+            string_rem_char(src, i, 2);
         }
     }
 }

@@ -1,2 +1,2 @@
-??=define HELLO
+#define HELLO
 int main() { return 0; }
