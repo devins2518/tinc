@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 string string_new(char *str, int len) {
     string s;
@@ -61,4 +62,10 @@ string read_file(char *path) {
     s.len = len;
 
     return s;
+}
+
+void string_rem_char(string *a, int index, int len) {
+    memmove(&a->str[index], &a->str[index + len], a->len - index - len);
+    a->len -= len;
+    a->str[a->len] = '\0';
 }

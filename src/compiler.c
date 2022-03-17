@@ -9,46 +9,46 @@ void convert_to_logical_newline(string *src) {
     for (i = 0; i < src->len; i++) {
         /* Replace EOL characters with new line characters. */
         if (src->str[i] == '\r' && src->str[i + 1] == '\n') {
-            memmove(&src->str[i], &src->str[i + 1], src->len - i);
+            string_rem_char(src, i, 1);
         }
         /* Translate trigraph sequences. */
         else if (src->str[i] == '?' && src->str[i + 1] == '?') {
             switch (src->str[i + 2]) {
             case '=':
                 src->str[i] = '#';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '(':
                 src->str[i] = '[';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case ')':
                 src->str[i] = ']';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '/':
                 src->str[i] = '\\';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '\'':
                 src->str[i] = '^';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '<':
                 src->str[i] = '{';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '>':
                 src->str[i] = '}';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '!':
                 src->str[i] = '|';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             case '-':
                 src->str[i] = '~';
-                memmove(&src->str[i + 1], &src->str[i + 3], src->len - 2);
+                string_rem_char(src, i + 1, 2);
                 break;
             default:
                 break;
