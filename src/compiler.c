@@ -10,7 +10,9 @@ void convert_to_logical_newline(string *src) {
         /* Replace EOL characters with new line characters. */
         if (src->str[i] == '\r' && src->str[i + 1] == '\n') {
             memmove(&src->str[i], &src->str[i + 1], src->len - i);
-        } else if (src->str[i] == '?' && src->str[i + 1] == '?') {
+        }
+        /* Translate trigraph sequences. */
+        else if (src->str[i] == '?' && src->str[i + 1] == '?') {
             switch (src->str[i + 2]) {
             case '=':
                 src->str[i] = '#';
@@ -58,4 +60,5 @@ void convert_to_logical_newline(string *src) {
 void compile_file(char *path) {
     string src = read_file(path);
     convert_to_logical_newline(&src);
+    printf("%s\n", src.str);
 }
