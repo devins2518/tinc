@@ -45,51 +45,51 @@ typedef enum { float_const, int_const, enum_const, char_const } constant;
 typedef string string_lit;
 
 typedef enum {
-    lbracket_op,    /* [ */
-    rbracket_op,    /* ] */
-    lparen_op,      /* ( */
-    rparen_op,      /* ) */
-    period_op,      /* . */
-    arrow_op,       /* -> */
-    doubleplus_op,  /* ++ */
-    doubleminus_op, /* -- */
-    logand_op,      /* & */
-    star_op,        /* * */
-    plus_op,        /* + */
-    minus_op,       /* - */
-    approx_op,      /* ~ */
-    bang_op,        /* ! */
-    sizeof_op,      /* sizeof */
-    fwslash_op,     /* / */
-    percent_op,     /* % */
-    shiftl_op,      /* << */
-    shiftr_op,      /* >> */
-    lt_op,          /* < */
-    gt_op,          /* > */
-    lteq_op,        /* <= */
-    gteq_op,        /* >= */
-    eqeq_op,        /* == */
-    bangeq_op,      /* != */
-    logxor_op,      /* ^ */
-    logor_op,       /* | */
-    doubleand_op,   /* && */
-    doubleor_op,    /* || */
-    ternaryq_op,    /* ? */
-    ternaryc_op,    /* : */
-    eq_op,          /* = */
-    stareq_op,      /* *= */
-    diveq_op,       /* /= */
-    percenteq_op,   /* %= */
-    pluseq_op,      /* += */
-    minuseq_op,     /* -= */
-    shiftleq_op,    /* <<= */
-    shiftreq_op,    /* >>= */
-    andeq_op,       /* &= */
-    xoreq_op,       /* ^= */
-    oreq_op,        /* |= */
-    comma_op,       /* , */
-    hash_op,        /* # */
-    dblhash_op      /* ## */
+    lbracket_op,  /* [ */
+    rbracket_op,  /* ] */
+    lparen_op,    /* ( */
+    rparen_op,    /* ) */
+    period_op,    /* . */
+    arrow_op,     /* -> */
+    dblplus_op,   /* ++ */
+    dblminus_op,  /* -- */
+    logand_op,    /* & */
+    star_op,      /* * */
+    plus_op,      /* + */
+    minus_op,     /* - */
+    approx_op,    /* ~ */
+    bang_op,      /* ! */
+    sizeof_op,    /* sizeof */
+    div_op,       /* / */
+    percent_op,   /* % */
+    shiftl_op,    /* << */
+    shiftr_op,    /* >> */
+    lt_op,        /* < */
+    gt_op,        /* > */
+    lteq_op,      /* <= */
+    gteq_op,      /* >= */
+    eqeq_op,      /* == */
+    bangeq_op,    /* != */
+    logxor_op,    /* ^ */
+    logor_op,     /* | */
+    dbland_op,    /* && */
+    dblor_op,     /* || */
+    ternaryq_op,  /* ? */
+    ternaryc_op,  /* : */
+    eq_op,        /* = */
+    stareq_op,    /* *= */
+    diveq_op,     /* /= */
+    percenteq_op, /* %= */
+    pluseq_op,    /* += */
+    minuseq_op,   /* -= */
+    shiftleq_op,  /* <<= */
+    shiftreq_op,  /* >>= */
+    andeq_op,     /* &= */
+    xoreq_op,     /* ^= */
+    oreq_op,      /* |= */
+    comma_op,     /* , */
+    hash_op,      /* # */
+    dblhash_op    /* ## */
 } op;
 
 typedef enum {
@@ -122,22 +122,11 @@ typedef enum {
     rbracket_multi, /* ] */
     lparen_multi,   /* ( */
     rparen_multi,   /* ) */
+    hash_multi,     /* # */
     star_multi,     /* * */
     comma_multi,    /* , */
-    colon_multi,    /* : */
     eq_multi,       /* = */
-    hash_multi,     /* # */
-    period_multi,   /* . */
-    and_multi,      /* & */
-    lt_multi,       /* < */
-    gt_multi,       /* > */
-    plus_multi,     /* + */
-    minus_multi,    /* - */
-    bang_multi,     /* ! */
-    div_multi,      /* / */
-    percent_multi,  /* % */
-    xor_multi,      /* ^ */
-    or_multi        /* | */
+    colon_multi     /* : */
 } multi;
 
 typedef struct {
@@ -146,17 +135,22 @@ typedef struct {
     const char *msg;
 } error;
 
+typedef string pp_number;
+
+typedef string char_cons;
+
 typedef union {
-    keyword keyword;
+    string header_name;
     ident ident;
+    pp_number pp_number;
     constant constant;
+    char_cons char_const;
     string_lit string_lit;
     op op;
     punct punct;
     multi multi;
     error error;
-    int space;
-} scanning_token;
+} pp_token;
 
 error error_new(int start, int end, const char *msg);
 

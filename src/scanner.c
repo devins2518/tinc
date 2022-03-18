@@ -14,7 +14,7 @@ typedef struct {
     int line;
     int len;
     int cap;
-    scanning_token *tokens;
+    pp_token *tokens;
 } scanner;
 
 scanner *scanner_new(char *src) {
@@ -26,16 +26,16 @@ scanner *scanner_new(char *src) {
     s->line = 0;
     s->len = 0;
     s->cap = 16;
-    s->tokens = malloc(s->cap * sizeof(scanning_token));
+    s->tokens = malloc(s->cap * sizeof(pp_token));
     return (s->tokens) ? s : NULL;
 }
 
 void scanner_free(scanner *s) { free(s); }
 
-bool scanner_add_token(scanner *s, scanning_token t) {
+bool scanner_add_token(scanner *s, pp_token t) {
     if (s->len > s->cap) {
         s->cap <<= 2;
-        s->tokens = realloc(s->tokens, (s->cap) * sizeof(scanning_token));
+        s->tokens = realloc(s->tokens, (s->cap) * sizeof(pp_token));
         if (s->tokens == NULL)
             return false;
     }
@@ -119,110 +119,7 @@ bool scanner_in_ident(char c) {
     return b;
 }
 
-bool scanner_is_kw(const string *s, scanning_token *t) {
-    bool ret = false;
-    if (string_eq_char(s, "auto")) {
-        t->keyword = auto_kw;
-        ret = true;
-    } else if (string_eq_char(s, "break")) {
-        t->keyword = break_kw;
-        ret = true;
-    } else if (string_eq_char(s, "case")) {
-        t->keyword = case_kw;
-        ret = true;
-    } else if (string_eq_char(s, "char")) {
-        t->keyword = char_kw;
-        ret = true;
-    } else if (string_eq_char(s, "const")) {
-        t->keyword = const_kw;
-        ret = true;
-    } else if (string_eq_char(s, "continue")) {
-        t->keyword = continue_kw;
-        ret = true;
-    } else if (string_eq_char(s, "default")) {
-        t->keyword = default_kw;
-        ret = true;
-    } else if (string_eq_char(s, "do")) {
-        t->keyword = do_kw;
-        ret = true;
-    } else if (string_eq_char(s, "double")) {
-        t->keyword = double_kw;
-        ret = true;
-    } else if (string_eq_char(s, "else")) {
-        t->keyword = else_kw;
-        ret = true;
-    } else if (string_eq_char(s, "enum")) {
-        t->keyword = enum_kw;
-        ret = true;
-    } else if (string_eq_char(s, "extern")) {
-        t->keyword = extern_kw;
-        ret = true;
-    } else if (string_eq_char(s, "float")) {
-        t->keyword = float_kw;
-        ret = true;
-    } else if (string_eq_char(s, "for")) {
-        t->keyword = for_kw;
-        ret = true;
-    } else if (string_eq_char(s, "goto")) {
-        t->keyword = goto_kw;
-        ret = true;
-    } else if (string_eq_char(s, "if")) {
-        t->keyword = if_kw;
-        ret = true;
-    } else if (string_eq_char(s, "int")) {
-        t->keyword = int_kw;
-        ret = true;
-    } else if (string_eq_char(s, "long")) {
-        t->keyword = long_kw;
-        ret = true;
-    } else if (string_eq_char(s, "register")) {
-        t->keyword = register_kw;
-        ret = true;
-    } else if (string_eq_char(s, "return")) {
-        t->keyword = return_kw;
-        ret = true;
-    } else if (string_eq_char(s, "short")) {
-        t->keyword = short_kw;
-        ret = true;
-    } else if (string_eq_char(s, "signed")) {
-        t->keyword = signed_kw;
-        ret = true;
-    } else if (string_eq_char(s, "sizeof")) {
-        t->keyword = sizeof_kw;
-        ret = true;
-    } else if (string_eq_char(s, "static")) {
-        t->keyword = static_kw;
-        ret = true;
-    } else if (string_eq_char(s, "struct")) {
-        t->keyword = struct_kw;
-        ret = true;
-    } else if (string_eq_char(s, "switch")) {
-        t->keyword = switch_kw;
-        ret = true;
-    } else if (string_eq_char(s, "typedef")) {
-        t->keyword = typedef_kw;
-        ret = true;
-    } else if (string_eq_char(s, "union")) {
-        t->keyword = union_kw;
-        ret = true;
-    } else if (string_eq_char(s, "unsigned")) {
-        t->keyword = unsigned_kw;
-        ret = true;
-    } else if (string_eq_char(s, "void")) {
-        t->keyword = void_kw;
-        ret = true;
-    } else if (string_eq_char(s, "volatile")) {
-        t->keyword = volatile_kw;
-        ret = true;
-    } else if (string_eq_char(s, "while")) {
-        t->keyword = while_kw;
-        ret = true;
-    }
-
-    return ret;
-}
-
-bool scanner_is_s_char(scanner *s, scanning_token *t) {
+bool scanner_is_s_char(scanner *s, pp_token *t) {
     bool ret = true;
     switch (s->src[s->index]) {
     case '\n':
@@ -265,7 +162,7 @@ bool scanner_is_s_char(scanner *s, scanning_token *t) {
     return ret;
 }
 
-void scanner_scan_string_lit(scanner *s, scanning_token *t) {
+void scanner_scan_string_lit(scanner *s, pp_token *t) {
     string str;
     while (scanner_is_s_char(s, t)) {
         s->index++;
@@ -274,12 +171,12 @@ void scanner_scan_string_lit(scanner *s, scanning_token *t) {
     t->string_lit = str;
 }
 
-void scanner_scan_constant(scanner *s, scanning_token *t) {
+void scanner_scan_constant(scanner *s, pp_token *t) {
     printf("unimplemented");
     abort();
 }
 
-scanning_token *scan_file(char *path, int *size) {
+pp_token *scan_file(char *path, int *size) {
     FILE *fd;
     int len;
     char *src;
@@ -301,7 +198,7 @@ scanning_token *scan_file(char *path, int *size) {
 
         /* TODO */
         while (s->index <= s->src_len) {
-            scanning_token t;
+            pp_token t;
             switch (s->src[s->index++]) {
             case 'a':
             case 'b':
@@ -342,6 +239,7 @@ scanning_token *scan_file(char *path, int *size) {
             case 'K':
             case 'L':
                 if (s->src[s->index] == '"') {
+                    s->index++;
                     scanner_scan_string_lit(s, &t);
                     scanner_add_token(s, t);
                     break;
@@ -361,18 +259,12 @@ scanning_token *scan_file(char *path, int *size) {
             case 'Y':
             case 'Z':
             case '_': {
-                string str;
                 while (scanner_in_ident(s->src[s->index++])) {}
-                str = string_new(&s->src[s->curr], s->index - s->curr);
-                if (!scanner_is_kw(&str, &t)) {
-                    t.ident = str;
-                }
+                t.ident = string_new(&s->src[s->curr], s->index - s->curr);
                 scanner_add_token(s, t);
                 break;
             }
             case ' ':
-                t.space = 1;
-                scanner_add_token(s, t);
                 break;
             case '\n':
                 s->line++;
@@ -401,60 +293,147 @@ scanning_token *scan_file(char *path, int *size) {
                 t.multi = comma_multi;
                 scanner_add_token(s, t);
                 break;
-            case ':':
-                t.multi = colon_multi;
-                scanner_add_token(s, t);
-                break;
             case '=':
                 t.multi = eq_multi;
                 scanner_add_token(s, t);
                 break;
             case '#':
-                t.multi = hash_multi;
+                if (s->src[s->index] == '#') {
+                    s->index++;
+                    t.op = dblhash_op;
+                } else {
+                    t.multi = hash_multi;
+                }
+                scanner_add_token(s, t);
+                break;
+            case ':':
+                t.multi = colon_multi;
                 scanner_add_token(s, t);
                 break;
             case '.':
-                t.multi = period_multi;
+                t.op = period_op;
                 scanner_add_token(s, t);
                 break;
             case '+':
-                t.multi = plus_multi;
+                if (s->src[s->index] == '+') {
+                    s->index++;
+                    t.op = dblplus_op;
+                } else if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = pluseq_op;
+                } else {
+                    t.op = plus_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '-':
-                t.multi = minus_multi;
+                if (s->src[s->index] == '-') {
+                    s->index++;
+                    t.op = dblminus_op;
+                } else if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = minuseq_op;
+                } else if (s->src[s->index] == '>') {
+                    s->index++;
+                    t.op = arrow_op;
+                } else {
+                    t.op = minus_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '<':
-                t.multi = lt_multi;
+                if (s->src[s->index] == '<') {
+                    s->index++;
+                    if (s->src[s->index] == '=') {
+                        s->index++;
+                        t.op = shiftleq_op;
+                    } else {
+                        t.op = shiftl_op;
+                    }
+                } else if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = lteq_op;
+                } else {
+                    t.op = lt_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '>':
-                t.multi = gt_multi;
+                if (s->src[s->index] == '>') {
+                    s->index++;
+                    if (s->src[s->index] == '=') {
+                        s->index++;
+                        t.op = shiftreq_op;
+                    } else {
+                        t.op = shiftr_op;
+                    }
+                } else if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = gteq_op;
+                } else {
+                    t.op = gt_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '&':
-                t.multi = and_multi;
+                if (s->src[s->index] == '&') {
+                    s->index++;
+                    t.op = dbland_op;
+                } else if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = andeq_op;
+                } else {
+                    t.op = logand_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '/':
-                t.multi = div_multi;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = diveq_op;
+                } else {
+                    t.op = div_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '%':
-                t.multi = percent_multi;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = percenteq_op;
+                } else {
+                    t.op = percent_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '!':
-                t.multi = bang_multi;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = bangeq_op;
+                } else {
+                    t.op = bang_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '^':
-                t.multi = xor_multi;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = xoreq_op;
+                } else {
+                    t.op = logxor_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '|':
-                t.multi = or_multi;
+                if (s->src[s->index] == '|') {
+                    s->index++;
+                    t.op = dblor_op;
+                }
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = oreq_op;
+                } else {
+                    t.op = logor_op;
+                }
                 scanner_add_token(s, t);
                 break;
             case '{':
