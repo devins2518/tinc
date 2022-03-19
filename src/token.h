@@ -1,7 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-#include "utils.h"
+#include "string.h"
 
 typedef enum {
     auto_kw,

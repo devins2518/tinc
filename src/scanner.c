@@ -1,6 +1,7 @@
 #include "scanner.h"
 #include "token.h"
 #include "utils.h"
+#include "vector.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +13,7 @@ typedef struct {
     int curr;  /* start of the in progress scan */
     int index; /* current index of the scan */
     int line;
-    int len;
-    int cap;
-    pp_token *tokens;
+    vector_pp_token tokens;
 } scanner;
 
 scanner *scanner_new(char *src) {
@@ -24,24 +23,19 @@ scanner *scanner_new(char *src) {
     s->curr = 0;
     s->index = 0;
     s->line = 0;
-    s->len = 0;
-    s->cap = 16;
-    s->tokens = malloc(s->cap * sizeof(pp_token));
-    return (s->tokens) ? s : NULL;
+    s->tokens = vector_pp_token_new();
+    return s;
 }
 
 void scanner_free(scanner *s) { free(s); }
 
 bool scanner_add_token(scanner *s, pp_token t) {
-    if (s->len > s->cap) {
-        s->cap <<= 2;
-        s->tokens = realloc(s->tokens, (s->cap) * sizeof(pp_token));
-        if (s->tokens == NULL)
-            return false;
+    if (vector_pp_token_add(&s->tokens, t)) {
+        s->curr = s->index;
+        return true;
+    } else {
+        return false;
     }
-    s->curr = s->index;
-    s->tokens[s->len++] = t;
-    return true;
 }
 
 bool scanner_in_ident(char c) {
@@ -457,5 +451,5 @@ pp_token *scan_file(string *str) {
         }
     }
 
-    return s->tokens;
+    return vector_pp_token_get_inner(&s->tokens);
 }

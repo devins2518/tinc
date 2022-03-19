@@ -8,7 +8,8 @@ base_src = [
   'src/scanner.c',
   'src/compiler.c',
   'src/token.c',
-  'src/utils.c',
+  'src/string.c',
+  'src/vector.c',
 ]
 
 exe = executable('tinc', base_src, install : true)
