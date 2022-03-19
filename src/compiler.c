@@ -71,6 +71,6 @@ void compile_file(char *path) {
     convert_to_logical_newline(&src);
     /* Translation phases 3-4 */
     scan_file(&src);
-    free(src.str);
     printf("%s\n", src.str);
+    free(src.str);
 }

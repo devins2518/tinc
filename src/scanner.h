@@ -1,7 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
-#include "token.h"
+#include "vector.h"
 
-pp_token *scan_file(string *str);
+vector_pp_token scan_file(string *str);
 
 #endif
