@@ -176,301 +176,286 @@ void scanner_scan_constant(scanner *s, pp_token *t) {
     abort();
 }
 
-pp_token *scan_file(char *path, int *size) {
-    FILE *fd;
-    int len;
-    char *src;
+pp_token *scan_file(string *str) {
     scanner *s;
 
-    /* Read file */
-    fd = fopen(path, "rb");
-    if (fd != NULL) {
-        fseek(fd, 0, SEEK_END);
-        len = ftell(fd);
-        fseek(fd, 0, SEEK_SET);
-        src = malloc(len + 1);
-        fread(src, len, 1, fd);
-        fclose(fd);
+    s = scanner_new(str->str);
+    assert(s != NULL);
 
-        /* Scan it */
-        s = scanner_new(src);
-        assert(s != NULL);
-
-        /* TODO */
-        while (s->index <= s->src_len) {
-            pp_token t;
-            switch (s->src[s->index++]) {
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'g':
-            case 'h':
-            case 'i':
-            case 'j':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'p':
-            case 'q':
-            case 'r':
-            case 's':
-            case 't':
-            case 'u':
-            case 'v':
-            case 'w':
-            case 'x':
-            case 'y':
-            case 'z':
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
-            case 'G':
-            case 'H':
-            case 'I':
-            case 'J':
-            case 'K':
-            case 'L':
-                if (s->src[s->index] == '"') {
-                    s->index++;
-                    scanner_scan_string_lit(s, &t);
-                    scanner_add_token(s, t);
-                    break;
-                }
-            case 'M':
-            case 'N':
-            case 'O':
-            case 'P':
-            case 'Q':
-            case 'R':
-            case 'S':
-            case 'T':
-            case 'U':
-            case 'V':
-            case 'W':
-            case 'X':
-            case 'Y':
-            case 'Z':
-            case '_': {
-                while (scanner_in_ident(s->src[s->index++])) {}
-                t.ident = string_new(&s->src[s->curr], s->index - s->curr);
-                scanner_add_token(s, t);
-                break;
-            }
-            case ' ':
-                break;
-            case '\n':
-                s->line++;
-                break;
-            case '[':
-                t.multi = lbracket_multi;
-                scanner_add_token(s, t);
-                break;
-            case ']':
-                t.multi = rbracket_multi;
-                scanner_add_token(s, t);
-                break;
-            case '(':
-                t.multi = lparen_multi;
-                scanner_add_token(s, t);
-                break;
-            case ')':
-                t.multi = rparen_multi;
-                scanner_add_token(s, t);
-                break;
-            case '*':
-                t.multi = star_multi;
-                scanner_add_token(s, t);
-                break;
-            case ',':
-                t.multi = comma_multi;
-                scanner_add_token(s, t);
-                break;
-            case '=':
-                t.multi = eq_multi;
-                scanner_add_token(s, t);
-                break;
-            case '#':
-                if (s->src[s->index] == '#') {
-                    s->index++;
-                    t.op = dblhash_op;
-                } else {
-                    t.multi = hash_multi;
-                }
-                scanner_add_token(s, t);
-                break;
-            case ':':
-                t.multi = colon_multi;
-                scanner_add_token(s, t);
-                break;
-            case '.':
-                t.op = period_op;
-                scanner_add_token(s, t);
-                break;
-            case '+':
-                if (s->src[s->index] == '+') {
-                    s->index++;
-                    t.op = dblplus_op;
-                } else if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = pluseq_op;
-                } else {
-                    t.op = plus_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '-':
-                if (s->src[s->index] == '-') {
-                    s->index++;
-                    t.op = dblminus_op;
-                } else if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = minuseq_op;
-                } else if (s->src[s->index] == '>') {
-                    s->index++;
-                    t.op = arrow_op;
-                } else {
-                    t.op = minus_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '<':
-                if (s->src[s->index] == '<') {
-                    s->index++;
-                    if (s->src[s->index] == '=') {
-                        s->index++;
-                        t.op = shiftleq_op;
-                    } else {
-                        t.op = shiftl_op;
-                    }
-                } else if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = lteq_op;
-                } else {
-                    t.op = lt_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '>':
-                if (s->src[s->index] == '>') {
-                    s->index++;
-                    if (s->src[s->index] == '=') {
-                        s->index++;
-                        t.op = shiftreq_op;
-                    } else {
-                        t.op = shiftr_op;
-                    }
-                } else if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = gteq_op;
-                } else {
-                    t.op = gt_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '&':
-                if (s->src[s->index] == '&') {
-                    s->index++;
-                    t.op = dbland_op;
-                } else if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = andeq_op;
-                } else {
-                    t.op = logand_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '/':
-                if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = diveq_op;
-                } else {
-                    t.op = div_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '%':
-                if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = percenteq_op;
-                } else {
-                    t.op = percent_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '!':
-                if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = bangeq_op;
-                } else {
-                    t.op = bang_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '^':
-                if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = xoreq_op;
-                } else {
-                    t.op = logxor_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '|':
-                if (s->src[s->index] == '|') {
-                    s->index++;
-                    t.op = dblor_op;
-                }
-                if (s->src[s->index] == '=') {
-                    s->index++;
-                    t.op = oreq_op;
-                } else {
-                    t.op = logor_op;
-                }
-                scanner_add_token(s, t);
-                break;
-            case '{':
-                t.punct = lbrace_punct;
-                scanner_add_token(s, t);
-                break;
-            case '}':
-                t.punct = rbrace_punct;
-                scanner_add_token(s, t);
-                break;
-            case ';':
-                t.punct = semicolon_punct;
-                scanner_add_token(s, t);
-                break;
-            case '~':
-                t.op = approx_op;
-                scanner_add_token(s, t);
-                break;
-            case '?':
-                t.op = ternaryq_op;
-                scanner_add_token(s, t);
-                break;
-            case '"': {
+    /* TODO */
+    while (s->index <= s->src_len) {
+        pp_token t;
+        switch (s->src[s->index++]) {
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+            if (s->src[s->index] == '"') {
+                s->index++;
                 scanner_scan_string_lit(s, &t);
                 scanner_add_token(s, t);
                 break;
             }
-
-            default:
-                break;
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '_': {
+            while (scanner_in_ident(s->src[s->index++])) {}
+            t.ident = string_new(&s->src[s->curr], s->index - s->curr);
+            scanner_add_token(s, t);
+            break;
+        }
+        case ' ':
+            t.whitespace = space;
+            scanner_add_token(s, t);
+            break;
+        case '\n':
+            s->line++;
+            t.whitespace = newline;
+            scanner_add_token(s, t);
+            break;
+        case '[':
+            t.multi = lbracket_multi;
+            scanner_add_token(s, t);
+            break;
+        case ']':
+            t.multi = rbracket_multi;
+            scanner_add_token(s, t);
+            break;
+        case '(':
+            t.multi = lparen_multi;
+            scanner_add_token(s, t);
+            break;
+        case ')':
+            t.multi = rparen_multi;
+            scanner_add_token(s, t);
+            break;
+        case '*':
+            t.multi = star_multi;
+            scanner_add_token(s, t);
+            break;
+        case ',':
+            t.multi = comma_multi;
+            scanner_add_token(s, t);
+            break;
+        case '=':
+            t.multi = eq_multi;
+            scanner_add_token(s, t);
+            break;
+        case '#':
+            if (s->src[s->index] == '#') {
+                s->index++;
+                t.op = dblhash_op;
+            } else {
+                t.multi = hash_multi;
             }
+            scanner_add_token(s, t);
+            break;
+        case ':':
+            t.multi = colon_multi;
+            scanner_add_token(s, t);
+            break;
+        case '.':
+            t.op = period_op;
+            scanner_add_token(s, t);
+            break;
+        case '+':
+            if (s->src[s->index] == '+') {
+                s->index++;
+                t.op = dblplus_op;
+            } else if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = pluseq_op;
+            } else {
+                t.op = plus_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '-':
+            if (s->src[s->index] == '-') {
+                s->index++;
+                t.op = dblminus_op;
+            } else if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = minuseq_op;
+            } else if (s->src[s->index] == '>') {
+                s->index++;
+                t.op = arrow_op;
+            } else {
+                t.op = minus_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '<':
+            if (s->src[s->index] == '<') {
+                s->index++;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = shiftleq_op;
+                } else {
+                    t.op = shiftl_op;
+                }
+            } else if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = lteq_op;
+            } else {
+                t.op = lt_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '>':
+            if (s->src[s->index] == '>') {
+                s->index++;
+                if (s->src[s->index] == '=') {
+                    s->index++;
+                    t.op = shiftreq_op;
+                } else {
+                    t.op = shiftr_op;
+                }
+            } else if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = gteq_op;
+            } else {
+                t.op = gt_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '&':
+            if (s->src[s->index] == '&') {
+                s->index++;
+                t.op = dbland_op;
+            } else if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = andeq_op;
+            } else {
+                t.op = logand_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '/':
+            if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = diveq_op;
+            } else {
+                t.op = div_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '%':
+            if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = percenteq_op;
+            } else {
+                t.op = percent_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '!':
+            if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = bangeq_op;
+            } else {
+                t.op = bang_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '^':
+            if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = xoreq_op;
+            } else {
+                t.op = logxor_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '|':
+            if (s->src[s->index] == '|') {
+                s->index++;
+                t.op = dblor_op;
+            }
+            if (s->src[s->index] == '=') {
+                s->index++;
+                t.op = oreq_op;
+            } else {
+                t.op = logor_op;
+            }
+            scanner_add_token(s, t);
+            break;
+        case '{':
+            t.punct = lbrace_punct;
+            scanner_add_token(s, t);
+            break;
+        case '}':
+            t.punct = rbrace_punct;
+            scanner_add_token(s, t);
+            break;
+        case ';':
+            t.punct = semicolon_punct;
+            scanner_add_token(s, t);
+            break;
+        case '~':
+            t.op = approx_op;
+            scanner_add_token(s, t);
+            break;
+        case '?':
+            t.op = ternaryq_op;
+            scanner_add_token(s, t);
+            break;
+        case '"': {
+            scanner_scan_string_lit(s, &t);
+            scanner_add_token(s, t);
+            break;
         }
 
-        *size = s->len;
-        return s->tokens;
-    } else {
-        printf("Failed to read file\n");
-        exit(EXIT_FAILURE);
+        default:
+            break;
+        }
     }
+
+    return s->tokens;
 }

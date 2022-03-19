@@ -139,6 +139,11 @@ typedef string pp_number;
 
 typedef string char_cons;
 
+typedef enum {
+    space,  /*    */
+    newline /* \n */
+} whitespace;
+
 typedef union {
     string header_name;
     ident ident;
@@ -150,6 +155,7 @@ typedef union {
     punct punct;
     multi multi;
     error error;
+    whitespace whitespace;
 } pp_token;
 
 error error_new(int start, int end, const char *msg);

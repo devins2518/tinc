@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "scanner.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,6 +67,10 @@ void convert_to_logical_newline(string *src) {
 
 void compile_file(char *path) {
     string src = read_file(path);
+    /* Translation phases 1-2 */
     convert_to_logical_newline(&src);
+    /* Translation phases 3-4 */
+    scan_file(&src);
+    free(src.str);
     printf("%s\n", src.str);
 }

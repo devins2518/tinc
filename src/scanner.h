@@ -2,6 +2,6 @@
 #define SCANNER_H
 #include "token.h"
 
-pp_token *scan_file(char *path, int *size);
+pp_token *scan_file(string *str);
 
 #endif
