@@ -111,14 +111,11 @@ bool scanner_in_ident(char c) {
     return b;
 }
 
-bool scanner_is_s_char(scanner *s, pp_token *t) {
+bool scanner_is_s_char(scanner *s) {
     bool ret = true;
     switch (s->src[s->index]) {
-    case '\n':
-        *t = pp_error(
-            s->curr, s->index,
-            "The newline character (\\n) cannot be part of a string literal.");
     case '"':
+    case '\n':
         ret = false;
         break;
     case '\\':
@@ -154,13 +151,30 @@ bool scanner_is_s_char(scanner *s, pp_token *t) {
     return ret;
 }
 
-void scanner_scan_string_lit(scanner *s, pp_token *t) {
-    string str;
-    while (scanner_is_s_char(s, t)) {
+bool scanner_is_h_char(char c) {
+    bool ret = true;
+    switch (c) {
+    case '\n':
+    case '>':
+        ret = false;
+    default:
+        break;
+    }
+    return ret;
+}
+
+string_lit scanner_scan_string_lit(scanner *s) {
+    while (scanner_is_s_char(s)) {
         s->index++;
     }
-    str = string_new(&s->src[s->curr], s->index - s->curr);
-    *t = pp_string_lit(str);
+    return string_new(&s->src[s->curr], s->index - s->curr);
+}
+
+header_name scanner_scan_header_name(scanner *s) {
+    while (scanner_is_h_char(s->src[s->index])) {
+        s->index++;
+    }
+    return string_new(&s->src[s->curr], s->index - s->curr);
 }
 
 vector_pp_token scan_file(string *str) {
@@ -212,7 +226,7 @@ vector_pp_token scan_file(string *str) {
         case 'L':
             if (s.src[s.index] == '"') {
                 s.index++;
-                scanner_scan_string_lit(&s, &t);
+                t = pp_string_lit(scanner_scan_string_lit(&s));
                 scanner_add_token(&s, t);
                 break;
             }
@@ -329,6 +343,9 @@ vector_pp_token scan_file(string *str) {
             } else if (s.src[s.index] == '=') {
                 s.index++;
                 t = pp_op(lteq_op);
+            } else if (scanner_is_h_char(s.src[s.index])) {
+                s.index++;
+                t = pp_header_name(scanner_scan_header_name(&s));
             } else {
                 t = pp_op(lt_op);
             }
@@ -433,7 +450,7 @@ vector_pp_token scan_file(string *str) {
             scanner_add_token(&s, t);
             break;
         case '"': {
-            scanner_scan_string_lit(&s, &t);
+            t = pp_string_lit(scanner_scan_string_lit(&s));
             scanner_add_token(&s, t);
             break;
         }
