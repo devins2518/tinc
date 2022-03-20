@@ -15,6 +15,7 @@
         }                                                                      \
         return v;                                                              \
     }                                                                          \
+    /* Returns false if failure */                                             \
     bool vector_##name##_add(vector_##name *v, name n) {                       \
         if (v->len > v->cap) {                                                 \
             v->cap <<= 2;                                                      \
@@ -25,7 +26,6 @@
         v->inner[v->len++] = n;                                                \
         return true;                                                           \
     }                                                                          \
-    void vector_##name##_print(const vector_##name *v) {}                      \
     void vector_##name##_free(vector_##name v) { free(v.inner); }              \
     name *vector_##name##_get_inner(vector_##name *v) { return v->inner; }
 

@@ -139,25 +139,49 @@ typedef string pp_number;
 
 typedef string char_cons;
 
+typedef string header_name;
+
 typedef enum {
     space,  /*    */
     newline /* \n */
 } whitespace;
 
-typedef union {
-    string header_name;
-    ident ident;
-    pp_number pp_number;
-    constant constant;
-    char_cons char_const;
-    string_lit string_lit;
-    op op;
-    punct punct;
-    multi multi;
-    error error;
-    whitespace whitespace;
+typedef struct {
+    union {
+        header_name header_name_p;
+        ident ident_p;
+        pp_number pp_number_p;
+        char_cons char_cons_p;
+        string_lit string_lit_p;
+        op op_p;
+        punct punct_p;
+        multi multi_p;
+        error error_p;
+        whitespace whitespace_p;
+    } p;
+    enum {
+        header_name_e,
+        ident_e,
+        pp_number_e,
+        char_const_e,
+        string_lit_e,
+        op_e,
+        punct_e,
+        multi_e,
+        error_e,
+        whitespace_e
+    } e;
 } pp_token;
 
-error error_new(int start, int end, const char *msg);
+pp_token pp_header_name(header_name h);
+pp_token pp_ident(ident i);
+pp_token pp_pp_number(pp_number p);
+pp_token pp_char_cons(char_cons c);
+pp_token pp_string_lit(string_lit s);
+pp_token pp_op(op o);
+pp_token pp_punct(punct p);
+pp_token pp_multi(multi m);
+pp_token pp_error(int start, int end, const char *msg);
+pp_token pp_whitespace(whitespace w);
 
 #endif
