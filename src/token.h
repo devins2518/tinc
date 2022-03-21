@@ -132,7 +132,7 @@ typedef enum {
 typedef struct {
     int span_start;
     int span_end;
-    const char *msg;
+    char *msg;
 } error;
 
 typedef string pp_number;
@@ -172,6 +172,7 @@ typedef struct {
         whitespace_e
     } e;
 } pp_token;
+string print_pp_token(pp_token *t);
 
 pp_token pp_header_name(header_name h);
 pp_token pp_ident(ident i);
@@ -181,7 +182,7 @@ pp_token pp_string_lit(string_lit s);
 pp_token pp_op(op o);
 pp_token pp_punct(punct p);
 pp_token pp_multi(multi m);
-pp_token pp_error(int start, int end, const char *msg);
+pp_token pp_error(int start, int end, char *msg);
 pp_token pp_whitespace(whitespace w);
 
 #endif

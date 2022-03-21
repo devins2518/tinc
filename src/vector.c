@@ -26,6 +26,15 @@
         v->inner[v->len++] = n;                                                \
         return true;                                                           \
     }                                                                          \
+    void vector_##name##_print(const vector_##name *v) {                       \
+        int i;                                                                 \
+        printf("[\n");                                                         \
+        for (i = 0; i < v->len; i++) {                                         \
+            string s = print_##name(&v->inner[i]);                             \
+            printf("\t%.*s,\n", s.len, s.str);                                 \
+        }                                                                      \
+        printf("]\n");                                                         \
+    }                                                                          \
     void vector_##name##_free(vector_##name v) { free(v.inner); }              \
     name *vector_##name##_get_inner(vector_##name *v) { return v->inner; }
 

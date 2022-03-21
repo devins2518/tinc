@@ -10,6 +10,13 @@ string string_new(char *str, int len) {
     return s;
 }
 
+string string_new_raw(char *str) {
+    string s;
+    s.str = str;
+    s.len = strlen(str);
+    return s;
+}
+
 bool string_eq(const string *a, const string *b) {
     bool ret = true;
     int i;

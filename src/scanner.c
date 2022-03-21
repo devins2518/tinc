@@ -576,5 +576,6 @@ vector_pp_token scan_file(string *str) {
         }
     }
 
+    vector_pp_token_print(&s.tokens);
     return s.tokens;
 }
