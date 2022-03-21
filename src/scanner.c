@@ -111,6 +111,89 @@ bool scanner_in_ident(char c) {
     return b;
 }
 
+bool scanner_is_digit(scanner *s) {
+    bool ret = false;
+    switch (s->src[s->index]) {
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        ret = true;
+    default:
+        break;
+    }
+    return ret;
+}
+
+bool scanner_is_nondigit(scanner *s) {
+    bool ret = false;
+    switch (s->src[s->index]) {
+    case '_':
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'h':
+    case 'i':
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
+    case 'n':
+    case 'o':
+    case 'p':
+    case 'q':
+    case 'r':
+    case 's':
+    case 't':
+    case 'u':
+    case 'v':
+    case 'w':
+    case 'x':
+    case 'y':
+    case 'z':
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'V':
+    case 'W':
+    case 'X':
+    case 'Y':
+    case 'Z':
+        ret = true;
+    default:
+        break;
+    }
+    return ret;
+}
+
 bool scanner_is_s_char(scanner *s) {
     bool ret = true;
     switch (s->src[s->index]) {
@@ -161,6 +244,22 @@ bool scanner_is_h_char(char c) {
         break;
     }
     return ret;
+}
+
+ident scanner_scan_ident(scanner *s) {
+    while (scanner_is_nondigit(s) || scanner_is_digit(s)) {
+        s->index++;
+    }
+    return string_new(&s->src[s->curr], s->index - s->curr);
+}
+
+pp_number scanner_scan_pp_number(scanner *s) {
+    while (scanner_is_digit(s) || scanner_is_nondigit(s) ||
+           s->src[s->index] == '.' || s->src[s->index] == '_' ||
+           s->src[s->index] == '-' || s->src[s->index] == '+') {
+        s->index++;
+    }
+    return string_new(&s->src[s->curr], s->index - s->curr);
 }
 
 string_lit scanner_scan_string_lit(scanner *s) {
@@ -245,8 +344,21 @@ vector_pp_token scan_file(string *str) {
         case 'Y':
         case 'Z':
         case '_': {
-            while (scanner_in_ident(s.src[s.index++])) {}
-            t = pp_ident(string_new(&s.src[s.curr], s.index - s.curr));
+            t = pp_ident(scanner_scan_ident(&s));
+            scanner_add_token(&s, t);
+            break;
+        }
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9': {
+            t = pp_pp_number(scanner_scan_pp_number(&s));
             scanner_add_token(&s, t);
             break;
         }
@@ -301,7 +413,11 @@ vector_pp_token scan_file(string *str) {
             scanner_add_token(&s, t);
             break;
         case '.':
-            t = pp_op(period_op);
+            if (scanner_is_digit(&s)) {
+                t = pp_pp_number(scanner_scan_pp_number(&s));
+            } else {
+                t = pp_op(period_op);
+            }
             scanner_add_token(&s, t);
             break;
         case '+':
