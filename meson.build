@@ -9,7 +9,7 @@ base_src = [
   'src/compiler.c',
   'src/token.c',
   'src/string.c',
-  'src/vector.c',
+  'src/generic.c',
 ]
 
 exe = executable('tinc', base_src, install : true)
