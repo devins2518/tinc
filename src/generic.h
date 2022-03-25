@@ -11,7 +11,6 @@
 #include "token.h"
 
 DECLARE_HASHMAP(string, pp_token)
-
 DECLARE_VECTOR(pp_token)
 
 #endif

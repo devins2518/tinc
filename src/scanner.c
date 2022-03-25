@@ -500,6 +500,18 @@ vector_pp_token scan_file(string *str) {
             if (s.src[s.index] == '=') {
                 s.index++;
                 t = pp_op(diveq_op);
+            } else if (s.src[s.index] == '/') {
+                while (s.src[s.index] != '\n') {
+                    s.index++;
+                }
+                break;
+            } else if (s.src[s.index] == '*') {
+                s.index++;
+                while ((s.src[s.index] != '*') && (s.src[s.index + 1] != '/')) {
+                    s.index++;
+                }
+                s.index += 2;
+                break;
             } else {
                 t = pp_op(div_op);
             }
