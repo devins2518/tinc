@@ -16,6 +16,7 @@ bool string_eq(const string *a, const string *b);
 bool string_eq_char_star(const string *a, const char *b);
 void string_rem_char(string *a, int index, int len);
 
+/* djb2 */
 unsigned int string_hash(string *str);
 
 string read_file(char *path);

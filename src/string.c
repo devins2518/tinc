@@ -5,7 +5,12 @@
 
 string string_new(char *str, int len) {
     string s;
-    s.str = str;
+    s.str = malloc(len * sizeof(char));
+    if (s.str == NULL) {
+        printf("Allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    strncat(s.str, str, len);
     s.len = len;
     return s;
 }

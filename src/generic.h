@@ -10,7 +10,9 @@
 #include "string.h"
 #include "token.h"
 
+DECLARE_GENERIC_HASH(pp_token)
 DECLARE_HASHMAP(string, pp_token)
+DECLARE_HASHMAP(pp_token, pp_token)
 DECLARE_VECTOR(pp_token)
 
 #endif

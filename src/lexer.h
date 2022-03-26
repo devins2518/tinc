@@ -1,6 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-void parse_file(char *path);
+#include "generic.h"
+
+void parse_file(vector_pp_token tokens);
 
 #endif

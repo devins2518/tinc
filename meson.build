@@ -6,6 +6,7 @@ base_src = [
   'src/main.c',
   'src/lexer.c',
   'src/scanner.c',
+  'src/preprocessor.c',
   'src/compiler.c',
   'src/token.c',
   'src/string.c',

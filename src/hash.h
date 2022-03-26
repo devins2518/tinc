@@ -18,6 +18,8 @@
     void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k key);            \
     entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k key);
 
+#define DECLARE_GENERIC_HASH(t) unsigned int t##_hash(t *val);
+
 #define ALIVE 0
 #define DEAD 1
 
@@ -67,6 +69,19 @@
         }                                                                      \
                                                                                \
         return &h->table[index];                                               \
+    }
+
+#define IMPL_GENERIC_HASH(t)                                                   \
+    unsigned int t##_hash(t *val) {                                            \
+        unsigned long hash = 5381;                                             \
+        int size = sizeof(t);                                                  \
+        char *str = (char *)val;                                               \
+        int i = 0;                                                             \
+                                                                               \
+        while (i++ < size)                                                     \
+            hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + i */          \
+                                                                               \
+        return hash;                                                           \
     }
 
 #endif

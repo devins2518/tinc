@@ -1,5 +1,7 @@
 #include "token.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 string print_pp_token(pp_token *t) {
     string s;
@@ -208,31 +210,28 @@ string print_pp_token(pp_token *t) {
     case multi_e:
         switch (t->p.multi_p) {
         case lbracket_multi:
-            s = string_new_raw("punct: [");
+            s = string_new_raw("multi: [");
             break;
         case rbracket_multi:
-            s = string_new_raw("punct: ]");
+            s = string_new_raw("multi: ]");
             break;
         case lparen_multi:
-            s = string_new_raw("punct: (");
+            s = string_new_raw("multi: (");
             break;
         case rparen_multi:
-            s = string_new_raw("punct: )");
-            break;
-        case hash_multi:
-            s = string_new_raw("punct: #");
+            s = string_new_raw("multi: )");
             break;
         case star_multi:
-            s = string_new_raw("punct: *");
+            s = string_new_raw("multi: *");
             break;
         case comma_multi:
-            s = string_new_raw("punct: ,");
+            s = string_new_raw("multi: ,");
             break;
         case eq_multi:
-            s = string_new_raw("punct: =");
+            s = string_new_raw("multi: =");
             break;
         case colon_multi:
-            s = string_new_raw("punct: :");
+            s = string_new_raw("multi: :");
             break;
         }
         break;
@@ -252,6 +251,49 @@ string print_pp_token(pp_token *t) {
         break;
     }
     return s;
+}
+
+bool pp_token_eq(pp_token *a, pp_token *b) {
+    bool ret = false;
+
+    if (a->e == b->e) {
+        switch (a->e) {
+        case header_name_e:
+            ret = string_eq(&a->p.header_name_p, &b->p.header_name_p);
+            break;
+        case ident_e:
+            ret = string_eq(&a->p.ident_p, &b->p.ident_p);
+            break;
+        case pp_number_e:
+            ret = string_eq(&a->p.pp_number_p, &b->p.pp_number_p);
+            break;
+        case char_const_e:
+            ret = string_eq(&a->p.char_cons_p, &b->p.char_cons_p);
+            break;
+        case string_lit_e:
+            ret = string_eq(&a->p.string_lit_p, &b->p.string_lit_p);
+            break;
+        case op_e:
+            ret = (a->p.op_p) == (b->p.op_p);
+            break;
+        case punct_e:
+            ret = (a->p.punct_p) == (b->p.punct_p);
+            break;
+        case multi_e:
+            ret = (a->p.multi_p) == (b->p.multi_p);
+            break;
+        case error_e:
+            ret = (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
+                  (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
+                  (strcmp(a->p.error_p.msg, b->p.error_p.msg) == 0);
+            break;
+        case whitespace_e:
+            ret = (a->p.whitespace_p) == (b->p.whitespace_p);
+            break;
+        }
+    }
+
+    return ret;
 }
 
 pp_token pp_header_name(header_name h) {

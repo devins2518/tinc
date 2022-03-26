@@ -122,7 +122,6 @@ typedef enum {
     rbracket_multi, /* ] */
     lparen_multi,   /* ( */
     rparen_multi,   /* ) */
-    hash_multi,     /* # */
     star_multi,     /* * */
     comma_multi,    /* , */
     eq_multi,       /* = */
@@ -172,6 +171,7 @@ typedef struct {
         whitespace_e
     } e;
 } pp_token;
+bool pp_token_eq(pp_token *a, pp_token *b);
 string print_pp_token(pp_token *t);
 
 pp_token pp_header_name(header_name h);

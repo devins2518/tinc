@@ -1,4 +1,5 @@
 #include "compiler.h"
+#include "preprocessor.h"
 #include "scanner.h"
 #include "utils.h"
 #include <stdio.h>
@@ -65,11 +66,22 @@ void convert_to_logical_newline(string *src) {
     }
 }
 
-void compile_file(char *path) {
+vector_pp_token pre_preprocessing(char *path) {
+    preprocessor p = preprocessor_new();
     string src = read_file(path);
+    vector_pp_token tokens;
     /* Translation phases 1-2 */
     convert_to_logical_newline(&src);
-    /* Translation phases 3-4 */
-    scan_file(&src);
-    free(src.str);
+    /* Translation phase 3 */
+    tokens = scan_file(&src);
+    /* Translation phase 4
+     * run_preprocessor(&p, &tokens); */
+    return tokens;
+}
+
+void compile_file(char *path) {
+    vector_pp_token tokens;
+    tokens = pre_preprocessing(path);
+    vector_pp_token_print(&tokens);
+    /* generate_ast(tokens); */
 }

@@ -400,11 +400,27 @@ vector_pp_token scan_file(string *str) {
             scanner_add_token(&s, t);
             break;
         case '#':
-            if (s.src[s.index] == '#') {
+            if ((s.index - 2) < 0 || s.src[s.index - 2] == '\n') {
+                t = pp_punct(hash_punct);
+            } else if (s.src[s.index] == '#') {
                 s.index++;
                 t = pp_op(dblhash_op);
             } else {
-                t = pp_multi(hash_multi);
+                int i;
+                bool found_hash = false;
+                for (i = s.index; i > s.src_len; i--) {
+                    if (s.src[i] == '\n') {
+                        if (s.src[i + 1] == '#')
+                            found_hash = true;
+                        break;
+                    }
+                }
+                if (found_hash)
+                    t = pp_op(hash_op);
+                else
+                    t = pp_error(s.curr, s.index,
+                                 "# is to only be used in "
+                                 "preprocessing directives.");
             }
             scanner_add_token(&s, t);
             break;
@@ -588,6 +604,5 @@ vector_pp_token scan_file(string *str) {
         }
     }
 
-    vector_pp_token_print(&s.tokens);
     return s.tokens;
 }
