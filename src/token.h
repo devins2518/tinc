@@ -2,6 +2,7 @@
 #define TOKEN_H
 
 #include "string.h"
+#include "vector.h"
 
 typedef enum {
     auto_kw,
@@ -40,7 +41,7 @@ typedef enum {
 
 typedef string ident;
 
-typedef enum { float_const, int_const, enum_const, char_const } constant;
+typedef enum { float_const, int_const, enum_const, char_const } constant_tk;
 
 typedef string string_lit;
 
@@ -111,7 +112,7 @@ typedef enum {
 typedef union {
     keyword keyword;
     ident ident;
-    constant constant;
+    constant_tk constant;
     string_lit string_lit;
     op op;
     punct punct;
@@ -184,5 +185,8 @@ pp_token pp_punct(punct p);
 pp_token pp_multi(multi m);
 pp_token pp_error(int start, int end, char *msg);
 pp_token pp_whitespace(whitespace w);
+
+DECLARE_GENERIC_HASH(pp_token)
+DECLARE_VECTOR(pp_token)
 
 #endif

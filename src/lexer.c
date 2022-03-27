@@ -1,8 +1,11 @@
 #include "lexer.h"
-#include "scanner.h"
+#include "stdlib.h"
+#include "token.h"
 #include <stdio.h>
 
-void parse_file(vector_pp_token tokens) {
+vector_ast_token generate_ast(vector_pp_token *tokens) {
+    vector_ast_token v = vector_ast_token_new();
     printf("unimplemented");
-    return;
+    exit(EXIT_FAILURE);
+    return v;
 }

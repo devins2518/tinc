@@ -1,3 +1,4 @@
+#include "ast.h"
 #include "compiler.h"
 #include "preprocessor.h"
 #include "scanner.h"
@@ -83,5 +84,5 @@ void compile_file(char *path) {
     vector_pp_token tokens;
     tokens = pre_preprocessing(path);
     vector_pp_token_print(&tokens);
-    /* generate_ast(tokens); */
+    generate_ast(&tokens);
 }

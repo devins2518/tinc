@@ -360,3 +360,6 @@ pp_token pp_whitespace(whitespace w) {
     t.e = whitespace_e;
     return t;
 }
+
+IMPL_GENERIC_HASH(pp_token)
+IMPL_VECTOR(pp_token)

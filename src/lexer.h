@@ -1,8 +1,9 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "generic.h"
+#include "ast.h"
+#include "token.h"
 
-void parse_file(vector_pp_token tokens);
+vector_ast_token generate_ast(vector_pp_token *tokens);
 
 #endif

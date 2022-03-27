@@ -1,4 +1,4 @@
-project('tinc', 'c',
+project('tinc', ['c', 'cpp'],
   version : '0.1',
   default_options : ['warning_level=3', 'c_std=c89'])
 
@@ -8,11 +8,14 @@ base_src = [
   'src/scanner.c',
   'src/preprocessor.c',
   'src/compiler.c',
+  'src/ast.c',
   'src/token.c',
   'src/string.c',
   'src/generic.c',
 ]
 
-exe = executable('tinc', base_src, install : true)
+llvm = dependency('llvm')
+
+exe = executable('tinc', base_src, install : true, dependencies : [llvm])
 
 test('test_main', exe, args : 'src/test_main.c')
