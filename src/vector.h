@@ -28,6 +28,7 @@
         }                                                                      \
         return v;                                                              \
     }                                                                          \
+    /* Assumes caller will fill vector to `len`. */                            \
     vector_##name vector_##name##_new_reserve(int len) {                       \
         vector_##name v;                                                       \
         unsigned int cap = len;                                                \
@@ -57,6 +58,7 @@
             len |= len >> 8;                                                   \
             len |= len >> 16;                                                  \
             len++;                                                             \
+            v->cap = len;                                                      \
             v->inner = realloc(v->inner, (v->cap) * sizeof(name));             \
             if (v->inner == NULL) {                                            \
                 printf("Allocation failed");                                   \
