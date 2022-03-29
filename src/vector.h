@@ -82,7 +82,7 @@
         printf("[\n");                                                         \
         for (i = 0; i < v->len; i++) {                                         \
             string s = print_##name(&v->inner[i]);                             \
-            printf("\t\"%.*s\",\n", s.len, s.inner);                           \
+            printf("\t%.*s,\n", s.len, s.inner);                           \
         }                                                                      \
         printf("]\n");                                                         \
     }                                                                          \

@@ -1,5 +1,5 @@
-#include "ast.h"
 #include "compiler.h"
+#include "lexer.h"
 #include "preprocessor.h"
 #include "scanner.h"
 #include "utils.h"
