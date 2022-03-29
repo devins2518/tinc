@@ -278,7 +278,7 @@ header_name scanner_scan_header_name(scanner *s) {
 vector_pp_token scan_file(string *str) {
     scanner s;
 
-    s = scanner_new(str->str);
+    s = scanner_new(str->inner);
 
     /* TODO */
     while (s.index <= s.src_len) {
@@ -362,13 +362,11 @@ vector_pp_token scan_file(string *str) {
             break;
         }
         case ' ':
-            t = pp_whitespace(space);
-            scanner_add_token(&s, t);
+            s.curr++;
             break;
         case '\n':
             s.line++;
-            t = pp_whitespace(newline);
-            scanner_add_token(&s, t);
+            s.curr++;
             break;
         case '[':
             t = pp_multi(lbracket_multi);

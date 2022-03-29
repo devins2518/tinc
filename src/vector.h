@@ -8,6 +8,8 @@
         name *inner;                                                           \
     } vector_##name;                                                           \
     vector_##name vector_##name##_new();                                       \
+    vector_##name vector_##name##_new_reserve(int len);                        \
+    void vector_##name##_reserve(vector_##name *v, int len);                   \
     bool vector_##name##_add(vector_##name *v, name n);                        \
     name *vector_##name##_get_inner(vector_##name *v);                         \
     void vector_##name##_print(const vector_##name *v);                        \
@@ -26,6 +28,42 @@
         }                                                                      \
         return v;                                                              \
     }                                                                          \
+    vector_##name vector_##name##_new_reserve(int len) {                       \
+        vector_##name v;                                                       \
+        unsigned int cap = len;                                                \
+        v.len = len;                                                           \
+        cap--;                                                                 \
+        cap |= cap >> 1;                                                       \
+        cap |= cap >> 2;                                                       \
+        cap |= cap >> 4;                                                       \
+        cap |= cap >> 8;                                                       \
+        cap |= cap >> 16;                                                      \
+        cap++;                                                                 \
+        v.cap = cap;                                                           \
+        v.inner = malloc(v.cap * sizeof(name));                                \
+        if (v.inner == NULL) {                                                 \
+            printf("Allocation failed, cap * sizeof: %lu",                     \
+                   v.cap * sizeof(name));                                      \
+            exit(EXIT_FAILURE);                                                \
+        }                                                                      \
+        return v;                                                              \
+    }                                                                          \
+    void vector_##name##_reserve(vector_##name *v, int len) {                  \
+        if (v->cap < len) {                                                    \
+            len--;                                                             \
+            len |= len >> 1;                                                   \
+            len |= len >> 2;                                                   \
+            len |= len >> 4;                                                   \
+            len |= len >> 8;                                                   \
+            len |= len >> 16;                                                  \
+            len++;                                                             \
+            v->inner = realloc(v->inner, (v->cap) * sizeof(name));             \
+            if (v->inner == NULL) {                                            \
+                printf("Allocation failed");                                   \
+                exit(EXIT_FAILURE);                                            \
+            }                                                                  \
+        }                                                                      \
+    }                                                                          \
     /* Returns false if failure */                                             \
     bool vector_##name##_add(vector_##name *v, name n) {                       \
         if (v->len >= v->cap) {                                                \
@@ -42,7 +80,7 @@
         printf("[\n");                                                         \
         for (i = 0; i < v->len; i++) {                                         \
             string s = print_##name(&v->inner[i]);                             \
-            printf("\t%.*s,\n", s.len, s.str);                                 \
+            printf("\t\"%.*s\",\n", s.len, s.inner);                           \
         }                                                                      \
         printf("]\n");                                                         \
     }                                                                          \

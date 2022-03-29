@@ -1,6 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "hash.h"
 #include "string.h"
 #include "vector.h"
 
@@ -141,11 +142,6 @@ typedef string char_cons;
 
 typedef string header_name;
 
-typedef enum {
-    space,  /*    */
-    newline /* \n */
-} whitespace;
-
 typedef struct {
     union {
         header_name header_name_p;
@@ -157,7 +153,6 @@ typedef struct {
         punct punct_p;
         multi multi_p;
         error error_p;
-        whitespace whitespace_p;
     } p;
     enum {
         header_name_e,
@@ -168,8 +163,7 @@ typedef struct {
         op_e,
         punct_e,
         multi_e,
-        error_e,
-        whitespace_e
+        error_e
     } e;
 } pp_token;
 bool pp_token_eq(pp_token *a, pp_token *b);
@@ -184,7 +178,6 @@ pp_token pp_op(op o);
 pp_token pp_punct(punct p);
 pp_token pp_multi(multi m);
 pp_token pp_error(int start, int end, char *msg);
-pp_token pp_whitespace(whitespace w);
 
 DECLARE_GENERIC_HASH(pp_token)
 DECLARE_VECTOR(pp_token)

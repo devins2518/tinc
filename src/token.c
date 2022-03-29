@@ -7,19 +7,24 @@ string print_pp_token(pp_token *t) {
     string s;
     switch (t->e) {
     case header_name_e:
-        s = t->p.header_name_p;
+        s = string_new_raw("header: ");
+        string_append_string(&s, &t->p.header_name_p);
         break;
     case ident_e:
-        s = t->p.ident_p;
+        s = string_new_raw("ident: ");
+        string_append_string(&s, &t->p.ident_p);
         break;
     case pp_number_e:
-        s = t->p.pp_number_p;
+        s = string_new_raw("pp_number: ");
+        string_append_string(&s, &t->p.pp_number_p);
         break;
     case char_const_e:
-        s = t->p.char_cons_p;
+        s = string_new_raw("char_const: ");
+        string_append_string(&s, &t->p.char_cons_p);
         break;
     case string_lit_e:
-        s = t->p.string_lit_p;
+        s = string_new_raw("string_lit: ");
+        string_append_string(&s, &t->p.string_lit_p);
         break;
     case op_e:
         switch (t->p.op_p) {
@@ -239,16 +244,6 @@ string print_pp_token(pp_token *t) {
         s = string_new(t->p.error_p.msg,
                        t->p.error_p.span_end - t->p.error_p.span_start);
         break;
-    case whitespace_e:
-        switch (t->p.whitespace_p) {
-        case newline:
-            s = string_new_raw("whitespace \\n");
-            break;
-        case space:
-            s = string_new_raw("whitespace <space>");
-            break;
-        }
-        break;
     }
     return s;
 }
@@ -286,9 +281,6 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
             ret = (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
                   (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
                   (strcmp(a->p.error_p.msg, b->p.error_p.msg) == 0);
-            break;
-        case whitespace_e:
-            ret = (a->p.whitespace_p) == (b->p.whitespace_p);
             break;
         }
     }
@@ -352,12 +344,6 @@ pp_token pp_error(int start, int end, char *msg) {
     e.msg = msg;
     t.p.error_p = e;
     t.e = error_e;
-    return t;
-}
-pp_token pp_whitespace(whitespace w) {
-    pp_token t;
-    t.p.whitespace_p = w;
-    t.e = whitespace_e;
     return t;
 }
 

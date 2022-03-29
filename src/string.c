@@ -3,23 +3,36 @@
 #include <stdlib.h>
 #include <string.h>
 
+IMPL_VECTOR(char)
+
+string print_char(char *c) { return string_new(c, 1); }
+
 string string_new(char *str, int len) {
     string s;
-    s.str = malloc(len * sizeof(char));
-    if (s.str == NULL) {
-        printf("Allocation failed");
-        exit(EXIT_FAILURE);
-    }
-    strncat(s.str, str, len);
+    char *inner;
+    s = vector_char_new_reserve(len);
+    inner = vector_char_get_inner(&s);
+    strncat(inner, str, len);
     s.len = len;
     return s;
 }
 
 string string_new_raw(char *str) {
-    string s;
-    s.str = str;
-    s.len = strlen(str);
-    return s;
+    int len = strlen(str);
+    return string_new(str, len);
+}
+
+void string_append_string(string *a, const string *b) {
+    vector_char_reserve(a, a->len + b->len);
+    strncat(a->inner + b->len, b->inner, b->len);
+    a->len += b->len;
+}
+
+void string_append_char_star(string *a, const char *b) {
+    int len = strlen(b);
+    vector_char_reserve(a, a->len + len);
+    strncat(a->inner + len, b, len);
+    a->len += len;
 }
 
 bool string_eq(const string *a, const string *b) {
@@ -30,7 +43,7 @@ bool string_eq(const string *a, const string *b) {
         ret = false;
     } else {
         for (i = 0; i <= a->len; i++) {
-            if (a->str[i] != b->str[i]) {
+            if (a->inner[i] != b->inner[i]) {
                 ret = false;
                 break;
             }
@@ -45,7 +58,7 @@ bool string_eq_char_star(const string *a, const char *b) {
     int i;
 
     for (i = 0; i <= a->len; i++) {
-        if ((b[i] == '\0') || (a->str[i] != b[i])) {
+        if ((b[i] == '\0') || (a->inner[i] != b[i])) {
             ret = false;
             break;
         }
@@ -74,23 +87,23 @@ string read_file(char *path) {
     }
     fread(src, len, 1, fd);
     fclose(fd);
-    s.str = src;
+    s.inner = src;
     s.len = len;
 
     return s;
 }
 
 void string_rem_char(string *a, int index, int len) {
-    memmove(&a->str[index], &a->str[index + len], a->len - index - len);
+    memmove(&a->inner[index], &a->inner[index + len], a->len - index - len);
     a->len -= len;
-    a->str[a->len] = '\0';
+    a->inner[a->len] = '\0';
 }
 
 unsigned int string_hash(string *str) {
     unsigned int hash = 5381;
     int c;
 
-    while ((c = *str->str++))
+    while ((c = *str->inner++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;

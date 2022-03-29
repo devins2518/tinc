@@ -11,49 +11,49 @@ void convert_to_logical_newline(string *src) {
     int i;
     for (i = 0; i < src->len; i++) {
         /* Replace EOL characters with new line characters. */
-        if (src->str[i] == '\r' && src->str[i + 1] == '\n') {
+        if (src->inner[i] == '\r' && src->inner[i + 1] == '\n') {
             string_rem_char(src, i, 1);
         }
         /* Translate trigraph sequences. */
-        else if (src->str[i] == '?' && src->str[i + 1] == '?') {
-            switch (src->str[i + 2]) {
+        else if (src->inner[i] == '?' && src->inner[i + 1] == '?') {
+            switch (src->inner[i + 2]) {
             case '=':
-                src->str[i] = '#';
+                src->inner[i] = '#';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '(':
-                src->str[i] = '[';
+                src->inner[i] = '[';
                 string_rem_char(src, i + 1, 2);
                 break;
             case ')':
-                src->str[i] = ']';
+                src->inner[i] = ']';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '/':
-                src->str[i] = '\\';
+                src->inner[i] = '\\';
                 string_rem_char(src, i + 1, 2);
-                if (src->str[i + 1] == '\n') {
+                if (src->inner[i + 1] == '\n') {
                     string_rem_char(src, i, 2);
                 }
                 break;
             case '\'':
-                src->str[i] = '^';
+                src->inner[i] = '^';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '<':
-                src->str[i] = '{';
+                src->inner[i] = '{';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '>':
-                src->str[i] = '}';
+                src->inner[i] = '}';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '!':
-                src->str[i] = '|';
+                src->inner[i] = '|';
                 string_rem_char(src, i + 1, 2);
                 break;
             case '-':
-                src->str[i] = '~';
+                src->inner[i] = '~';
                 string_rem_char(src, i + 1, 2);
                 break;
             default:
@@ -61,7 +61,7 @@ void convert_to_logical_newline(string *src) {
             }
         }
         /* Join physical new lines into logical new lines. */
-        else if (src->str[i] == '\\' && src->str[i + 1] == '\n') {
+        else if (src->inner[i] == '\\' && src->inner[i + 1] == '\n') {
             string_rem_char(src, i, 2);
         }
     }
