@@ -24,7 +24,7 @@ string print_pp_token(pp_token *t) {
         break;
     case string_lit_e:
         s = string_new_raw("string_lit: ");
-        string_append_string(&s, &t->p.string_lit_p);
+        string_append_string(&s, &t->p.string_lit_p.str);
         break;
     case op_e:
         switch (t->p.op_p) {
@@ -266,7 +266,7 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
             ret = string_eq(&a->p.char_cons_p, &b->p.char_cons_p);
             break;
         case string_lit_e:
-            ret = string_eq(&a->p.string_lit_p, &b->p.string_lit_p);
+            ret = string_eq(&a->p.string_lit_p.str, &b->p.string_lit_p.str);
             break;
         case op_e:
             ret = (a->p.op_p) == (b->p.op_p);
@@ -312,9 +312,10 @@ pp_token pp_char_cons(char_cons c) {
     t.e = char_const_e;
     return t;
 }
-pp_token pp_string_lit(string_lit s) {
+pp_token pp_string_lit(string_lit s, bool wide) {
     pp_token t;
-    t.p.string_lit_p = s;
+    t.p.string_lit_p.str = s;
+    t.p.string_lit_p.wide = wide;
     t.e = string_lit_e;
     return t;
 }

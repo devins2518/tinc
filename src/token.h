@@ -148,7 +148,10 @@ typedef struct {
         ident ident_p;
         pp_number pp_number_p;
         char_cons char_cons_p;
-        string_lit string_lit_p;
+        struct {
+            string_lit str;
+            bool wide;
+        } string_lit_p;
         op op_p;
         punct punct_p;
         multi multi_p;
@@ -173,7 +176,7 @@ pp_token pp_header_name(header_name h);
 pp_token pp_ident(ident i);
 pp_token pp_pp_number(pp_number p);
 pp_token pp_char_cons(char_cons c);
-pp_token pp_string_lit(string_lit s);
+pp_token pp_string_lit(string_lit s, bool wide);
 pp_token pp_op(op o);
 pp_token pp_punct(punct p);
 pp_token pp_multi(multi m);
