@@ -10,7 +10,7 @@ string char_print(char *c) { return string_new(c, 1); }
 string string_new(char *str, int len) {
     string s;
     char *inner;
-    s = vector_char_new_reserve(len);
+    s = vector_char_new_reserve(len + 1);
     inner = vector_char_get_inner(&s);
     strncat(inner, str, len);
     s.len = len;
@@ -19,18 +19,18 @@ string string_new(char *str, int len) {
 
 string string_new_raw(char *str) {
     int len = strlen(str);
-    return string_new(str, len);
+    return string_new(str, len + 1);
 }
 
 void string_append_string(string *a, const string *b) {
-    vector_char_reserve(a, a->len + b->len);
+    vector_char_reserve(a, a->len + b->len + 1);
     strncat(a->inner + b->len, b->inner, b->len);
     a->len += b->len;
 }
 
 void string_append_char_star(string *a, const char *b) {
     int len = strlen(b);
-    vector_char_reserve(a, a->len + len);
+    vector_char_reserve(a, a->len + len + 2);
     strncat(a->inner + len, b, len);
     a->len += len;
 }

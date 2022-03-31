@@ -252,6 +252,9 @@ string pp_token_print(pp_token *t) {
         case nl_ws:
             s = string_new_raw("whitespace: nl");
             break;
+        case eof_ws:
+            s = string_new_raw("whitespace: eof");
+            break;
         }
     }
     return s;

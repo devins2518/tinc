@@ -20,7 +20,7 @@
         vector_##name v;                                                       \
         v.len = 0;                                                             \
         v.cap = 16;                                                            \
-        v.inner = malloc(v.cap * sizeof(name));                                \
+        v.inner = calloc(v.cap, sizeof(name));                                 \
         if (v.inner == NULL) {                                                 \
             printf("Allocation failed, cap * sizeof: %lu",                     \
                    v.cap * sizeof(name));                                      \
@@ -41,7 +41,7 @@
         cap |= cap >> 16;                                                      \
         cap++;                                                                 \
         v.cap = cap;                                                           \
-        v.inner = malloc(v.cap * sizeof(name));                                \
+        v.inner = calloc(v.cap, sizeof(name));                                 \
         if (v.inner == NULL) {                                                 \
             printf("Allocation failed, cap * sizeof: %lu",                     \
                    v.cap * sizeof(name));                                      \
