@@ -15,8 +15,8 @@
     hash_map_##k##_##v hash_map_##k##_##v##_new();                             \
     void hash_map_##k##_##v##_free(hash_map_##k##_##v h);                      \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val);     \
-    void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k key);            \
-    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k key);
+    void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k *key);           \
+    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k *key);
 
 #define DECLARE_GENERIC_HASH(t) unsigned int t##_hash(t *val);
 
@@ -66,18 +66,18 @@
         e->val = val;                                                          \
         e->tomb = ALIVE;                                                       \
     }                                                                          \
-    void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k key) {           \
+    void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k *key) {          \
         entry_##k##_##v *e = hash_map_##k##_##v##_lookup(h, key);              \
         if (e != NULL)                                                         \
             e->tomb = DEAD;                                                    \
     }                                                                          \
     entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h,        \
-                                                 k key) {                      \
-        int init_index = hf(&key) % h->cap;                                    \
+                                                 k *key) {                     \
+        int init_index = hf(key) % h->cap;                                     \
         int index = init_index;                                                \
         entry_##k##_##v *e = NULL;                                             \
         while (h->table[index].tomb == ALIVE) {                                \
-            if (cmp(&key, &h->table[index].key)) {                             \
+            if (cmp(key, &h->table[index].key)) {                              \
                 e = &h->table[index];                                          \
                 break;                                                         \
             } else {                                                           \

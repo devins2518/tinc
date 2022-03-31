@@ -2,13 +2,13 @@
 #define PREPROCESSOR_H
 
 #include "generic.h"
+#include "scanner.h"
 
 typedef struct {
-    hash_map_pp_token_pp_token defines;
+    hash_map_ident_char_star defines;
+    scanner scanner;
 } preprocessor;
 
-preprocessor preprocessor_new();
-
-void run_preprocessor(preprocessor *p, vector_pp_token *t);
+vector_pp_token preprocessor_run(string *src);
 
 #endif

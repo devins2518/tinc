@@ -68,15 +68,12 @@ void convert_to_logical_newline(string *src) {
 }
 
 vector_pp_token pre_preprocessing(char *path) {
-    preprocessor p = preprocessor_new();
     string src = read_file(path);
     vector_pp_token tokens;
     /* Translation phases 1-2 */
     convert_to_logical_newline(&src);
-    /* Translation phase 3 */
-    tokens = scan_file(&src);
-    /* Translation phase 4
-     * run_preprocessor(&p, &tokens); */
+    /* Translation phase 3-4 */
+    tokens = preprocessor_run(&src);
     return tokens;
 }
 

@@ -6,7 +6,7 @@
 
 DECLARE_VECTOR(char)
 typedef vector_char string;
-string print_char(char *c);
+string char_print(char *c);
 
 /* bool string_is_kw(const string *s, token *t); */
 string string_new(char *str, int len);

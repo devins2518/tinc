@@ -3,33 +3,43 @@
 #include <assert.h>
 #include <stdio.h>
 
-preprocessor preprocessor_new() {
+preprocessor preprocessor_new(string *src) {
     preprocessor p;
-    p.defines = hash_map_pp_token_pp_token_new();
+    p.defines = hash_map_ident_char_star_new();
+    p.scanner = scanner_new(src);
     return p;
 }
 
-void run_preprocessor(preprocessor *p, vector_pp_token *t) {
-    int i;
-    vector_pp_token_print(t);
-    for (i = 0; i < t->len; i++) {
-        if (t->inner[i].e == punct_e && t->inner[i].p.punct_p == hash_punct) {
-            string str = t->inner[i + 1].p.ident_p;
-            assert(t->inner[i + 1].e == ident_e);
-            if (string_eq_char_star(&str, "if")) {
-            } else if (string_eq_char_star(&str, "ifdef")) {
-            } else if (string_eq_char_star(&str, "ifndef")) {
-            } else if (string_eq_char_star(&str, "elif")) {
-            } else if (string_eq_char_star(&str, "else")) {
-            } else if (string_eq_char_star(&str, "endif")) {
-            } else if (string_eq_char_star(&str, "include")) {
-            } else if (string_eq_char_star(&str, "define")) {
-            } else if (string_eq_char_star(&str, "undef")) {
-            } else if (string_eq_char_star(&str, "line")) {
-            } else if (string_eq_char_star(&str, "error")) {
-            } else if (string_eq_char_star(&str, "pragma")) {
-            }
+bool preprocessor_if(preprocessor *p, ident *ident);
+bool preprocessor_ifdef(preprocessor *p, ident ident) {
+    return hash_map_ident_char_star_lookup(&p->defines, &ident) != NULL;
+}
+bool preprocessor_ifndef(preprocessor *p, ident ident) {
+    return hash_map_ident_char_star_lookup(&p->defines, &ident) == NULL;
+}
+bool preprocessor_include(preprocessor *p, char *path, char *src);
+void preprocessor_define(preprocessor *p, ident ident, char *definition) {
+    hash_map_ident_char_star_insert(&p->defines, ident, definition);
+}
+void preprocessor_undef(preprocessor *p, ident *ident) {
+    hash_map_ident_char_star_delete(&p->defines, ident);
+}
+
+vector_pp_token preprocessor_run(string *src) {
+    preprocessor pp = preprocessor_new(src);
+    while (true) {
+        pp_token t;
+        t = scanner_next(&pp.scanner);
+        switch (t.e) {
+        case whitespace_e:
+            if (t.p.whitespace_p == eof_ws)
+                goto exit;
+        default:
+            printf("%.*s\n", pp_token_print(&t).len, pp_token_print(&t).inner);
+            break;
         }
     }
-    return;
+exit:
+    printf("unimplemented");
+    exit(EXIT_FAILURE);
 }
