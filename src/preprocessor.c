@@ -7,6 +7,8 @@ preprocessor preprocessor_new(string *src) {
     preprocessor p;
     p.defines = hash_map_ident_char_star_new();
     p.scanner = scanner_new(src);
+    p.tokens = vector_pp_token_new();
+    p.start_of_line = true;
     return p;
 }
 
@@ -32,14 +34,18 @@ vector_pp_token preprocessor_run(string *src) {
         t = scanner_next(&pp.scanner);
         switch (t.e) {
         case whitespace_e:
-            if (t.p.whitespace_p == eof_ws)
+            if (t.p.whitespace_p == eof_ws) {
                 goto exit;
+            } else if (t.p.whitespace_p == nl_ws) {
+                pp.start_of_line = true;
+            }
+            break;
         default:
-            printf("%.*s\n", pp_token_print(&t).len, pp_token_print(&t).inner);
+            pp.start_of_line = false;
+            vector_pp_token_add(&pp.tokens, t);
             break;
         }
     }
 exit:
-    printf("unimplemented");
-    exit(EXIT_FAILURE);
+    return pp.tokens;
 }
