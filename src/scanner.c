@@ -60,81 +60,6 @@ void scanner_add_token(scanner *s, pp_token t) {
     }
 }
 
-bool scanner_in_ident(char c) {
-    bool b;
-    switch (c) {
-    case 'a':
-    case 'b':
-    case 'c':
-    case 'd':
-    case 'e':
-    case 'f':
-    case 'g':
-    case 'h':
-    case 'i':
-    case 'j':
-    case 'k':
-    case 'l':
-    case 'm':
-    case 'n':
-    case 'o':
-    case 'p':
-    case 'q':
-    case 'r':
-    case 's':
-    case 't':
-    case 'u':
-    case 'v':
-    case 'w':
-    case 'x':
-    case 'y':
-    case 'z':
-    case 'A':
-    case 'B':
-    case 'C':
-    case 'D':
-    case 'E':
-    case 'F':
-    case 'G':
-    case 'H':
-    case 'I':
-    case 'J':
-    case 'K':
-    case 'L':
-    case 'M':
-    case 'N':
-    case 'O':
-    case 'P':
-    case 'Q':
-    case 'R':
-    case 'S':
-    case 'T':
-    case 'U':
-    case 'V':
-    case 'W':
-    case 'X':
-    case 'Y':
-    case 'Z':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    case '_':
-        b = true;
-        break;
-    default:
-        b = false;
-        break;
-    }
-    return b;
-}
-
 bool scanner_is_digit(char c) { return (c >= '0' && c <= '9'); }
 
 bool scanner_is_nondigit(char c) {
@@ -201,6 +126,7 @@ vector_pp_token scan_file(string *str) {
     /* TODO */
     while (s.index <= s.src_len) {
         int index; /* For keeping track in preprocessing. */
+        string pp_str;
         char c = s.src[s.index++];
         switch (s.state) {
         case start_state: {
@@ -351,6 +277,35 @@ vector_pp_token scan_file(string *str) {
             s.state = start_state;
             break;
         case pp_directive_state:
+            index = s.index - 2; /* One for #, one for above ++ */
+            s.curr++;
+            while (scanner_is_nondigit(s.src[s.index]) ||
+                   scanner_is_digit(s.src[s.index])) {
+                s.index++;
+            }
+            pp_str = string_new(&s.src[s.curr], s.index - s.curr);
+            if (string_eq_char_star(&pp_str, "if")) {
+                printf("preprocessing if\n");
+            } else if (string_eq_char_star(&pp_str, "ifdef")) {
+                printf("preprocessing ifdef\n");
+            } else if (string_eq_char_star(&pp_str, "ifndef")) {
+                printf("preprocessing ifndef\n");
+            } else if (string_eq_char_star(&pp_str, "include")) {
+                printf("preprocessing include\n");
+            } else if (string_eq_char_star(&pp_str, "define")) {
+                printf("preprocessing define\n");
+            } else if (string_eq_char_star(&pp_str, "undef")) {
+                printf("preprocessing undef\n");
+            } else if (string_eq_char_star(&pp_str, "line")) {
+                printf("preprocessing line\n");
+            } else if (string_eq_char_star(&pp_str, "error")) {
+                printf("preprocessing error\n");
+            } else if (string_eq_char_star(&pp_str, "pragma")) {
+                printf("preprocessing pragma\n");
+            }
+            if (c == '\n') {
+                s.state = start_state;
+            }
             printf("unimplemented");
             exit(EXIT_FAILURE);
             break;

@@ -58,7 +58,7 @@ bool string_eq_char_star(const string *a, const char *b) {
     int i;
 
     for (i = 0; i <= a->len; i++) {
-        if ((b[i] == '\0') || (a->inner[i] != b[i])) {
+        if ((b[i] == '\0' && i != a->len) || (a->inner[i] != b[i])) {
             ret = false;
             break;
         }
