@@ -10,7 +10,7 @@ string char_print(char *c) { return string_new(c, 1); }
 string string_new(char *str, int len) {
     string s;
     char *inner;
-    s = vector_char_new_reserve(len + 1);
+    s = vector_char_new_reserve(len);
     inner = vector_char_get_inner(&s);
     strncat(inner, str, len);
     s.len = len;
@@ -19,52 +19,32 @@ string string_new(char *str, int len) {
 
 string string_new_raw(char *str) {
     int len = strlen(str);
-    return string_new(str, len + 1);
+    return string_new(str, len);
 }
 
 void string_append_string(string *a, const string *b) {
     vector_char_reserve(a, a->len + b->len + 1);
-    strncat(a->inner + b->len, b->inner, b->len);
+    strncat(a->inner, b->inner, b->len);
     a->len += b->len;
 }
 
 void string_append_char_star(string *a, const char *b) {
     int len = strlen(b);
     vector_char_reserve(a, a->len + len + 2);
-    strncat(a->inner + len, b, len);
+    strncat(a->inner, b, len);
     a->len += len;
 }
 
 bool string_eq(const string *a, const string *b) {
-    bool ret = true;
-    int i;
-
     if (a->len != b->len) {
-        ret = false;
+        return false;
     } else {
-        for (i = 0; i <= a->len; i++) {
-            if (a->inner[i] != b->inner[i]) {
-                ret = false;
-                break;
-            }
-        }
+        return strncmp(a->inner, b->inner, a->len) == 0;
     }
-
-    return ret;
 }
 
 bool string_eq_char_star(const string *a, const char *b) {
-    bool ret = true;
-    int i;
-
-    for (i = 0; i <= a->len; i++) {
-        if ((b[i] == '\0' && i != a->len) || (a->inner[i] != b[i])) {
-            ret = false;
-            break;
-        }
-    }
-
-    return ret;
+    return strncmp(a->inner, b, a->len) == 0;
 }
 
 string read_file(char *path) {

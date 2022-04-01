@@ -5,6 +5,8 @@
 
 vector_ast_token generate_ast(vector_pp_token *tokens) {
     vector_ast_token v = vector_ast_token_new();
+    (void)tokens;
+    (void)v;
     printf("unimplemented");
     exit(EXIT_FAILURE);
     return v;

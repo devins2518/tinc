@@ -3,7 +3,6 @@ project('tinc', ['c', 'cpp'],
   default_options : ['warning_level=3', 'c_std=c89', 'werror=true'])
 
 base_src = [
-  'src/main.c',
   'src/lexer.c',
   'src/scanner.c',
   'src/preprocessor.c',
@@ -16,6 +15,7 @@ base_src = [
 
 llvm = dependency('llvm')
 
-exe = executable('tinc', base_src, install : true, dependencies : [llvm])
-
-test('test_main', exe, args : 'src/test_main.c')
+main_src = base_src + 'src/main.c'
+exe = executable('tinc', main_src, install : true, dependencies : [llvm])
+string_test = executable('tinc_test', base_src + 'test/string.c', install : true)
+test('string test', string_test)
