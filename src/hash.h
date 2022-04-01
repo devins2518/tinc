@@ -27,40 +27,42 @@
     hash_map_##k##_##v hash_map_##k##_##v##_new() {                            \
         int i;                                                                 \
         hash_map_##k##_##v h;                                                  \
-        entry_##k##_##v e;                                                     \
-        e.tomb = DEAD;                                                         \
         h.cap = 16;                                                            \
         h.filled = 0;                                                          \
-        h.table = malloc(h.cap * sizeof(entry_##k##_##v));                     \
+        h.table = calloc(h.cap, sizeof(entry_##k##_##v));                      \
         if (h.table == NULL) {                                                 \
             printf("Failed to allocate hashmap.");                             \
             exit(EXIT_FAILURE);                                                \
         }                                                                      \
         /* Set table to tombstones */                                          \
-        for (i = 0; i < h.cap; h.table[i++] = e)                               \
-            ;                                                                  \
+        for (i = 0; i <= h.cap; i++)                                           \
+            h.table[i].tomb = DEAD;                                            \
         return h;                                                              \
     }                                                                          \
     void hash_map_##k##_##v##_free(hash_map_##k##_##v h) { free(h.table); }    \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val) {    \
-        int i;                                                                 \
         entry_##k##_##v *e;                                                    \
+        int i;                                                                 \
         /* Resize table to account for addition. */                            \
-        if (++h->filled >= h->cap) {                                           \
-            h->table = realloc(h->table, sizeof(v) * h->cap << 1);             \
-            if (h->table == NULL) {                                            \
+        if (++h->filled > h->cap) {                                            \
+            e = calloc(h->cap << 1, sizeof(entry_##k##_##v));                  \
+            if (e == NULL) {                                                   \
                 printf("Failed to allocate hashmap.");                         \
                 exit(EXIT_FAILURE);                                            \
             }                                                                  \
-            for (i = h->cap; i < h->cap << 1; h->table[i++].tomb = DEAD)       \
-                ;                                                              \
+            for (i = 0; i <= h->cap; i++) {                                    \
+                int index = hf(&h->table[i].key) % (h->cap << 1);              \
+                e[index] = h->table[i];                                        \
+            }                                                                  \
+            free(h->table);                                                    \
+            h->table = e;                                                      \
             h->cap <<= 1;                                                      \
         }                                                                      \
         i = hf(&key) % h->cap;                                                 \
-        while ((h->table[i].tomb == ALIVE) ||                                  \
-               (!cmp(&key, &h->table[i].key))) {                               \
-            i++;                                                               \
+        while (h->table[i].tomb == ALIVE && !cmp(&key, &h->table[i].key)) {    \
+            i = (i + 1) % h->cap;                                              \
         }                                                                      \
+        /*fprintf(stderr, "insert index: %d\n", i);*/                          \
         e = &h->table[i];                                                      \
         e->key = key;                                                          \
         e->val = val;                                                          \
@@ -76,12 +78,14 @@
         int init_index = hf(key) % h->cap;                                     \
         int index = init_index;                                                \
         entry_##k##_##v *e = NULL;                                             \
+        /*fprintf(stderr, "init: %d\n", init_index);                    */     \
         while (h->table[index].tomb == ALIVE) {                                \
+            /*fprintf(stderr, "index: %d\n", index); */                        \
             if (cmp(key, &h->table[index].key)) {                              \
                 e = &h->table[index];                                          \
                 break;                                                         \
             } else {                                                           \
-                index++;                                                       \
+                index = (index + 1) % h->cap;                                  \
                 if (index == init_index) {                                     \
                     break;                                                     \
                 }                                                              \
