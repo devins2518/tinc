@@ -1,6 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+unsigned long int power2(unsigned int a);
 #define DECLARE_VECTOR(name)                                                   \
     typedef struct {                                                           \
         int len;                                                               \
@@ -31,16 +32,8 @@
     /* Assumes caller will fill vector to `len`. */                            \
     vector_##name vector_##name##_new_reserve(int len) {                       \
         vector_##name v;                                                       \
-        unsigned int cap = len;                                                \
-        v.len = len;                                                           \
-        cap--;                                                                 \
-        cap |= cap >> 1;                                                       \
-        cap |= cap >> 2;                                                       \
-        cap |= cap >> 4;                                                       \
-        cap |= cap >> 8;                                                       \
-        cap |= cap >> 16;                                                      \
-        cap++;                                                                 \
-        v.cap = cap;                                                           \
+        v.len = 0;                                                             \
+        v.cap = power2(len);                                                   \
         v.inner = calloc(v.cap, sizeof(name));                                 \
         if (v.inner == NULL) {                                                 \
             printf("Allocation failed, cap * sizeof: %lu",                     \
@@ -51,14 +44,7 @@
     }                                                                          \
     void vector_##name##_reserve(vector_##name *v, int len) {                  \
         if (v->cap < len) {                                                    \
-            len--;                                                             \
-            len |= len >> 1;                                                   \
-            len |= len >> 2;                                                   \
-            len |= len >> 4;                                                   \
-            len |= len >> 8;                                                   \
-            len |= len >> 16;                                                  \
-            len++;                                                             \
-            v->cap = len;                                                      \
+            v->cap = power2(len);                                              \
             v->inner = realloc(v->inner, (v->cap) * sizeof(name));             \
             if (v->inner == NULL) {                                            \
                 printf("Allocation failed");                                   \

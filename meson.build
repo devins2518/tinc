@@ -9,6 +9,7 @@ base_src = [
   'src/compiler.c',
   'src/ast.c',
   'src/token.c',
+  'src/vector.c',
   'src/string.c',
   'src/generic.c',
 ]
