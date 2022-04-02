@@ -18,14 +18,13 @@
     void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k *key);           \
     entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k *key);
 
-#define DECLARE_GENERIC_HASH(t) unsigned int t##_hash(t *val);
+#define DECLARE_GENERIC_HASH(t) unsigned long t##_hash(t *val);
 
-#define ALIVE 0
-#define DEAD 1
+#define ALIVE 1
+#define DEAD 0
 
 #define IMPL_HASHMAP(k, v, hf, cmp)                                            \
     hash_map_##k##_##v hash_map_##k##_##v##_new() {                            \
-        int i;                                                                 \
         hash_map_##k##_##v h;                                                  \
         h.cap = 16;                                                            \
         h.filled = 0;                                                          \
@@ -34,9 +33,6 @@
             printf("Failed to allocate hashmap.");                             \
             exit(EXIT_FAILURE);                                                \
         }                                                                      \
-        /* Set table to tombstones */                                          \
-        for (i = 0; i <= h.cap; i++)                                           \
-            h.table[i].tomb = DEAD;                                            \
         return h;                                                              \
     }                                                                          \
     void hash_map_##k##_##v##_free(hash_map_##k##_##v h) { free(h.table); }    \
@@ -50,8 +46,11 @@
                 printf("Failed to allocate hashmap.");                         \
                 exit(EXIT_FAILURE);                                            \
             }                                                                  \
-            for (i = 0; i <= h->cap; i++) {                                    \
+            for (i = 0; i < h->cap; i++) {                                     \
                 int index = hf(&h->table[i].key) % (h->cap << 1);              \
+                while (e[index].tomb == ALIVE) {                               \
+                    index = (index + 1) % (h->cap << 1);                       \
+                }                                                              \
                 e[index] = h->table[i];                                        \
             }                                                                  \
             free(h->table);                                                    \
@@ -62,7 +61,6 @@
         while (h->table[i].tomb == ALIVE && !cmp(&key, &h->table[i].key)) {    \
             i = (i + 1) % h->cap;                                              \
         }                                                                      \
-        /*fprintf(stderr, "insert index: %d\n", i);*/                          \
         e = &h->table[i];                                                      \
         e->key = key;                                                          \
         e->val = val;                                                          \
@@ -78,9 +76,7 @@
         int init_index = hf(key) % h->cap;                                     \
         int index = init_index;                                                \
         entry_##k##_##v *e = NULL;                                             \
-        /*fprintf(stderr, "init: %d\n", init_index);                    */     \
         while (h->table[index].tomb == ALIVE) {                                \
-            /*fprintf(stderr, "index: %d\n", index); */                        \
             if (cmp(key, &h->table[index].key)) {                              \
                 e = &h->table[index];                                          \
                 break;                                                         \
@@ -96,7 +92,7 @@
     }
 
 #define IMPL_GENERIC_HASH(t)                                                   \
-    unsigned int t##_hash(t *val) {                                            \
+    unsigned long t##_hash(t *val) {                                           \
         unsigned long hash = 5381;                                             \
         int size = sizeof(t);                                                  \
         char *str = (char *)val;                                               \

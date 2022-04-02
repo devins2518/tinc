@@ -5,8 +5,13 @@
 #include <stdlib.h>
 
 bool cmp(int *a, int *b) { return *a == *b; }
-DECLARE_GENERIC_HASH(int)
-IMPL_GENERIC_HASH(int)
+unsigned int int_hash(int *x) {
+    unsigned hash = *x;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = (hash >> 16) ^ hash;
+    return hash;
+}
 DECLARE_HASHMAP(int, int)
 IMPL_HASHMAP(int, int, int_hash, cmp)
 
@@ -24,13 +29,13 @@ int main() {
 
     hash_map_int_int_free(hm);
     hm = hash_map_int_int_new();
-    for (i = 0; i < 20; i++)
+    for (i = 0; i < 0xFFFF; i++) {
         hash_map_int_int_insert(&hm, i, i);
+    }
 
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i < 0xFFFF; i++) {
         entry_int_int *e;
         e = hash_map_int_int_lookup(&hm, &i);
-        /* fprintf(stderr, "i: %d, key: %d, val: %d\n", i, e->key, e->val); */
         assert(e->key == i);
         assert(e->val == i);
     }
