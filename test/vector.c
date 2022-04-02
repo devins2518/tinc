@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-string int_print(int *x) {
+string int_to_string(int *x) {
     string s;
     char c[512] = {0};
     sprintf(c, "%d", *x);

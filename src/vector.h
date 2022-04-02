@@ -67,7 +67,7 @@ unsigned long int power2(unsigned int a);
         int i;                                                                 \
         printf("[\n");                                                         \
         for (i = 0; i < v->len; i++) {                                         \
-            string s = name##_print(&v->inner[i]);                             \
+            string s = name##_to_string(&v->inner[i]);                         \
             printf("\t%.*s,\n", s.len, s.inner);                               \
         }                                                                      \
         printf("]\n");                                                         \

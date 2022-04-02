@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-string pp_token_print(pp_token *t) {
+string pp_token_to_string(pp_token *t) {
     string s;
     switch (t->e) {
     case header_name_e:

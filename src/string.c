@@ -5,7 +5,7 @@
 
 IMPL_VECTOR(char)
 
-string char_print(char *c) { return string_new(c, 1); }
+string char_to_string(char *c) { return string_new(c, 1); }
 
 string string_new(char *str, int len) {
     string s;

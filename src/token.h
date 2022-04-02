@@ -174,7 +174,7 @@ typedef struct {
     } e;
 } pp_token;
 bool pp_token_eq(pp_token *a, pp_token *b);
-string pp_token_print(pp_token *t);
+string pp_token_to_string(pp_token *t);
 
 pp_token pp_header_name(header_name h);
 pp_token pp_ident(ident i);

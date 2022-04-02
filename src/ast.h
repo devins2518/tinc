@@ -44,6 +44,6 @@ typedef struct {
 } ast_token;
 DECLARE_VECTOR(ast_token)
 
-string ast_token_print(ast_token *a);
+string ast_token_to_string(ast_token *a);
 
 #endif

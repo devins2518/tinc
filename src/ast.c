@@ -5,7 +5,7 @@
 
 IMPL_VECTOR(ast_token)
 
-string ast_token_print(ast_token *a) {
+string ast_token_to_string(ast_token *a) {
     string s;
     switch (a->e) {
     case function_e:
