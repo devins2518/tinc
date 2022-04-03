@@ -1,7 +1,7 @@
 #ifndef HELLO
 #define HELLO 3
-#define NEWLINE_THING                                                          \
-    int x = 3;                                                                 \
+#define NEWLINE_THING                                                                              \
+    int x = 3;                                                                                     \
     return x;
 #else
 #undef HELLO

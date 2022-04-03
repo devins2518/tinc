@@ -1,5 +1,5 @@
-#include "preprocessor.h"
 #include "scanner.h"
+#include "preprocessor.h"
 #include "token.h"
 #include "utils.h"
 #include "vector.h"
@@ -199,17 +199,15 @@ pp_token scanner_next(scanner *s) {
             }
             case ident_state: {
                 if (!scanner_is_nondigit(c) && !scanner_is_digit(c)) {
-                    t = pp_ident(string_new(&s->src->inner[s->curr],
-                                            s->index - s->curr));
+                    t = pp_ident(string_new(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
             }
             case number_state: {
-                if ((!scanner_is_digit(c) && !scanner_is_nondigit(c)) &&
-                    c != '.' && c != '+' && c != '-') {
-                    t = pp_pp_number(string_new(&s->src->inner[s->curr],
-                                                s->index - s->curr));
+                if ((!scanner_is_digit(c) && !scanner_is_nondigit(c)) && c != '.' && c != '+' &&
+                    c != '-') {
+                    t = pp_pp_number(string_new(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
@@ -221,13 +219,11 @@ pp_token scanner_next(scanner *s) {
                 }
             case string_lit_state:
                 if (c == '\n') {
-                    t = pp_error(
-                        s->curr, s->index,
-                        "Newlines are not allowed within string literals.");
+                    t = pp_error(s->curr, s->index,
+                                 "Newlines are not allowed within string literals.");
                     goto exit;
                 } else if (c == '"') {
-                    t = pp_string_lit(string_new(&s->src->inner[s->curr],
-                                                 ++s->index - s->curr),
+                    t = pp_string_lit(string_new(&s->src->inner[s->curr], ++s->index - s->curr),
                                       s->state == wide_string_lit_state);
                     goto exit;
                 }
@@ -253,8 +249,7 @@ pp_token scanner_next(scanner *s) {
                        scanner_is_digit(s->src->inner[s->index])) {
                     s->index++;
                 }
-                pp_str =
-                    string_new(&s->src->inner[s->curr], s->index - s->curr);
+                pp_str = string_new(&s->src->inner[s->curr], s->index - s->curr);
                 if (string_eq_char_star(&pp_str, "if")) {
                     printf("preprocessing if\n");
                 } else if (string_eq_char_star(&pp_str, "ifdef")) {

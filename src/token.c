@@ -241,8 +241,7 @@ string pp_token_to_string(pp_token *t) {
         }
         break;
     case error_e:
-        s = string_new(t->p.error_p.msg,
-                       t->p.error_p.span_end - t->p.error_p.span_start);
+        s = string_new(t->p.error_p.msg, t->p.error_p.span_end - t->p.error_p.span_start);
         break;
     case whitespace_e:
         switch (t->p.whitespace_p) {
