@@ -23,14 +23,14 @@ string string_new_raw(char *str) {
 }
 
 void string_append_string(string *a, const string *b) {
-    vector_char_reserve(a, a->len + b->len + 1);
+    vector_char_reserve(a, a->len + b->len);
     strncat(a->inner, b->inner, b->len);
     a->len += b->len;
 }
 
 void string_append_char_star(string *a, const char *b) {
     int len = strlen(b);
-    vector_char_reserve(a, a->len + len + 2);
+    vector_char_reserve(a, a->len + len);
     strncat(a->inner, b, len);
     a->len += len;
 }
@@ -76,6 +76,23 @@ string read_file(char *path) {
 void string_rem_char(string *a, int index, int len) {
     memmove(&a->inner[index], &a->inner[index + len], a->len - index - len);
     a->len -= len;
+    a->inner[a->len] = '\0';
+}
+
+void string_add_string(string *a, const string *b, int index) {
+    vector_char_reserve(a, a->len + b->len);
+    memcpy(&a->inner[index + b->len], &a->inner[index], a->len - index);
+    memcpy(&a->inner[index], b->inner, b->len);
+    a->len += b->len;
+    a->inner[a->len] = '\0';
+}
+
+void string_add_char_star(string *a, const char *b, int index) {
+    int len = strlen(b);
+    vector_char_reserve(a, a->len + len);
+    memcpy(&a->inner[index + len], &a->inner[index], a->len - index);
+    memcpy(&a->inner[index], b, len);
+    a->len += len;
     a->inner[a->len] = '\0';
 }
 

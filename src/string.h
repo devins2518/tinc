@@ -16,6 +16,8 @@ void string_append_char_star(string *a, const char *b);
 bool string_eq(const string *a, const string *b);
 bool string_eq_char_star(const string *a, const char *b);
 void string_rem_char(string *a, int index, int len);
+void string_add_string(string *a, const string *b, int index);
+void string_add_char_star(string *a, const char *b, int index);
 
 /* djb2 */
 unsigned int string_hash(string *str);
