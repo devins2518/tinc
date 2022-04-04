@@ -82,7 +82,6 @@ pp_token scanner_next(scanner *s) {
     /* TODO */
     while (true) {
         if (s->index < s->src->len) {
-            string pp_str;
             char c = s->src->inner[s->index];
             switch (s->state) {
             case start_state: {
@@ -92,12 +91,6 @@ pp_token scanner_next(scanner *s) {
                 } else if (c == 'L') {
                     s->state = wide_string_lit_state;
                     break;
-                } else if (c == 'u' || c == 'U') {
-                    /* unsigned int */
-                    exit(EXIT_FAILURE);
-                } else if (c == 'l' || c == 'L') {
-                    /* long int */
-                    exit(EXIT_FAILURE);
                 } else if (scanner_is_digit(c)) {
                     s->state = number_state;
                     break;
@@ -108,7 +101,7 @@ pp_token scanner_next(scanner *s) {
                     s->state = eq_state;
                     break;
                 } else if (c == '#') {
-                    s->state = pp_directive_state;
+                    s->state = hash_state;
                     break;
                 } else if (c == '.') {
                     s->state = period_state;
@@ -247,37 +240,18 @@ pp_token scanner_next(scanner *s) {
                     t = pp_multi(s->curr, s->index, eq_multi);
                 }
                 goto exit;
-            case pp_directive_state:
-                while (scanner_is_nondigit(s->src->inner[s->index]) ||
-                       scanner_is_digit(s->src->inner[s->index])) {
+            case hash_state:
+                if (c == '#') {
                     s->index++;
+                    t = pp_op(s->curr, s->index, dblhash_op);
+                } else {
+                    if ((s->index - 1) == 0 || s->src->inner[s->index - 2] == '\n') {
+                        t = pp_punct(s->curr, s->index, hash_punct);
+                    } else {
+                        t = pp_op(s->curr, s->index, hash_op);
+                    }
                 }
-                pp_str = string_new(&s->src->inner[s->curr], s->index - s->curr);
-                if (string_eq_char_star(&pp_str, "if")) {
-                    printf("preprocessing if\n");
-                } else if (string_eq_char_star(&pp_str, "ifdef")) {
-                    printf("preprocessing ifdef\n");
-                } else if (string_eq_char_star(&pp_str, "ifndef")) {
-                    printf("preprocessing ifndef\n");
-                } else if (string_eq_char_star(&pp_str, "include")) {
-                    printf("preprocessing include\n");
-                } else if (string_eq_char_star(&pp_str, "define")) {
-                    printf("preprocessing define\n");
-                } else if (string_eq_char_star(&pp_str, "undef")) {
-                    printf("preprocessing undef\n");
-                } else if (string_eq_char_star(&pp_str, "line")) {
-                    printf("preprocessing line\n");
-                } else if (string_eq_char_star(&pp_str, "error")) {
-                    printf("preprocessing error\n");
-                } else if (string_eq_char_star(&pp_str, "pragma")) {
-                    printf("preprocessing pragma\n");
-                }
-                if (c == '\n') {
-                    s->state = start_state;
-                }
-                printf("unimplemented");
-                exit(EXIT_FAILURE);
-                break;
+                goto exit;
             case period_state:
                 if (c == '.' && s->src->inner[s->index] == '.') {
                     s->index += 2;
@@ -428,5 +402,12 @@ pp_token scanner_next(scanner *s) {
 exit:
     s->curr = s->index;
     s->state = start_state;
+    return t;
+}
+
+pp_token scanner_skip_ws(scanner *s) {
+    pp_token t = scanner_next(s);
+    while (t.e == whitespace_e)
+        t = scanner_next(s);
     return t;
 }

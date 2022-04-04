@@ -1,3 +1,3 @@
 #include "generic.h"
 
-IMPL_HASHMAP(ident, char_star, string_hash, string_eq)
+IMPL_HASHMAP(ident, string, string_hash, string_eq)

@@ -12,7 +12,7 @@ typedef struct {
         number_state,
         star_state,
         eq_state,
-        pp_directive_state,
+        hash_state,
         period_state,
         plus_state,
         minus_state,
@@ -35,5 +35,6 @@ typedef struct {
 } scanner;
 scanner scanner_new(string *src);
 pp_token scanner_next(scanner *s);
+pp_token scanner_skip_ws(scanner *s);
 
 #endif
