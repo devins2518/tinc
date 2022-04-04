@@ -1,5 +1,5 @@
-#include "scanner.h"
 #include "preprocessor.h"
+#include "scanner.h"
 #include "token.h"
 #include "utils.h"
 #include "vector.h"
@@ -142,51 +142,51 @@ pp_token scanner_next(scanner *s) {
                     break;
                 } else if (c == '(') {
                     s->index++;
-                    t = pp_multi(lparen_multi);
+                    t = pp_multi(s->curr, s->index, lparen_multi);
                     goto exit;
                 } else if (c == ')') {
                     s->index++;
-                    t = pp_multi(rparen_multi);
+                    t = pp_multi(s->curr, s->index, rparen_multi);
                     goto exit;
                 } else if (c == '{') {
                     s->index++;
-                    t = pp_punct(lbrace_punct);
+                    t = pp_punct(s->curr, s->index, lbrace_punct);
                     goto exit;
                 } else if (c == '}') {
                     s->index++;
-                    t = pp_punct(rbrace_punct);
+                    t = pp_punct(s->curr, s->index, rbrace_punct);
                     goto exit;
                 } else if (c == '[') {
                     s->index++;
-                    t = pp_multi(lbracket_multi);
+                    t = pp_multi(s->curr, s->index, lbracket_multi);
                     goto exit;
                 } else if (c == ']') {
                     s->index++;
-                    t = pp_multi(rbracket_multi);
+                    t = pp_multi(s->curr, s->index, rbracket_multi);
                     goto exit;
                 } else if (c == ',') {
                     s->index++;
-                    t = pp_multi(comma_multi);
+                    t = pp_multi(s->curr, s->index, comma_multi);
                     goto exit;
                 } else if (c == '~') {
                     s->index++;
-                    t = pp_op(approx_op);
+                    t = pp_op(s->curr, s->index, approx_op);
                     goto exit;
                 } else if (c == ' ') {
                     s->index++;
-                    t = pp_whitespace(space_ws);
+                    t = pp_whitespace(s->curr, s->index, space_ws);
                     goto exit;
                 } else if (c == '\n') {
                     s->index++;
                     s->line++;
-                    t = pp_whitespace(nl_ws);
+                    t = pp_whitespace(s->curr, s->index, nl_ws);
                     goto exit;
                 } else if (c == '|') {
                     s->state = or_state;
                     break;
                 } else if (c == ';') {
                     s->index++;
-                    t = pp_punct(semicolon_punct);
+                    t = pp_punct(s->curr, s->index, semicolon_punct);
                     goto exit;
                 } else if (scanner_is_digit(c)) {
                     s->state = number_state;
@@ -199,7 +199,8 @@ pp_token scanner_next(scanner *s) {
             }
             case ident_state: {
                 if (!scanner_is_nondigit(c) && !scanner_is_digit(c)) {
-                    t = pp_ident(string_new(&s->src->inner[s->curr], s->index - s->curr));
+                    t = pp_ident(s->curr, s->index,
+                                 string_new(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
@@ -207,7 +208,8 @@ pp_token scanner_next(scanner *s) {
             case number_state: {
                 if ((!scanner_is_digit(c) && !scanner_is_nondigit(c)) && c != '.' && c != '+' &&
                     c != '-') {
-                    t = pp_pp_number(string_new(&s->src->inner[s->curr], s->index - s->curr));
+                    t = pp_pp_number(s->curr, s->index,
+                                     string_new(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
@@ -223,7 +225,8 @@ pp_token scanner_next(scanner *s) {
                                  "Newlines are not allowed within string literals.");
                     goto exit;
                 } else if (c == '"') {
-                    t = pp_string_lit(string_new(&s->src->inner[s->curr], ++s->index - s->curr),
+                    t = pp_string_lit(s->curr, s->index,
+                                      string_new(&s->src->inner[s->curr], ++s->index - s->curr),
                                       s->state == wide_string_lit_state);
                     goto exit;
                 }
@@ -231,17 +234,17 @@ pp_token scanner_next(scanner *s) {
             case star_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(stareq_op);
+                    t = pp_op(s->curr, s->index, stareq_op);
                 } else {
-                    t = pp_multi(star_multi);
+                    t = pp_multi(s->curr, s->index, star_multi);
                 }
                 goto exit;
             case eq_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(eqeq_op);
+                    t = pp_op(s->curr, s->index, eqeq_op);
                 } else {
-                    t = pp_multi(eq_multi);
+                    t = pp_multi(s->curr, s->index, eq_multi);
                 }
                 goto exit;
             case pp_directive_state:
@@ -278,133 +281,133 @@ pp_token scanner_next(scanner *s) {
             case period_state:
                 if (c == '.' && s->src->inner[s->index] == '.') {
                     s->index += 2;
-                    t = pp_punct(ellipsis_punct);
+                    t = pp_punct(s->curr, s->index, ellipsis_punct);
                 } else {
-                    t = pp_op(period_op);
+                    t = pp_op(s->curr, s->index, period_op);
                 }
                 goto exit;
             case plus_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(pluseq_op);
+                    t = pp_op(s->curr, s->index, pluseq_op);
                 } else if (c == '+') {
                     s->index++;
-                    t = pp_op(dblplus_op);
+                    t = pp_op(s->curr, s->index, dblplus_op);
                 } else {
-                    t = pp_op(plus_op);
+                    t = pp_op(s->curr, s->index, plus_op);
                 }
                 goto exit;
             case minus_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(minuseq_op);
+                    t = pp_op(s->curr, s->index, minuseq_op);
                 } else if (c == '>') {
                     s->index++;
-                    t = pp_op(arrow_op);
+                    t = pp_op(s->curr, s->index, arrow_op);
                 } else if (c == '-') {
                     s->index++;
-                    t = pp_op(dblminus_op);
+                    t = pp_op(s->curr, s->index, dblminus_op);
                 } else {
-                    t = pp_op(minus_op);
+                    t = pp_op(s->curr, s->index, minus_op);
                 }
                 goto exit;
             case lt_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(lteq_op);
+                    t = pp_op(s->curr, s->index, lteq_op);
                     goto exit;
                 } else if (c == '<') {
                     s->state = shiftl_state;
                 } else {
                     s->index++;
-                    t = pp_op(lt_op);
+                    t = pp_op(s->curr, s->index, lt_op);
                     goto exit;
                 }
                 break;
             case gt_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(gteq_op);
+                    t = pp_op(s->curr, s->index, gteq_op);
                     goto exit;
                 } else if (c == '<') {
                     s->state = shiftr_state;
                 } else {
-                    t = pp_op(gt_op);
+                    t = pp_op(s->curr, s->index, gt_op);
                     goto exit;
                 }
                 break;
             case and_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(andeq_op);
+                    t = pp_op(s->curr, s->index, andeq_op);
                 } else if (c == '&') {
                     s->index++;
-                    t = pp_op(dbland_op);
+                    t = pp_op(s->curr, s->index, dbland_op);
                 } else {
-                    t = pp_op(logand_op);
+                    t = pp_op(s->curr, s->index, logand_op);
                 }
                 goto exit;
             case div_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(diveq_op);
+                    t = pp_op(s->curr, s->index, diveq_op);
                     goto exit;
                 } else if (c == '*') {
                     s->state = comment_state;
                 } else {
-                    t = pp_op(div_op);
+                    t = pp_op(s->curr, s->index, div_op);
                     goto exit;
                 }
                 break;
             case percent_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(percenteq_op);
+                    t = pp_op(s->curr, s->index, percenteq_op);
                 } else {
-                    t = pp_op(percent_op);
+                    t = pp_op(s->curr, s->index, percent_op);
                 }
                 goto exit;
             case bang_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(bangeq_op);
+                    t = pp_op(s->curr, s->index, bangeq_op);
                 } else {
-                    t = pp_op(bang_op);
+                    t = pp_op(s->curr, s->index, bang_op);
                 }
                 goto exit;
             case xor_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(xoreq_op);
+                    t = pp_op(s->curr, s->index, xoreq_op);
                 } else {
-                    t = pp_op(logxor_op);
+                    t = pp_op(s->curr, s->index, logxor_op);
                 }
                 goto exit;
             case or_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(oreq_op);
+                    t = pp_op(s->curr, s->index, oreq_op);
                 } else if (c == '|') {
                     s->index++;
-                    t = pp_op(dblor_op);
+                    t = pp_op(s->curr, s->index, dblor_op);
                 } else {
-                    t = pp_op(logor_op);
+                    t = pp_op(s->curr, s->index, logor_op);
                 }
                 goto exit;
             case shiftl_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(shiftleq_op);
+                    t = pp_op(s->curr, s->index, shiftleq_op);
                 } else {
-                    t = pp_op(shiftl_op);
+                    t = pp_op(s->curr, s->index, shiftl_op);
                 }
                 goto exit;
             case shiftr_state:
                 if (c == '=') {
                     s->index++;
-                    t = pp_op(shiftreq_op);
+                    t = pp_op(s->curr, s->index, shiftreq_op);
                 } else {
-                    t = pp_op(shiftr_op);
+                    t = pp_op(s->curr, s->index, shiftr_op);
                 }
                 goto exit;
             case comment_state:
@@ -417,7 +420,7 @@ pp_token scanner_next(scanner *s) {
             }
             s->index++;
         } else {
-            t = pp_whitespace(eof_ws);
+            t = pp_whitespace(s->curr, s->index, eof_ws);
             goto exit;
         }
     }

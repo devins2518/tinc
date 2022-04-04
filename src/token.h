@@ -110,15 +110,6 @@ typedef enum {
     hash_punct       /* # */
 } punct;
 
-typedef union {
-    keyword keyword;
-    ident ident;
-    constant_tk constant;
-    string_lit string_lit;
-    op op;
-    punct punct;
-} lexing_token;
-
 typedef enum {
     lbracket_multi, /* [ */
     rbracket_multi, /* ] */
@@ -130,11 +121,7 @@ typedef enum {
     colon_multi     /* : */
 } multi;
 
-typedef struct {
-    int span_start;
-    int span_end;
-    char *msg;
-} error;
+typedef string error;
 
 typedef string pp_number;
 
@@ -172,20 +159,22 @@ typedef struct {
         error_e,
         whitespace_e
     } e;
+    int start;
+    int end;
 } pp_token;
 bool pp_token_eq(pp_token *a, pp_token *b);
 string pp_token_to_string(pp_token *t);
 
-pp_token pp_header_name(header_name h);
-pp_token pp_ident(ident i);
-pp_token pp_pp_number(pp_number p);
-pp_token pp_char_cons(char_cons c);
-pp_token pp_string_lit(string_lit s, bool wide);
-pp_token pp_op(op o);
-pp_token pp_punct(punct p);
-pp_token pp_multi(multi m);
+pp_token pp_header_name(int start, int end, header_name h);
+pp_token pp_ident(int start, int end, ident i);
+pp_token pp_pp_number(int start, int end, pp_number p);
+pp_token pp_char_cons(int start, int end, char_cons c);
+pp_token pp_string_lit(int start, int end, string_lit s, bool wide);
+pp_token pp_op(int start, int end, op o);
+pp_token pp_punct(int start, int end, punct p);
+pp_token pp_multi(int start, int end, multi m);
 pp_token pp_error(int start, int end, char *msg);
-pp_token pp_whitespace(whitespace w);
+pp_token pp_whitespace(int start, int end, whitespace w);
 
 DECLARE_GENERIC_HASH(pp_token)
 DECLARE_VECTOR(pp_token)

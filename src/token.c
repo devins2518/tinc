@@ -241,7 +241,7 @@ string pp_token_to_string(pp_token *t) {
         }
         break;
     case error_e:
-        s = string_new(t->p.error_p.msg, t->p.error_p.span_end - t->p.error_p.span_start);
+        s = string_new(t->p.error_p.inner, t->end - t->start);
         break;
     case whitespace_e:
         switch (t->p.whitespace_p) {
@@ -289,9 +289,8 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
             ret = (a->p.multi_p) == (b->p.multi_p);
             break;
         case error_e:
-            ret = (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
-                  (a->p.error_p.span_start) == (b->p.error_p.span_start) &&
-                  (strcmp(a->p.error_p.msg, b->p.error_p.msg) == 0);
+            ret = (a->start == b->start) && (a->end == b->end) &&
+                  (string_eq(&a->p.error_p, &b->p.error_p));
             break;
         case whitespace_e:
             ret = (a->p.whitespace_p == b->p.whitespace_p);
@@ -302,67 +301,84 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
     return ret;
 }
 
-pp_token pp_header_name(header_name h) {
+pp_token pp_header_name(int start, int end, header_name h) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.header_name_p = h;
     t.e = header_name_e;
     return t;
 }
-pp_token pp_ident(ident i) {
+pp_token pp_ident(int start, int end, ident i) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.ident_p = i;
     t.e = ident_e;
     return t;
 }
-pp_token pp_pp_number(pp_number p) {
+pp_token pp_pp_number(int start, int end, pp_number p) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.pp_number_p = p;
     t.e = pp_number_e;
     return t;
 }
-pp_token pp_char_cons(char_cons c) {
+pp_token pp_char_cons(int start, int end, char_cons c) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.char_cons_p = c;
     t.e = char_const_e;
     return t;
 }
-pp_token pp_string_lit(string_lit s, bool wide) {
+pp_token pp_string_lit(int start, int end, string_lit s, bool wide) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.string_lit_p.str = s;
     t.p.string_lit_p.wide = wide;
     t.e = string_lit_e;
     return t;
 }
-pp_token pp_op(op o) {
+pp_token pp_op(int start, int end, op o) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.op_p = o;
     t.e = op_e;
     return t;
 }
-pp_token pp_punct(punct p) {
+pp_token pp_punct(int start, int end, punct p) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.punct_p = p;
     t.e = punct_e;
     return t;
 }
-pp_token pp_multi(multi m) {
+pp_token pp_multi(int start, int end, multi m) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.multi_p = m;
     t.e = multi_e;
     return t;
 }
 pp_token pp_error(int start, int end, char *msg) {
     pp_token t;
-    error e;
-    e.span_start = start;
-    e.span_end = end;
-    e.msg = msg;
+    error e = string_new_raw(msg);
+    t.start = start;
+    t.end = end;
     t.p.error_p = e;
     t.e = error_e;
     return t;
 }
-pp_token pp_whitespace(whitespace w) {
+pp_token pp_whitespace(int start, int end, whitespace w) {
     pp_token t;
+    t.start = start;
+    t.end = end;
     t.p.whitespace_p = w;
     t.e = whitespace_e;
     return t;
