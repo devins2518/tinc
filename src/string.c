@@ -96,11 +96,22 @@ void string_add_char_star(string *a, const char *b, int index) {
     a->inner[a->len] = '\0';
 }
 
-unsigned int string_hash(string *str) {
+void string_replace_string(string *a, const string *b, int index, int len) {
+    string_rem_char(a, index, len);
+    string_add_string(a, b, index);
+}
+
+void string_replace_char_star(string *a, const char *b, int index, int len) {
+    string_rem_char(a, index, len);
+    string_add_char_star(a, b, index);
+}
+
+unsigned int string_hash(const string *str) {
     unsigned int hash = 5381;
     int c;
+    char *index = str->inner;
 
-    while ((c = *str->inner++))
+    while ((c = *index++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;

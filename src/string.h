@@ -18,9 +18,11 @@ bool string_eq_char_star(const string *a, const char *b);
 void string_rem_char(string *a, int index, int len);
 void string_add_string(string *a, const string *b, int index);
 void string_add_char_star(string *a, const char *b, int index);
+void string_replace_string(string *a, const string *b, int index, int len);
+void string_replace_char_star(string *a, const char *b, int index, int len);
 
 /* djb2 */
-unsigned int string_hash(string *str);
+unsigned int string_hash(const string *str);
 
 string read_file(char *path);
 

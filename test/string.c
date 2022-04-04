@@ -40,6 +40,18 @@ int main() {
     string_add_string(&a, &b, 0);
     assert(string_eq_char_star(&a, "hellotestho123"));
     assert(a.len == 14);
+    string_replace_string(&a, &b, 5, b.len);
+    assert(string_eq_char_star(&a, "hellohelloo123"));
+    assert(a.len == 14);
+    string_replace_char_star(&a, "hi", 5, 2);
+    assert(string_eq_char_star(&a, "hellohilloo123"));
+    assert(a.len == 14);
+    string_replace_string(&a, &b, 5, 3);
+    assert(string_eq_char_star(&a, "hellohelloloo123"));
+    assert(a.len == 16);
+    string_replace_char_star(&a, "hi", 0, 5);
+    assert(string_eq_char_star(&a, "hihelloloo123"));
+    assert(a.len == 13);
 
     free(a.inner);
     free(b.inner);

@@ -16,7 +16,7 @@
     void hash_map_##k##_##v##_free(hash_map_##k##_##v h);                                          \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val);                         \
     void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k *key);                               \
-    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k *key);
+    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, const k *key);
 
 #define DECLARE_GENERIC_HASH(t) unsigned long t##_hash(t *val);
 
@@ -71,7 +71,7 @@
         if (e != NULL)                                                                             \
             e->tomb = DEAD;                                                                        \
     }                                                                                              \
-    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, k *key) {                  \
+    entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, const k *key) {            \
         int init_index = hf(key) % h->cap;                                                         \
         int index = init_index;                                                                    \
         entry_##k##_##v *e = NULL;                                                                 \

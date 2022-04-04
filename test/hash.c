@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool cmp(int *a, int *b) { return *a == *b; }
-unsigned int int_hash(int *x) {
+bool cmp(const int *a, const int *b) { return *a == *b; }
+unsigned int int_hash(const int *x) {
     unsigned hash = *x;
     hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
     hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
