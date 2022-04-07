@@ -114,10 +114,9 @@ vector_pp_token preprocessor_run(string *src) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "define")) {
                     pp_token t = scanner_skip_ws(&pp.scanner);
                     assert(t.e == ident_e);
-                    while (pp.scanner.src->inner[pp.scanner.index++] != '\n') {
-                        preprocessor_define(&pp, t.p.ident_p, pp.scanner.curr,
-                                            pp.scanner.index - pp.scanner.curr);
-                    }
+                    while (pp.scanner.src->inner[pp.scanner.index++] != '\n') {}
+                    preprocessor_define(&pp, t.p.ident_p, pp.scanner.curr,
+                                        pp.scanner.index - pp.scanner.curr);
                 } else if (string_eq_char_star(&directive.p.ident_p, "undef")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "line")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "error")) {

@@ -6,11 +6,11 @@
 
 DECLARE_VECTOR(char)
 typedef vector_char string;
-string char_to_string(char *c);
+string char_to_string(const char *c);
 
 /* bool string_is_kw(const string *s, token *t); */
-string string_new(char *str, int len);
-string string_new_raw(char *str);
+string string_new(const char *str, int len);
+string string_new_raw(const char *str);
 void string_append_string(string *a, const string *b);
 void string_append_char_star(string *a, const char *b);
 bool string_eq(const string *a, const string *b);

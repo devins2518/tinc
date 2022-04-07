@@ -29,9 +29,9 @@ typedef struct {
         comment_state
     } state;
     string *src;
-    int curr;  /* start of the in progress scan */
-    int index; /* current index of the scan */
-    int line;
+    unsigned int curr;  /* start of the in progress scan */
+    unsigned int index; /* current index of the scan */
+    unsigned int line;
 } scanner;
 scanner scanner_new(string *src);
 pp_token scanner_next(scanner *s);

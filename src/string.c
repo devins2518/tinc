@@ -5,9 +5,9 @@
 
 IMPL_VECTOR(char)
 
-string char_to_string(char *c) { return string_new(c, 1); }
+string char_to_string(const char *c) { return string_new(c, 1); }
 
-string string_new(char *str, int len) {
+string string_new(const char *str, int len) {
     string s;
     char *inner;
     s = vector_char_new_reserve(len);
@@ -17,7 +17,7 @@ string string_new(char *str, int len) {
     return s;
 }
 
-string string_new_raw(char *str) {
+string string_new_raw(const char *str) {
     int len = strlen(str);
     return string_new(str, len);
 }
@@ -44,7 +44,11 @@ bool string_eq(const string *a, const string *b) {
 }
 
 bool string_eq_char_star(const string *a, const char *b) {
-    return strncmp(a->inner, b, a->len) == 0;
+    if (a->len != strlen(b)) {
+        return false;
+    } else {
+        return strncmp(a->inner, b, a->len) == 0;
+    }
 }
 
 string read_file(char *path) {

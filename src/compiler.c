@@ -8,7 +8,7 @@
 #include <string.h>
 
 void convert_to_logical_newline(string *src) {
-    int i;
+    unsigned int i;
     for (i = 0; i < src->len; i++) {
         /* Replace EOL characters with new line characters. */
         if (src->inner[i] == '\r' && src->inner[i + 1] == '\n') {

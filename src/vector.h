@@ -4,13 +4,13 @@
 unsigned long int power2(unsigned int a);
 #define DECLARE_VECTOR(name)                                                                       \
     typedef struct {                                                                               \
-        int len;                                                                                   \
-        int cap;                                                                                   \
+        unsigned int len;                                                                          \
+        unsigned int cap;                                                                          \
         name *inner;                                                                               \
     } vector_##name;                                                                               \
     vector_##name vector_##name##_new();                                                           \
-    vector_##name vector_##name##_new_reserve(int len);                                            \
-    void vector_##name##_reserve(vector_##name *v, int len);                                       \
+    vector_##name vector_##name##_new_reserve(unsigned int len);                                   \
+    void vector_##name##_reserve(vector_##name *v, unsigned int len);                              \
     bool vector_##name##_add(vector_##name *v, name n);                                            \
     name *vector_##name##_get_inner(vector_##name *v);                                             \
     void vector_##name##_print(const vector_##name *v);                                            \
@@ -29,7 +29,7 @@ unsigned long int power2(unsigned int a);
         return v;                                                                                  \
     }                                                                                              \
     /* Assumes caller will fill vector to `len`. */                                                \
-    vector_##name vector_##name##_new_reserve(int len) {                                           \
+    vector_##name vector_##name##_new_reserve(unsigned int len) {                                  \
         vector_##name v;                                                                           \
         v.len = 0;                                                                                 \
         v.cap = power2(len);                                                                       \
@@ -40,7 +40,7 @@ unsigned long int power2(unsigned int a);
         }                                                                                          \
         return v;                                                                                  \
     }                                                                                              \
-    void vector_##name##_reserve(vector_##name *v, int len) {                                      \
+    void vector_##name##_reserve(vector_##name *v, unsigned int len) {                             \
         if (v->cap < len) {                                                                        \
             v->cap = power2(len);                                                                  \
             v->inner = realloc(v->inner, (v->cap) * sizeof(name));                                 \
@@ -62,7 +62,7 @@ unsigned long int power2(unsigned int a);
         return true;                                                                               \
     }                                                                                              \
     void vector_##name##_print(const vector_##name *v) {                                           \
-        int i;                                                                                     \
+        unsigned int i;                                                                            \
         printf("[\n");                                                                             \
         for (i = 0; i < v->len; i++) {                                                             \
             string s = name##_to_string(&v->inner[i]);                                             \
