@@ -133,6 +133,7 @@ typedef enum { space_ws, nl_ws, eof_ws } whitespace;
 
 typedef struct {
     union {
+        keyword keyword_p;
         header_name header_name_p;
         ident ident_p;
         pp_number pp_number_p;
@@ -148,6 +149,7 @@ typedef struct {
         whitespace whitespace_p;
     } p;
     enum {
+        keyword_e,
         header_name_e,
         ident_e,
         pp_number_e,
@@ -175,6 +177,7 @@ pp_token pp_punct(int start, int end, punct p);
 pp_token pp_multi(int start, int end, multi m);
 pp_token pp_error(int start, int end, char *msg);
 pp_token pp_whitespace(int start, int end, whitespace w);
+void pp_try_keyword(pp_token *t);
 
 DECLARE_GENERIC_HASH(pp_token)
 DECLARE_VECTOR(pp_token)

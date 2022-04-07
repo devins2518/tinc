@@ -141,6 +141,7 @@ vector_pp_token preprocessor_run(string *src) {
         case ident_e:
             if (preprocessor_is_macro(&pp, &t))
                 continue;
+            pp_try_keyword(&t);
             goto def;
         default:
         def:

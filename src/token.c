@@ -6,6 +6,107 @@
 string pp_token_to_string(pp_token *t) {
     string s;
     switch (t->e) {
+    case keyword_e:
+        s = string_new_raw("keyword: ");
+        switch (t->p.keyword_p) {
+        case auto_kw:
+            string_append_char_star(&s, "auto");
+            break;
+        case break_kw:
+            string_append_char_star(&s, "break");
+            break;
+        case case_kw:
+            string_append_char_star(&s, "case");
+            break;
+        case char_kw:
+            string_append_char_star(&s, "char");
+            break;
+        case const_kw:
+            string_append_char_star(&s, "const");
+            break;
+        case continue_kw:
+            string_append_char_star(&s, "continue");
+            break;
+        case default_kw:
+            string_append_char_star(&s, "default");
+            break;
+        case do_kw:
+            string_append_char_star(&s, "do");
+            break;
+        case double_kw:
+            string_append_char_star(&s, "double");
+            break;
+        case else_kw:
+            string_append_char_star(&s, "else");
+            break;
+        case enum_kw:
+            string_append_char_star(&s, "enum");
+            break;
+        case extern_kw:
+            string_append_char_star(&s, "extern");
+            break;
+        case float_kw:
+            string_append_char_star(&s, "float");
+            break;
+        case for_kw:
+            string_append_char_star(&s, "for");
+            break;
+        case goto_kw:
+            string_append_char_star(&s, "goto");
+            break;
+        case if_kw:
+            string_append_char_star(&s, "if");
+            break;
+        case int_kw:
+            string_append_char_star(&s, "int");
+            break;
+        case long_kw:
+            string_append_char_star(&s, "long");
+            break;
+        case register_kw:
+            string_append_char_star(&s, "register");
+            break;
+        case return_kw:
+            string_append_char_star(&s, "return");
+            break;
+        case short_kw:
+            string_append_char_star(&s, "short");
+            break;
+        case signed_kw:
+            string_append_char_star(&s, "signed");
+            break;
+        case sizeof_kw:
+            string_append_char_star(&s, "sizeof");
+            break;
+        case static_kw:
+            string_append_char_star(&s, "static");
+            break;
+        case struct_kw:
+            string_append_char_star(&s, "struct");
+            break;
+        case switch_kw:
+            string_append_char_star(&s, "switch");
+            break;
+        case typedef_kw:
+            string_append_char_star(&s, "typedef");
+            break;
+        case union_kw:
+            string_append_char_star(&s, "union");
+            break;
+        case unsigned_kw:
+            string_append_char_star(&s, "unsigned");
+            break;
+        case void_kw:
+            string_append_char_star(&s, "void");
+            break;
+        case volatile_kw:
+            string_append_char_star(&s, "volatile");
+            break;
+        case while_kw:
+            string_append_char_star(&s, "while");
+            break;
+        }
+        break;
     case header_name_e:
         s = string_new_raw("header: ");
         string_append_string(&s, &t->p.header_name_p);
@@ -264,6 +365,9 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
 
     if (a->e == b->e) {
         switch (a->e) {
+        case keyword_e:
+            ret = a->p.keyword_p == b->p.keyword_p;
+            break;
         case header_name_e:
             ret = string_eq(&a->p.header_name_p, &b->p.header_name_p);
             break;
@@ -382,6 +486,107 @@ pp_token pp_whitespace(int start, int end, whitespace w) {
     t.p.whitespace_p = w;
     t.e = whitespace_e;
     return t;
+}
+void pp_try_keyword(pp_token *t) {
+    if (t->e == ident_e) {
+        if (string_eq_char_star(&t->p.ident_p, "auto")) {
+            t->e = keyword_e;
+            t->p.keyword_p = auto_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "break")) {
+            t->e = keyword_e;
+            t->p.keyword_p = break_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "case")) {
+            t->e = keyword_e;
+            t->p.keyword_p = case_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "char")) {
+            t->e = keyword_e;
+            t->p.keyword_p = char_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "const")) {
+            t->e = keyword_e;
+            t->p.keyword_p = const_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "continue")) {
+            t->e = keyword_e;
+            t->p.keyword_p = continue_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "default")) {
+            t->e = keyword_e;
+            t->p.keyword_p = default_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "do")) {
+            t->e = keyword_e;
+            t->p.keyword_p = do_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "double")) {
+            t->e = keyword_e;
+            t->p.keyword_p = double_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "else")) {
+            t->e = keyword_e;
+            t->p.keyword_p = else_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "enum")) {
+            t->e = keyword_e;
+            t->p.keyword_p = enum_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "extern")) {
+            t->e = keyword_e;
+            t->p.keyword_p = extern_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "float")) {
+            t->e = keyword_e;
+            t->p.keyword_p = float_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "for")) {
+            t->e = keyword_e;
+            t->p.keyword_p = for_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "goto")) {
+            t->e = keyword_e;
+            t->p.keyword_p = goto_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "if")) {
+            t->e = keyword_e;
+            t->p.keyword_p = if_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "int")) {
+            t->e = keyword_e;
+            t->p.keyword_p = int_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "long")) {
+            t->e = keyword_e;
+            t->p.keyword_p = long_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "register")) {
+            t->e = keyword_e;
+            t->p.keyword_p = register_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "return")) {
+            t->e = keyword_e;
+            t->p.keyword_p = return_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "short")) {
+            t->e = keyword_e;
+            t->p.keyword_p = short_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "signed")) {
+            t->e = keyword_e;
+            t->p.keyword_p = signed_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "sizeof")) {
+            t->e = keyword_e;
+            t->p.keyword_p = sizeof_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "static")) {
+            t->e = keyword_e;
+            t->p.keyword_p = static_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "struct")) {
+            t->e = keyword_e;
+            t->p.keyword_p = struct_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "switch")) {
+            t->e = keyword_e;
+            t->p.keyword_p = switch_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "typedef")) {
+            t->e = keyword_e;
+            t->p.keyword_p = typedef_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "union")) {
+            t->e = keyword_e;
+            t->p.keyword_p = union_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "unsigned")) {
+            t->e = keyword_e;
+            t->p.keyword_p = unsigned_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "void")) {
+            t->e = keyword_e;
+            t->p.keyword_p = void_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "volatile")) {
+            t->e = keyword_e;
+            t->p.keyword_p = volatile_kw;
+        } else if (string_eq_char_star(&t->p.ident_p, "while")) {
+            t->e = keyword_e;
+            t->p.keyword_p = while_kw;
+        }
+    }
 }
 
 IMPL_GENERIC_HASH(pp_token)
