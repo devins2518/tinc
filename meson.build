@@ -1,4 +1,4 @@
-project('tinc', 'c',
+project('tinc', ['c', 'cpp'],
   version : '0.1',
   default_options : ['warning_level=3', 'c_std=c89', 'werror=true'])
 

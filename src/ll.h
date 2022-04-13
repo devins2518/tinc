@@ -17,17 +17,26 @@
             printf("Allocation failed.");                                                          \
             exit(EXIT_FAILURE);                                                                    \
         }                                                                                          \
-        ll.next = NULL;                                                                            \
-        ll.prev = NULL;                                                                            \
-        ll.data = data;                                                                            \
+        ll->next = NULL;                                                                           \
+        ll->prev = NULL;                                                                           \
+        ll->data = data;                                                                           \
         return ll;                                                                                 \
     }                                                                                              \
-    void ll_##t##_append(ll_##t *ll, t d) {                                                        \
-        ll_##t ll = ll;                                                                            \
-        while (ll->next != NULL) {                                                                 \
-            ll = ll->next;                                                                         \
+    void ll_##t##_add_end(ll_##t *ll, t d) {                                                       \
+        ll_##t *ln = ll;                                                                           \
+        while (ln->next != NULL) {                                                                 \
+            ln = ln->next;                                                                         \
         }                                                                                          \
-        ll->next = ll_##t##_new(d);                                                                \
+        ln->next = ll_##t##_new(d);                                                                \
+        ln->next->prev = ln;                                                                       \
+    }                                                                                              \
+    void ll_##t##_add_start(ll_##t *ll, t d) {                                                     \
+        ll_##t *lp = ll;                                                                           \
+        while (lp->prev != NULL) {                                                                 \
+            lp = lp->prev;                                                                         \
+        }                                                                                          \
+        lp->prev = ll_##t##_new(d);                                                                \
+        lp->prev->next = lp;                                                                       \
     }
 
 #endif

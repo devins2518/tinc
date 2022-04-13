@@ -3,11 +3,19 @@
 #include "token.h"
 #include <stdio.h>
 
-vector_ast_token generate_ast(vector_pp_token *tokens) {
-    vector_ast_token v = vector_ast_token_new();
+typedef struct {
+    vector_pp_token *pp_tokens;
+    ll_ast_token *ast_tokens;
+} lexer;
+
+/* jump_statement lex_jump_statement(lexer *l); */
+
+ll_ast_token *generate_ast(vector_pp_token *tokens) {
+    lexer l;
+    l.pp_tokens = tokens;
+    l.ast_tokens = ll_ast_token_new();
     (void)tokens;
-    (void)v;
     printf("unimplemented");
     exit(EXIT_FAILURE);
-    return v;
+    return l.ast_tokens;
 }
