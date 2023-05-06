@@ -13,7 +13,7 @@ TEST(STRING, TESTING) {
 
     a = string_new_raw("test");
     b = string_new_raw("hello");
-    c = string_new("testhello", 9);
+    c = string_new_len("testhello", 9);
     EXPECT_TRUE(a.inner[a.len] == '\0');
     string_append_string(&a, &b);
     EXPECT_TRUE(a.inner[a.len] == '\0');

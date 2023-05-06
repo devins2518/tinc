@@ -5,12 +5,13 @@
 #include "string.h"
 
 IMPL_VECTOR(char)
+IMPL_TYPEDEF_VECTOR(char, string)
 
 string char_to_string(const char *c) {
-    return string_new(c, 1);
+    return string_new_len(c, 1);
 }
 
-string string_new(const char *str, int len) {
+string string_new_len(const char *str, int len) {
     string s;
     char *inner;
     s = vector_char_new_reserve(len);
@@ -22,7 +23,7 @@ string string_new(const char *str, int len) {
 
 string string_new_raw(const char *str) {
     int len = strlen(str);
-    return string_new(str, len);
+    return string_new_len(str, len);
 }
 
 void string_append_string(string *a, const string *b) {

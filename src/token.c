@@ -342,7 +342,7 @@ string pp_token_to_string(pp_token *t) {
         }
         break;
     case error_e:
-        s = string_new(t->p.error_p.inner, t->end - t->start);
+        s = string_new_len(t->p.error_p.inner, t->end - t->start);
         break;
     case whitespace_e:
         switch (t->p.whitespace_p) {

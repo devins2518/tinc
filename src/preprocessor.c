@@ -26,7 +26,7 @@ bool preprocessor_ifndef(preprocessor *pp, ident ident) {
 }
 void preprocessor_include(preprocessor *pp, char *path, char *src);
 void preprocessor_define(preprocessor *pp, ident ident, int start, int len) {
-    string s = string_new(&pp->scanner.src->inner[start], len);
+    string s = string_new_len(&pp->scanner.src->inner[start], len);
     hash_map_ident_string_insert(&pp->defines, ident, s);
 }
 void preprocessor_undef(preprocessor *pp, ident *ident) {

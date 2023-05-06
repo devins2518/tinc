@@ -193,7 +193,7 @@ pp_token scanner_next(scanner *s) {
             case ident_state: {
                 if (!scanner_is_nondigit(c) && !scanner_is_digit(c)) {
                     t = pp_ident(s->curr, s->index,
-                                 string_new(&s->src->inner[s->curr], s->index - s->curr));
+                                 string_new_len(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
@@ -202,7 +202,7 @@ pp_token scanner_next(scanner *s) {
                 if ((!scanner_is_digit(c) && !scanner_is_nondigit(c)) && c != '.' && c != '+' &&
                     c != '-') {
                     t = pp_pp_number(s->curr, s->index,
-                                     string_new(&s->src->inner[s->curr], s->index - s->curr));
+                                     string_new_len(&s->src->inner[s->curr], s->index - s->curr));
                     goto exit;
                 }
                 break;
@@ -219,7 +219,7 @@ pp_token scanner_next(scanner *s) {
                     goto exit;
                 } else if (c == '"') {
                     t = pp_string_lit(s->curr, s->index,
-                                      string_new(&s->src->inner[s->curr], ++s->index - s->curr),
+                                      string_new_len(&s->src->inner[s->curr], ++s->index - s->curr),
                                       s->state == wide_string_lit_state);
                     goto exit;
                 }

@@ -65,7 +65,7 @@ struct enumerator_list;
 struct enumerator;
 typedef enum { const_tq_e, volatile_tq_e } type_qualifier;
 DECLARE_VECTOR(type_qualifier)
-typedef vector_type_qualifier type_qualifier_list;
+TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
 struct declarator;
 struct direct_declarator;
 struct pointer;
@@ -129,8 +129,8 @@ typedef struct {
     enum { cond_expr_ae_e, unary_assignment_ae_e } e;
 } assignment_expression;
 DECLARE_VECTOR(assignment_expression)
-typedef vector_assignment_expression argument_expression_list;
-typedef vector_assignment_expression expression;
+TYPEDEF_VECTOR(assignment_expression, argument_expression_list)
+TYPEDEF_VECTOR(assignment_expression, expression)
 typedef struct {
     union {
         struct unary_expression *unary_expr;
@@ -225,7 +225,7 @@ typedef struct {
     struct initializer *init;
 } init_declarator;
 DECLARE_VECTOR(init_declarator)
-typedef vector_init_declarator init_declarator_list;
+TYPEDEF_VECTOR(init_declarator, init_declarator_list)
 typedef struct {
     union {
         struct struct_or_union_specifier *sou_spec;
@@ -257,7 +257,7 @@ typedef struct {
     struct struct_declarator_list *body;
 } struct_declaration;
 DECLARE_VECTOR(struct_declaration)
-typedef vector_struct_declaration struct_declaration_list;
+TYPEDEF_VECTOR(struct_declaration, struct_declaration_list)
 typedef struct {
     union {
         struct type_specifier *specifier;
@@ -266,14 +266,14 @@ typedef struct {
     enum { type_specifier_sq_e, type_qualifier_sq_e } e;
 } _specifier_qualifier;
 DECLARE_VECTOR(_specifier_qualifier)
-typedef vector__specifier_qualifier specifier_qualifier_list;
+TYPEDEF_VECTOR(_specifier_qualifier, specifier_qualifier_list)
 typedef struct {
     struct declarator *decl;
     struct constant_expression *const_expr;
     enum { decl_only_sd_e, colon_const_expr_sd_e, decl_const_expr_sd_e } e;
 } struct_declarator;
 DECLARE_VECTOR(struct_declarator)
-typedef vector_struct_declarator struct_declarator_list;
+TYPEDEF_VECTOR(struct_declarator, struct_declarator_list)
 typedef struct {
     ident ident;
     bool ident_present;
@@ -286,7 +286,7 @@ typedef struct {
     bool const_expr_present;
 } enumerator;
 DECLARE_VECTOR(enumerator)
-typedef vector_enumerator enumerator_list;
+TYPEDEF_VECTOR(enumerator, enumerator_list)
 typedef struct {
     struct direct_declarator *direct_decl;
     struct pointer *ptr;
@@ -328,13 +328,13 @@ typedef struct {
     enum { none_pd_e, decl_pd_e, abstract_decl_pd_e } e;
 } parameter_declaration;
 DECLARE_VECTOR(parameter_declaration)
-typedef vector_parameter_declaration parameter_list;
+TYPEDEF_VECTOR(parameter_declaration, parameter_list)
 typedef struct {
     parameter_list params;
     bool ellipsis;
 } parameter_type_list;
 DECLARE_VECTOR(ident)
-typedef vector_ident identifier_list;
+TYPEDEF_VECTOR(ident, identifier_list)
 typedef struct {
     struct specifier_qualifier_list *sql;
     struct abstract_declarator *abstract_decl;
@@ -381,7 +381,7 @@ typedef struct {
     enum { assignment_expression_i_e, init_list_i_e } e;
 } initializer;
 DECLARE_VECTOR(initializer)
-typedef vector_initializer initializer_list;
+TYPEDEF_VECTOR(initializer, initializer_list)
 typedef struct {
     union {
         struct labeled_statement *label;
@@ -401,7 +401,7 @@ typedef struct {
     } e;
 } statement;
 DECLARE_VECTOR(statement)
-typedef vector_statement statement_list;
+TYPEDEF_VECTOR(statement, statement_list)
 typedef struct {
     struct statement *statement;
     union {
@@ -419,6 +419,8 @@ typedef struct {
     struct init_declarator_list *decl_list;
     bool decl_list_present;
 } declaration;
+DECLARE_VECTOR(declaration)
+TYPEDEF_VECTOR(declaration, declaration_list)
 typedef struct {
     union {
         struct storage_class_specifier *scs;
@@ -428,9 +430,7 @@ typedef struct {
     enum { scs_ds_e, type_specifier_ds_e, type_qualifier_ds_e } e;
 } _decl_spec;
 DECLARE_VECTOR(_decl_spec)
-typedef vector__decl_spec declaration_specifiers;
-DECLARE_VECTOR(declaration)
-typedef vector_declaration declaration_list;
+TYPEDEF_VECTOR(_decl_spec, declaration_specifiers)
 typedef struct {
     struct expression *expr;
     bool expr_present;
@@ -477,7 +477,7 @@ typedef struct {
     enum { function_def_ed_e, decl_ed_e } e;
 } external_declaration;
 DECLARE_VECTOR(external_declaration)
-typedef vector_external_declaration translation_unit;
+TYPEDEF_VECTOR(external_declaration, translation_unit)
 
 typedef struct {
     union {

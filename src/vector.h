@@ -15,6 +15,35 @@ unsigned long int power2(unsigned int a);
     name *vector_##name##_get_inner(vector_##name *v);                                             \
     void vector_##name##_free(vector_##name v);
 
+#define TYPEDEF_VECTOR(from, to)                                                                   \
+    typedef vector_##from to;                                                                      \
+    to to##_new(void);                                                                             \
+    to to##_new_reserve(unsigned int len);                                                         \
+    void to##_reserve(to *v, unsigned int len);                                                    \
+    bool to##_add(to *v, from f);                                                                  \
+    from *to##_get_inner(to *v);                                                                   \
+    void to##_free(to v);
+
+#define IMPL_TYPEDEF_VECTOR(from, to)                                                              \
+    to to##_new(void) {                                                                            \
+        return vector_##from##_new();                                                              \
+    }                                                                                              \
+    to to##_new_reserve(unsigned int len) {                                                        \
+        return vector_##from##_new_reserve(len);                                                   \
+    }                                                                                              \
+    void to##_reserve(to *v, unsigned int len) {                                                   \
+        vector_##from##_reserve(v, len);                                                           \
+    }                                                                                              \
+    bool to##_add(to *v, from f) {                                                                 \
+        return vector_##from##_add(v, f);                                                          \
+    }                                                                                              \
+    from *to##_get_inner(to *v) {                                                                  \
+        return vector_##from##_get_inner(v);                                                       \
+    }                                                                                              \
+    void to##_free(to v) {                                                                         \
+        vector_##from##_free(v);                                                                   \
+    }
+
 #define IMPL_VECTOR(name)                                                                          \
     vector_##name vector_##name##_new(void) {                                                      \
         vector_##name v;                                                                           \
