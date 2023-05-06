@@ -14,7 +14,14 @@ struct postfix_expression;
 struct assignment_expression;
 struct argument_expression_list;
 struct unary_expression;
-typedef enum { and_uo_e, star_uo_e, plus_uo_e, minus_uo_e, approx_uo_e, bang_uo_e } unary_operator;
+typedef enum unary_operator {
+    and_uo_e,
+    star_uo_e,
+    plus_uo_e,
+    minus_uo_e,
+    approx_uo_e,
+    bang_uo_e
+} unary_operator;
 struct cast_expression;
 struct multiplicative_expression;
 struct additive_expression;
@@ -27,7 +34,7 @@ struct inclusive_or_expression;
 struct logical_and_expression;
 struct logical_or_expression;
 struct conditional_expression;
-typedef enum {
+typedef enum assignment_operator {
     eq_ao_e,
     muleq_ao_e,
     diveq_ao_e,
@@ -45,7 +52,7 @@ struct declaration;
 struct declaration_specifiers;
 struct init_declarator;
 struct init_declarator_list;
-typedef enum {
+typedef enum storage_class_specifier {
     typedef_scs_e,
     extern_scs_e,
     static_scs_e,
@@ -54,7 +61,7 @@ typedef enum {
 } storage_class_specifier;
 struct type_specifier;
 struct struct_or_union_specifier;
-typedef enum { struct_sou_e, union_sou_e } struct_or_union;
+typedef enum struct_or_union { struct_sou_e, union_sou_e } struct_or_union;
 struct struct_declaration;
 struct struct_declaration_list;
 struct _specifier_qualifier;
@@ -63,13 +70,12 @@ struct struct_declarator;
 struct enum_specifier;
 struct enumerator_list;
 struct enumerator;
-typedef enum { const_tq_e, volatile_tq_e } type_qualifier;
+typedef enum type_qualifier { const_tq_e, volatile_tq_e } type_qualifier;
 DECLARE_VECTOR(type_qualifier)
+TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
 struct declarator;
 struct direct_declarator;
 struct pointer;
-struct type_qualifier_list;
-TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
 struct parameter_type_list;
 struct parameter_list;
 struct parameter_declaration;
@@ -91,7 +97,7 @@ struct translation_unit;
 struct external_declaration;
 struct function_definition;
 
-typedef struct {
+typedef struct primary_expression {
     union {
         ident ident;
         constant_tk constant;
@@ -100,7 +106,7 @@ typedef struct {
     } p;
     enum { ident_pe_e, constant_pe_e, string_lit_pe_e, expr_pe_e } e;
 } primary_expression;
-typedef struct {
+typedef struct postfix_expression {
     primary_expression *expr;
     union {
         struct expression *array_idx;
@@ -117,7 +123,7 @@ typedef struct {
         dec_poste_e
     } e;
 } postfix_expression;
-typedef struct {
+typedef struct assignment_expression {
     union {
         struct conditional_expression *cond_expr_p;
         struct {
@@ -131,29 +137,29 @@ typedef struct {
 DECLARE_VECTOR(assignment_expression)
 TYPEDEF_VECTOR(assignment_expression, argument_expression_list)
 TYPEDEF_VECTOR(assignment_expression, expression)
-typedef struct {
+typedef struct cast_expression {
     union {
         struct unary_expression *unary_expr;
         struct type_name *ty;
     } p;
     enum { unary_expr_ce_e, ty_name_ce_e } e;
 } cast_expression;
-typedef struct {
+typedef struct multiplicative_expression {
     struct cast_expression *cast_expr;
     struct multiplicative_expression *mul_expr;
     enum { cast_expr_only_me_e, mul_expr_mul_me_e, mul_expr_div_me_e, mul_expr_per_me_e } e;
 } multiplicative_expression;
-typedef struct {
+typedef struct additive_expression {
     struct multiplicative_expression *mul_expr;
     struct additive_expression *add_expr;
     enum { mul_expr_only_ae_e, add_expr_plus_ae_e, add_expr_minus_ae_e } e;
 } additive_expression;
-typedef struct {
+typedef struct shift_expression {
     struct additive_expression *add_expr;
     struct shift_expression *sft_expr;
     enum { add_expr_only_ae_e, sft_expr_left_se_e, sft_expr_right_se_e } e;
 } shift_expression;
-typedef struct {
+typedef struct relational_expression {
     struct shift_expression *sft_expr;
     struct relational_expression *rel_expr;
     enum {
@@ -164,44 +170,44 @@ typedef struct {
         rel_expr_ge_re_e
     } e;
 } relational_expression;
-typedef struct {
+typedef struct equality_expression {
     struct relational_expression *rel_expr;
     struct equality_expression *eq_expr;
     enum { rel_expr_only_ee_e, eq_expr_eq_ee_e, eq_expr_ne_ee_e } e;
 } equality_expression;
-typedef struct {
+typedef struct and_expression {
     struct equality_expression *eq_expr;
     struct and_expression *and_expr;
     bool and_present;
 } and_expression;
-typedef struct {
+typedef struct exclusive_or_expression {
     struct and_expression *and_expr;
     struct xor_expression *xor_expr;
     bool xor_present;
 } exclusive_or_expression;
-typedef struct {
+typedef struct inclusive_or_expression {
     struct xor_expression *xor_expr;
     struct ior_expression *ior_expr;
     bool ior_present;
 } inclusive_or_expression;
-typedef struct {
+typedef struct logical_and_expression {
     struct inclusive_or_expression *ior_expr;
     struct logical_and_expression *logand_expr;
     bool logand_present;
 } logical_and_expression;
-typedef struct {
+typedef struct logical_or_expression {
     struct logical_and_expression *logand_expr;
     struct logical_or_expression *logor_expr;
     bool logor_present;
 } logical_or_expression;
-typedef struct {
+typedef struct conditional_expression {
     struct logical_and_expression *cond;
     struct expression *ter_que;
     struct conditional_expression *ter_col;
     bool ternary_present;
 } conditional_expression;
 typedef conditional_expression constant_expression;
-typedef struct {
+typedef struct unary_expression {
     union {
         postfix_expression *expr;
         struct unary_expression *unary_expr;
@@ -219,14 +225,14 @@ typedef struct {
         sizeof_type_name_ue_e
     } e;
 } unary_expression;
-typedef struct {
+typedef struct init_declarator {
     struct declarator *decl;
     bool initialized;
     struct initializer *init;
 } init_declarator;
 DECLARE_VECTOR(init_declarator)
 TYPEDEF_VECTOR(init_declarator, init_declarator_list)
-typedef struct {
+typedef struct type_specifier {
     union {
         struct struct_or_union_specifier *sou_spec;
         struct enum_specifier *enum_spec;
@@ -247,52 +253,52 @@ typedef struct {
         type_name_ts_e
     } e;
 } type_specifier;
-typedef struct {
+typedef struct struct_or_union_specifier {
     bool present;
     struct specifier_qualifier_list *specs;
     struct struct_declarator_list *fields;
 } struct_or_union_specifier;
-typedef struct {
+typedef struct struct_declaration {
     struct specifier_qualifier_list *specs;
     struct struct_declarator_list *body;
 } struct_declaration;
 DECLARE_VECTOR(struct_declaration)
 TYPEDEF_VECTOR(struct_declaration, struct_declaration_list)
-typedef struct {
+typedef struct _specifier_qualifier {
     union {
         struct type_specifier *specifier;
-        struct type_qualifier *qualifier;
+        enum type_qualifier *qualifier;
     } p;
     enum { type_specifier_sq_e, type_qualifier_sq_e } e;
 } _specifier_qualifier;
 DECLARE_VECTOR(_specifier_qualifier)
 TYPEDEF_VECTOR(_specifier_qualifier, specifier_qualifier_list)
-typedef struct {
+typedef struct struct_declarator {
     struct declarator *decl;
     struct constant_expression *const_expr;
     enum { decl_only_sd_e, colon_const_expr_sd_e, decl_const_expr_sd_e } e;
 } struct_declarator;
 DECLARE_VECTOR(struct_declarator)
 TYPEDEF_VECTOR(struct_declarator, struct_declarator_list)
-typedef struct {
+typedef struct enum_specifier {
     ident ident;
     bool ident_present;
     struct enumerator_list *enumerator;
     bool enumerator_present;
 } enum_specifier;
-typedef struct {
+typedef struct enumerator {
     ident ident;
     struct constant_expression *const_expr;
     bool const_expr_present;
 } enumerator;
 DECLARE_VECTOR(enumerator)
 TYPEDEF_VECTOR(enumerator, enumerator_list)
-typedef struct {
+typedef struct declarator {
     struct direct_declarator *direct_decl;
     struct pointer *ptr;
     bool ptr_present;
 } declarator;
-typedef struct {
+typedef struct direct_declarator {
     union {
         ident ident;
         struct declarator *decl;
@@ -314,12 +320,12 @@ typedef struct {
     } p;
     enum { ident_dd_e, paren_decl_dd_e, dd_bracket_dd_e, dd_paren_dd_e } e;
 } direct_declarator;
-typedef struct {
+typedef struct pointer {
     struct type_qualifier_list *tql;
     struct pointer *ptr;
     enum { empty_ptr_e, tql_ptr_e, ptr_ptr_e, tql_ptr_ptr_e } e;
 } pointer;
-typedef struct {
+typedef struct parameter_declaration {
     struct declaration_specifiers *decl_specs;
     union {
         struct declarator *decl;
@@ -329,24 +335,24 @@ typedef struct {
 } parameter_declaration;
 DECLARE_VECTOR(parameter_declaration)
 TYPEDEF_VECTOR(parameter_declaration, parameter_list)
-typedef struct {
+typedef struct parameter_type_list {
     parameter_list params;
     bool ellipsis;
 } parameter_type_list;
 DECLARE_VECTOR(ident)
 TYPEDEF_VECTOR(ident, identifier_list)
-typedef struct {
+typedef struct type_name {
     struct specifier_qualifier_list *sql;
     struct abstract_declarator *abstract_decl;
     bool abstract_decl_present;
 } type_name;
-typedef struct {
+typedef struct abstract_declarator {
     struct pointer *ptr;
     bool ptr_present;
     struct direct_abstract_declarator *direct_abstract_decl;
     bool direct_abstract_decl_present;
 } abstract_declarator;
-typedef struct {
+typedef struct direct_abstract_declarator {
     union {
         struct abstract_declarator *paren_dad;
         struct constant_expression *bracket_dad;
@@ -373,7 +379,7 @@ typedef struct {
         self_const_paramater_type_dad_e
     } e;
 } direct_abstract_declarator;
-typedef struct {
+typedef struct initializer {
     union {
         struct assignment_expression *assignment;
         struct initializer_list *init_list;
@@ -382,7 +388,7 @@ typedef struct {
 } initializer;
 DECLARE_VECTOR(initializer)
 TYPEDEF_VECTOR(initializer, initializer_list)
-typedef struct {
+typedef struct statement {
     union {
         struct labeled_statement *label;
         struct compound_statement *compound;
@@ -402,7 +408,7 @@ typedef struct {
 } statement;
 DECLARE_VECTOR(statement)
 TYPEDEF_VECTOR(statement, statement_list)
-typedef struct {
+typedef struct labeled_statement {
     struct statement *statement;
     union {
         ident ident;
@@ -410,38 +416,38 @@ typedef struct {
     } p;
     enum { ident_ls_e, case_ls_e, default_ls_e } e;
 } labeled_statement;
-typedef struct {
+typedef struct compound_statement {
     struct declaration_list *decls;
     struct statement_list *statements;
 } compound_statement;
-typedef struct {
+typedef struct declaration {
     struct declaration_specifiers *decl_specs;
     struct init_declarator_list *decl_list;
     bool decl_list_present;
 } declaration;
 DECLARE_VECTOR(declaration)
 TYPEDEF_VECTOR(declaration, declaration_list)
-typedef struct {
+typedef struct _decl_spec {
     union {
-        struct storage_class_specifier *scs;
+        enum storage_class_specifier *scs;
         struct type_specifier *specifier;
-        struct type_qualifier *qualifier;
+        enum type_qualifier *qualifier;
     } p;
     enum { scs_ds_e, type_specifier_ds_e, type_qualifier_ds_e } e;
 } _decl_spec;
 DECLARE_VECTOR(_decl_spec)
 TYPEDEF_VECTOR(_decl_spec, declaration_specifiers)
-typedef struct {
+typedef struct expression_statement {
     struct expression *expr;
     bool expr_present;
 } expression_statement;
-typedef struct {
+typedef struct selection_statement {
     struct statement *statement;
     struct expression *expr;
     struct statement *else_statement;
     bool else_present;
 } selection_statement;
-typedef struct {
+typedef struct iteration_statement {
     struct statement *body;
     union {
         struct expression *while_expr;
@@ -454,22 +460,22 @@ typedef struct {
     } p;
     enum { while_is_e, do_while_is_e, for_wo_expr_is_e, for_w_expr_is_e } e;
 } iteration_statement;
-typedef struct {
+typedef struct jump_statement {
     union {
         ident goto_ident;
         struct expression *return_expr;
     } p;
     enum { goto_js_e, continue_js_e, break_js_e, return_js_e, return_expr_js_e } e;
 } jump_statement;
-typedef struct {
-    struct declaration_specifiers *decl_specs;
+typedef struct function_definition {
+    declaration_specifiers *decl_specs;
     bool decl_specs_present;
-    struct declaration_list *decl_list;
+    declaration_list *decl_list;
     bool decl_list_present;
     struct declarator *sig;
     struct compound_statement *body;
 } function_definition;
-typedef struct {
+typedef struct external_declaration {
     union {
         struct function_definition *function_def;
         struct declaration *decl;
