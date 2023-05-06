@@ -11,7 +11,7 @@
         ll_##t##_node *start;                                                                      \
         ll_##t##_node *end;                                                                        \
     } ll_##t;                                                                                      \
-    ll_##t *ll_##t##_new();                                                                        \
+    ll_##t *ll_##t##_new(void);                                                                    \
     void ll_##t##_add_end(ll_##t *ll, t d);                                                        \
     void ll_##t##_add_start(ll_##t *ll, t d);
 
@@ -27,7 +27,7 @@
         node->prev = NULL;                                                                         \
         return node;                                                                               \
     }                                                                                              \
-    ll_##t *ll_##t##_new() {                                                                       \
+    ll_##t *ll_##t##_new(void) {                                                                   \
         ll_##t *ll = malloc(sizeof(ll_##t));                                                       \
         if (ll == NULL) {                                                                          \
             printf("Allocation failed");                                                           \

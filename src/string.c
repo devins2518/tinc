@@ -1,11 +1,14 @@
-#include "string.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "string.h"
+
 IMPL_VECTOR(char)
 
-string char_to_string(const char *c) { return string_new(c, 1); }
+string char_to_string(const char *c) {
+    return string_new(c, 1);
+}
 
 string string_new(const char *str, int len) {
     string s;

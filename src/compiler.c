@@ -80,6 +80,6 @@ vector_pp_token pre_preprocessing(char *path) {
 void compile_file(char *path) {
     vector_pp_token tokens;
     tokens = pre_preprocessing(path);
-    vector_pp_token_print(&tokens);
+    /* vector_pp_token_print(&tokens); */
     generate_ast(&tokens);
 }

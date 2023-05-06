@@ -82,15 +82,6 @@ translation_unit *generate_ast(vector_pp_token *tokens) {
 }
 
 translation_unit *try_parse_translation_unit(lexer *l) {
-    translation_unit tu;
-    tu.e = translation_unit_ast_e;
-    while (l->pp_idx < l->pp_tokens->len) {
-        ast_token ed;
-        ed.e = external_declaration_ast_e;
-        ed.p.external_declaration = try_parse_external_declaration(l);
-        tu
-    }
-    ll_ast_token_add_start(l->ast_tokens, tu);
     (void)l;
     printf("unimplemented try_parse_translation_unit *");
     exit(EXIT_FAILURE);

@@ -8,20 +8,19 @@ unsigned long int power2(unsigned int a);
         unsigned int cap;                                                                          \
         name *inner;                                                                               \
     } vector_##name;                                                                               \
-    vector_##name vector_##name##_new();                                                           \
+    vector_##name vector_##name##_new(void);                                                       \
     vector_##name vector_##name##_new_reserve(unsigned int len);                                   \
     void vector_##name##_reserve(vector_##name *v, unsigned int len);                              \
     bool vector_##name##_add(vector_##name *v, name n);                                            \
     name *vector_##name##_get_inner(vector_##name *v);                                             \
-    void vector_##name##_print(const vector_##name *v);                                            \
     void vector_##name##_free(vector_##name v);
 
 #define IMPL_VECTOR(name)                                                                          \
-    vector_##name vector_##name##_new() {                                                          \
+    vector_##name vector_##name##_new(void) {                                                      \
         vector_##name v;                                                                           \
         v.len = 0;                                                                                 \
         v.cap = 16;                                                                                \
-        v.inner = calloc(v.cap, sizeof(name));                                                     \
+        v.inner = (name *)calloc(v.cap, sizeof(name));                                             \
         if (v.inner == NULL) {                                                                     \
             printf("Allocation failed, cap * sizeof: %lu", v.cap * sizeof(name));                  \
             exit(EXIT_FAILURE);                                                                    \
@@ -33,7 +32,7 @@ unsigned long int power2(unsigned int a);
         vector_##name v;                                                                           \
         v.len = 0;                                                                                 \
         v.cap = power2(len);                                                                       \
-        v.inner = calloc(v.cap, sizeof(name));                                                     \
+        v.inner = (name *)calloc(v.cap, sizeof(name));                                             \
         if (v.inner == NULL) {                                                                     \
             printf("Allocation failed, cap * sizeof: %lu", v.cap * sizeof(name));                  \
             exit(EXIT_FAILURE);                                                                    \
@@ -43,7 +42,7 @@ unsigned long int power2(unsigned int a);
     void vector_##name##_reserve(vector_##name *v, unsigned int len) {                             \
         if (v->cap < len) {                                                                        \
             v->cap = power2(len);                                                                  \
-            v->inner = realloc(v->inner, (v->cap) * sizeof(name));                                 \
+            v->inner = (name *)realloc(v->inner, (v->cap) * sizeof(name));                         \
             if (v->inner == NULL) {                                                                \
                 printf("Allocation failed");                                                       \
                 exit(EXIT_FAILURE);                                                                \
@@ -54,23 +53,18 @@ unsigned long int power2(unsigned int a);
     bool vector_##name##_add(vector_##name *v, name n) {                                           \
         if (v->len >= v->cap) {                                                                    \
             v->cap <<= 1;                                                                          \
-            v->inner = realloc(v->inner, (v->cap) * sizeof(name));                                 \
+            v->inner = (name *)realloc(v->inner, (v->cap) * sizeof(name));                         \
             if (v->inner == NULL)                                                                  \
                 return false;                                                                      \
         }                                                                                          \
         v->inner[v->len++] = n;                                                                    \
         return true;                                                                               \
     }                                                                                              \
-    void vector_##name##_print(const vector_##name *v) {                                           \
-        unsigned int i;                                                                            \
-        printf("[\n");                                                                             \
-        for (i = 0; i < v->len; i++) {                                                             \
-            string s = name##_to_string(&v->inner[i]);                                             \
-            printf("\t%.*s,\n", s.len, s.inner);                                                   \
-        }                                                                                          \
-        printf("]\n");                                                                             \
+    name *vector_##name##_get_inner(vector_##name *v) {                                            \
+        return v->inner;                                                                           \
     }                                                                                              \
-    void vector_##name##_free(vector_##name v) { free(v.inner); }                                  \
-    name *vector_##name##_get_inner(vector_##name *v) { return v->inner; }
+    void vector_##name##_free(vector_##name v) {                                                   \
+        free(v.inner);                                                                             \
+    }
 
 #endif

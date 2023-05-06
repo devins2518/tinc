@@ -1,7 +1,11 @@
-#include "preprocessor.h"
-
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "preprocessor.h"
+#include "string.h"
+
+IMPL_HASHMAP(ident, string, string_hash, string_eq)
 
 preprocessor preprocessor_new(string *src) {
     preprocessor p;
@@ -114,7 +118,8 @@ vector_pp_token preprocessor_run(string *src) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "define")) {
                     pp_token t = scanner_skip_ws(&pp.scanner);
                     assert(t.e == ident_e);
-                    while (pp.scanner.src->inner[pp.scanner.index++] != '\n') {}
+                    while (pp.scanner.src->inner[pp.scanner.index++] != '\n') {
+                    }
                     preprocessor_define(&pp, t.p.ident_p, pp.scanner.curr,
                                         pp.scanner.index - pp.scanner.curr);
                 } else if (string_eq_char_star(&directive.p.ident_p, "undef")) {

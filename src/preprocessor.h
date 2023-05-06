@@ -1,8 +1,9 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include "generic.h"
 #include "scanner.h"
+
+DECLARE_HASHMAP(ident, string)
 
 typedef struct {
     hash_map_ident_string defines;

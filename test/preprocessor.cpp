@@ -1,6 +1,10 @@
+#include <gtest/gtest.h>
+extern "C" {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wkeyword-macro"
 #include "../src/preprocessor.h"
-#include "../src/string.h"
-#include <assert.h>
+#pragma clang diagnostic pop
+}
 
 const char *SRC = "\
 #define HELLO 3\n\
@@ -15,22 +19,20 @@ int main() {\n\
 
 void init_expected_tokens(vector_pp_token *v);
 
-int main() {
+TEST(PREPROCESSOR, PARSING) {
     vector_pp_token tokens;
     vector_pp_token tokens_expect = vector_pp_token_new();
     string src = string_new_raw(SRC);
-    unsigned int i;
     init_expected_tokens(&tokens_expect);
     tokens = preprocessor_run(&src);
-    for (i = 0; i < tokens.len; i++) {
-        assert(pp_token_eq(&tokens.inner[i], &tokens_expect.inner[i]));
+    for (unsigned int i = 0; i < tokens.len; i++) {
+        EXPECT_TRUE(pp_token_eq(&tokens.inner[i], &tokens_expect.inner[i]));
     }
-    return 0;
 }
 
 void init_expected_tokens(vector_pp_token *v) {
     pp_token t;
-    t.e = keyword_e;
+    t.e = pp_token::keyword_e;
     t.p.keyword_p = int_kw;
     t.start = 16;
     t.end = 18;

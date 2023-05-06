@@ -1,7 +1,24 @@
 #include "ast.h"
+#include "string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
+IMPL_VECTOR(type_qualifier)
+IMPL_VECTOR(assignment_expression)
+IMPL_VECTOR(init_declarator)
+IMPL_VECTOR(struct_declaration)
+IMPL_VECTOR(_specifier_qualifier)
+IMPL_VECTOR(struct_declarator)
+IMPL_VECTOR(enumerator)
+IMPL_VECTOR(parameter_declaration)
+IMPL_VECTOR(ident)
+IMPL_VECTOR(initializer)
+IMPL_VECTOR(statement)
+IMPL_VECTOR(_decl_spec)
+IMPL_VECTOR(declaration)
+IMPL_VECTOR(external_declaration)
+IMPL_LINKED_LIST(ast_token)
 
 ast_token *ast_expression(expression *expr) {
     ast_token *t = malloc(sizeof(expression));
@@ -375,8 +392,6 @@ ast_token *ast_function_definition(function_definition *func_def) {
     t->p.function_definition = func_def;
     return t;
 }
-
-IMPL_LINKED_LIST(ast_token)
 
 string ast_token_to_string(ast_token *a) {
     string s;

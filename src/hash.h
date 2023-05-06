@@ -12,7 +12,7 @@
         int filled;                                                                                \
         entry_##k##_##v *table;                                                                    \
     } hash_map_##k##_##v;                                                                          \
-    hash_map_##k##_##v hash_map_##k##_##v##_new();                                                 \
+    hash_map_##k##_##v hash_map_##k##_##v##_new(void);                                             \
     void hash_map_##k##_##v##_free(hash_map_##k##_##v h);                                          \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val);                         \
     void hash_map_##k##_##v##_delete(hash_map_##k##_##v *h, k *key);                               \
@@ -24,24 +24,26 @@
 #define DEAD 0
 
 #define IMPL_HASHMAP(k, v, hf, cmp)                                                                \
-    hash_map_##k##_##v hash_map_##k##_##v##_new() {                                                \
+    hash_map_##k##_##v hash_map_##k##_##v##_new(void) {                                            \
         hash_map_##k##_##v h;                                                                      \
         h.cap = 16;                                                                                \
         h.filled = 0;                                                                              \
-        h.table = calloc(h.cap, sizeof(entry_##k##_##v));                                          \
+        h.table = (entry_##k##_##v *)calloc(h.cap, sizeof(*h.table));                              \
         if (h.table == NULL) {                                                                     \
             printf("Failed to allocate hashmap.");                                                 \
             exit(EXIT_FAILURE);                                                                    \
         }                                                                                          \
         return h;                                                                                  \
     }                                                                                              \
-    void hash_map_##k##_##v##_free(hash_map_##k##_##v h) { free(h.table); }                        \
+    void hash_map_##k##_##v##_free(hash_map_##k##_##v h) {                                         \
+        free(h.table);                                                                             \
+    }                                                                                              \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val) {                        \
         entry_##k##_##v *e;                                                                        \
         int i;                                                                                     \
         /* Resize table to account for addition. */                                                \
         if (++h->filled > h->cap) {                                                                \
-            e = calloc(h->cap << 1, sizeof(entry_##k##_##v));                                      \
+            e = (entry_##k##_##v *)calloc(h->cap << 1, sizeof(*e));                                \
             if (e == NULL) {                                                                       \
                 printf("Failed to allocate hashmap.");                                             \
                 exit(EXIT_FAILURE);                                                                \
