@@ -3,7 +3,7 @@
 
 unsigned long int power2(unsigned int a);
 #define DECLARE_VECTOR(name)                                                                       \
-    typedef struct {                                                                               \
+    typedef struct vector_##name {                                                                 \
         unsigned int len;                                                                          \
         unsigned int cap;                                                                          \
         name *inner;                                                                               \
@@ -16,7 +16,7 @@ unsigned long int power2(unsigned int a);
     void vector_##name##_free(vector_##name v);
 
 #define TYPEDEF_VECTOR(from, to)                                                                   \
-    typedef vector_##from to;                                                                      \
+    typedef struct vector_##from to;                                                               \
     to to##_new(void);                                                                             \
     to to##_new_reserve(unsigned int len);                                                         \
     void to##_reserve(to *v, unsigned int len);                                                    \

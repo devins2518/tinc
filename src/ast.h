@@ -65,11 +65,11 @@ struct enumerator_list;
 struct enumerator;
 typedef enum { const_tq_e, volatile_tq_e } type_qualifier;
 DECLARE_VECTOR(type_qualifier)
-TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
 struct declarator;
 struct direct_declarator;
 struct pointer;
 struct type_qualifier_list;
+TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
 struct parameter_type_list;
 struct parameter_list;
 struct parameter_declaration;
