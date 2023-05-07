@@ -21,10 +21,6 @@ void preprocessor_free(preprocessor pp) {
     uint64_t i;
     pp_token tok;
     entry_ident_string e;
-    (void)i;
-    (void)tok;
-    (void)e;
-    (void)pp;
     for (i = 0; i < pp.defines.filled; e = pp.defines.table[i++]) {
         string_free(e.val);
     }
@@ -165,7 +161,6 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
         case ident_e:
             if (preprocessor_is_macro(pp, &t))
                 break;
-            pp_try_keyword(&t);
             goto def;
         default:
         def:

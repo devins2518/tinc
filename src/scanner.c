@@ -196,6 +196,7 @@ pp_token scanner_next(scanner *s) {
                 if (!scanner_is_nondigit(c) && !scanner_is_digit(c)) {
                     t = pp_ident(s->curr, s->index,
                                  string_new_len(&s->src->inner[s->curr], s->index - s->curr));
+                    pp_try_keyword(&t);
                     goto exit;
                 }
                 break;
