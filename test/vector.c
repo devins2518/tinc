@@ -1,12 +1,12 @@
 #include "../src/vector.h"
-#include <criterion/criterion.h>
+#include <ctest.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 DECLARE_VECTOR(int)
 IMPL_VECTOR(int)
 
-Test(VECTOR, TEST_VECTOR) {
+CTEST(VECTOR, TEST_VECTOR) {
     vector_int v = vector_int_new();
 
     for (int i = 0; i < 0xFFFF; i++) {
@@ -14,7 +14,7 @@ Test(VECTOR, TEST_VECTOR) {
     }
     int *p = vector_int_get_inner(&v);
     for (int i = 0; i < 0xFFFF; i++) {
-        cr_assert(p[i] == i);
+        ASSERT_TRUE(p[i] == i);
     }
 
     vector_int_free(v);
@@ -26,7 +26,7 @@ Test(VECTOR, TEST_VECTOR) {
     }
     p = vector_int_get_inner(&v);
     for (int i = 0; i < 0xFFFF; i++) {
-        cr_assert(p[i] == i);
+        ASSERT_TRUE(p[i] == i);
     }
 
     vector_int_free(v);

@@ -149,6 +149,7 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
                     vector_pp_token_add(&pp->tokens, pp_error(directive.start, directive.end,
                                                               "Unknown preprocessing directive"));
                 }
+                pp_token_free(directive);
             } else {
                 goto def;
             }
@@ -162,9 +163,8 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
             }
             break;
         case ident_e:
-            // TODO
-            /* if (preprocessor_is_macro(&pp, &t))
-                 continue; */
+            if (preprocessor_is_macro(pp, &t))
+                break;
             pp_try_keyword(&t);
             goto def;
         default:
@@ -173,7 +173,6 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
             vector_pp_token_add(&pp->tokens, t);
             break;
         }
-        pp_token_free(t);
     }
     return pp->tokens;
 }

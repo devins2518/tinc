@@ -19,6 +19,7 @@ set(MAIN_SRCS
     src/main.c ${SRCS})
 set(TEST_SRCS
     test/hash.c
+    test/main.c
     test/preprocessor.c
     test/string.c
     test/vector.c
@@ -30,23 +31,16 @@ set_property(TARGET tinc PROPERTY C_STANDARD 90)
 
 # Tests
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    find_package(PkgConfig)
-    
-    find_path(CRITERION_INCLUDE_DIR criterion/criterion.h
-              PATH_SUFFIXES criterion)
-    
-    find_library(CRITERION_LIBRARY NAMES criterion libcriterion)
-    
-    set(CRITERION_LIBRARIES ${CRITERION_LIBRARY})
-    set(CRITERION_INCLUDE_DIRS ${CRITERION_INCLUDE_DIR})
-    
-    include(FindPackageHandleStandardArgs)
-    # handle the QUIET and REQUIRED arguments and set CRITERION_FOUND to TRUE
-    # if all listed variables are TRUE
-    find_package_handle_standard_args(Criterion DEFAULT_MSG
-                                      CRITERION_LIBRARY CRITERION_INCLUDE_DIR)
-    
-    mark_as_advanced(CRITERION_INCLUDE_DIR CRITERION_LIBRARY)
+    include(ExternalProject)
+    ExternalProject_Add(
+        ctest
+        GIT_REPOSITORY https://github.com/bvdberg/ctest
+        PREFIX ctest
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND ""
+        )
+    ExternalProject_Get_property(ctest SOURCE_DIR)
 
     list(APPEND CMAKE_CTEST_ARGUMENTS "--verbose")
 
@@ -54,7 +48,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     enable_testing()
 
     add_executable(tinc_tests ${TEST_SRCS})
-    include_directories(${CRITERION_INCLUDE_DIRS})
-    target_link_libraries(tinc_tests ${CRITERION_LIBRARIES})
+    include_directories(${SOURCE_DIR})
     add_test(tinc_tests tinc_tests)
 endif()

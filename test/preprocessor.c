@@ -1,9 +1,9 @@
 #include "../src/preprocessor.h"
-#include <criterion/criterion.h>
+#include <ctest.h>
 
 void init_expected_tokens(vector_pp_token *v);
 
-Test(PREPROCESSOR, PARSING) {
+CTEST(PREPROCESSOR, PARSING) {
     string src = string_new_raw("\
 #define HELLO 3\n\
 int main() {\n\
@@ -19,7 +19,10 @@ int main() {\n\
     vector_pp_token tokens_expect = vector_pp_token_new();
     init_expected_tokens(&tokens_expect);
     for (unsigned int i = 0; i < tokens.len; i++) {
-        cr_assert(pp_token_eq(&tokens.inner[i], &tokens_expect.inner[i]));
+        string lhs = pp_token_to_string(&tokens.inner[i]);
+        string rhs = pp_token_to_string(&tokens_expect.inner[i]);
+        CTEST_LOG("lhs: %.*s, rhs: %.*s", lhs.len, lhs.inner, rhs.len, rhs.inner);
+        ASSERT_TRUE(pp_token_eq(&tokens.inner[i], &tokens_expect.inner[i]));
     }
 }
 
