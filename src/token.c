@@ -121,7 +121,7 @@ string pp_token_to_string(pp_token *t) {
         break;
     case char_const_e:
         s = string_new_raw("char_const: ");
-        string_append_string(&s, &t->p.char_cons_p);
+        string_append_string(&s, &t->p.char_const_p);
         break;
     case string_lit_e:
         s = string_new_raw("string_lit: ");
@@ -360,6 +360,23 @@ string pp_token_to_string(pp_token *t) {
     return s;
 }
 
+#define FREE_CASE(name)                                                                            \
+    case name##_e:                                                                                 \
+        string_free(tok.p.name##_p);                                                               \
+        break;
+void pp_token_free(pp_token tok) {
+    switch (tok.e) {
+        FREE_CASE(header_name)
+        FREE_CASE(ident)
+        FREE_CASE(pp_number)
+        FREE_CASE(char_const)
+        FREE_CASE(error)
+    default:
+        break;
+    }
+}
+#undef FREE_CASE
+
 bool pp_token_eq(pp_token *a, pp_token *b) {
     bool ret = false;
 
@@ -378,7 +395,7 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
             ret = string_eq(&a->p.pp_number_p, &b->p.pp_number_p);
             break;
         case char_const_e:
-            ret = string_eq(&a->p.char_cons_p, &b->p.char_cons_p);
+            ret = string_eq(&a->p.char_const_p, &b->p.char_const_p);
             break;
         case string_lit_e:
             ret = string_eq(&a->p.string_lit_p.str, &b->p.string_lit_p.str);
@@ -429,11 +446,11 @@ pp_token pp_pp_number(int start, int end, pp_number p) {
     t.e = pp_number_e;
     return t;
 }
-pp_token pp_char_cons(int start, int end, char_cons c) {
+pp_token pp_char_const(int start, int end, char_cons c) {
     pp_token t;
     t.start = start;
     t.end = end;
-    t.p.char_cons_p = c;
+    t.p.char_const_p = c;
     t.e = char_const_e;
     return t;
 }
@@ -490,99 +507,131 @@ pp_token pp_whitespace(int start, int end, whitespace w) {
 void pp_try_keyword(pp_token *t) {
     if (t->e == ident_e) {
         if (string_eq_char_star(&t->p.ident_p, "auto")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = auto_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "break")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = break_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "case")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = case_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "char")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = char_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "const")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = const_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "continue")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = continue_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "default")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = default_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "do")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = do_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "double")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = double_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "else")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = else_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "enum")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = enum_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "extern")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = extern_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "float")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = float_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "for")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = for_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "goto")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = goto_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "if")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = if_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "int")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = int_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "long")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = long_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "register")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = register_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "return")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = return_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "short")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = short_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "signed")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = signed_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "sizeof")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = sizeof_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "static")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = static_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "struct")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = struct_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "switch")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = switch_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "typedef")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = typedef_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "union")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = union_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "unsigned")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = unsigned_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "void")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = void_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "volatile")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = volatile_kw;
         } else if (string_eq_char_star(&t->p.ident_p, "while")) {
+            pp_token_free(*t);
             t->e = keyword_e;
             t->p.keyword_p = while_kw;
         }

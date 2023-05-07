@@ -14,8 +14,8 @@ string char_to_string(const char *c) {
 string string_new_len(const char *str, int len) {
     string s;
     char *inner;
-    s = vector_char_new_reserve(len);
-    inner = vector_char_get_inner(&s);
+    s = string_new_reserve(len);
+    inner = string_get_inner(&s);
     strncat(inner, str, len);
     s.len = len;
     return s;
@@ -27,14 +27,14 @@ string string_new_raw(const char *str) {
 }
 
 void string_append_string(string *a, const string *b) {
-    vector_char_reserve(a, a->len + b->len);
+    string_reserve(a, a->len + b->len);
     strncat(a->inner, b->inner, b->len);
     a->len += b->len;
 }
 
 void string_append_char_star(string *a, const char *b) {
     int len = strlen(b);
-    vector_char_reserve(a, a->len + len);
+    string_reserve(a, a->len + len);
     strncat(a->inner, b, len);
     a->len += len;
 }

@@ -18,7 +18,9 @@ scanner scanner_new(string *src) {
     return s;
 }
 
-bool scanner_is_digit(char c) { return (c >= '0' && c <= '9'); }
+bool scanner_is_digit(char c) {
+    return (c >= '0' && c <= '9');
+}
 
 bool scanner_is_nondigit(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_');

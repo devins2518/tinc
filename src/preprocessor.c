@@ -17,6 +17,24 @@ preprocessor preprocessor_new(string *src) {
     return p;
 }
 
+void preprocessor_free(preprocessor pp) {
+    uint64_t i;
+    pp_token tok;
+    entry_ident_string e;
+    (void)i;
+    (void)tok;
+    (void)e;
+    (void)pp;
+    /* for (i = 0; i < pp.defines.filled; e = pp.defines.table[i++]) { */
+    /*     string_free(e.val); */
+    /* } */
+    /* hash_map_ident_string_free(pp.defines); */
+    /* for (i = 0; i < pp.tokens.len; tok = pp.tokens.inner[i++]) { */
+    /*     pp_token_free(tok); */
+    /* } */
+    /* vector_pp_token_free(pp.tokens); */
+}
+
 bool preprocessor_if(preprocessor *pp, ident *ident);
 bool preprocessor_ifdef(preprocessor *pp, ident ident) {
     return hash_map_ident_string_lookup(&pp->defines, &ident) != NULL;
@@ -71,6 +89,7 @@ void preprocessor_skip(preprocessor *pp, skip_info i) {
                         break;
                 }
             }
+            pp_token_free(t);
         }
     }
     pp->scanner.curr = pp->scanner.index;
@@ -78,7 +97,8 @@ void preprocessor_skip(preprocessor *pp, skip_info i) {
 
 vector_pp_token preprocessor_run(string *src) {
     preprocessor pp = preprocessor_new(src);
-    while (true) {
+    bool exit = false;
+    while (!exit) {
         pp_token t;
         t = scanner_next(&pp.scanner);
         switch (t.e) {
@@ -137,14 +157,15 @@ vector_pp_token preprocessor_run(string *src) {
         }
         case whitespace_e:
             if (t.p.whitespace_p == eof_ws) {
-                goto exit;
+                exit = true;
             } else if (t.p.whitespace_p == nl_ws) {
                 pp.start_of_line = true;
             }
             break;
         case ident_e:
-            if (preprocessor_is_macro(&pp, &t))
-                continue;
+            // TODO
+            /* if (preprocessor_is_macro(&pp, &t))
+                 continue; */
             pp_try_keyword(&t);
             goto def;
         default:
@@ -153,7 +174,8 @@ vector_pp_token preprocessor_run(string *src) {
             vector_pp_token_add(&pp.tokens, t);
             break;
         }
+        pp_token_free(t);
     }
-exit:
+    preprocessor_free(pp);
     return pp.tokens;
 }

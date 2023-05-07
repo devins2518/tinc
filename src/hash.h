@@ -1,6 +1,8 @@
 #ifndef HASH_H
 #define HASH_H
 
+#include <stdlib.h>
+
 #define DECLARE_HASHMAP(k, v)                                                                      \
     typedef struct {                                                                               \
         k key;                                                                                     \
@@ -8,8 +10,8 @@
         int tomb;                                                                                  \
     } entry_##k##_##v;                                                                             \
     typedef struct {                                                                               \
-        int cap;                                                                                   \
-        int filled;                                                                                \
+        uint64_t cap;                                                                              \
+        uint64_t filled;                                                                           \
         entry_##k##_##v *table;                                                                    \
     } hash_map_##k##_##v;                                                                          \
     hash_map_##k##_##v hash_map_##k##_##v##_new(void);                                             \
@@ -40,7 +42,7 @@
     }                                                                                              \
     void hash_map_##k##_##v##_insert(hash_map_##k##_##v *h, k key, v val) {                        \
         entry_##k##_##v *e;                                                                        \
-        int i;                                                                                     \
+        uint64_t i;                                                                                \
         /* Resize table to account for addition. */                                                \
         if (++h->filled > h->cap) {                                                                \
             e = (entry_##k##_##v *)calloc(h->cap << 1, sizeof(*e));                                \
@@ -72,6 +74,7 @@
         entry_##k##_##v *e = hash_map_##k##_##v##_lookup(h, key);                                  \
         if (e != NULL)                                                                             \
             e->tomb = DEAD;                                                                        \
+        h->filled--;                                                                               \
     }                                                                                              \
     entry_##k##_##v *hash_map_##k##_##v##_lookup(hash_map_##k##_##v *h, const k *key) {            \
         int init_index = hf(key) % h->cap;                                                         \

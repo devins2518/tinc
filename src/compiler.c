@@ -74,6 +74,7 @@ vector_pp_token pre_preprocessing(char *path) {
     convert_to_logical_newline(&src);
     /* Translation phase 3-4 */
     tokens = preprocessor_run(&src);
+    string_free(src);
     return tokens;
 }
 
@@ -82,4 +83,5 @@ void compile_file(char *path) {
     tokens = pre_preprocessing(path);
     /* vector_pp_token_print(&tokens); */
     generate_ast(&tokens);
+    vector_pp_token_free(tokens);
 }

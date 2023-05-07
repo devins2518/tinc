@@ -137,7 +137,7 @@ typedef struct {
         header_name header_name_p;
         ident ident_p;
         pp_number pp_number_p;
-        char_cons char_cons_p;
+        char_cons char_const_p;
         struct {
             string_lit str;
             bool wide;
@@ -166,11 +166,12 @@ typedef struct {
 } pp_token;
 bool pp_token_eq(pp_token *a, pp_token *b);
 string pp_token_to_string(pp_token *t);
+void pp_token_free(pp_token tok);
 
 pp_token pp_header_name(int start, int end, header_name h);
 pp_token pp_ident(int start, int end, ident i);
 pp_token pp_pp_number(int start, int end, pp_number p);
-pp_token pp_char_cons(int start, int end, char_cons c);
+pp_token pp_char_const(int start, int end, char_cons c);
 pp_token pp_string_lit(int start, int end, string_lit s, bool wide);
 pp_token pp_op(int start, int end, op o);
 pp_token pp_punct(int start, int end, punct p);
