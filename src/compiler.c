@@ -70,11 +70,13 @@ void convert_to_logical_newline(string *src) {
 vector_pp_token pre_preprocessing(char *path) {
     string src = read_file(path);
     vector_pp_token tokens;
+    preprocessor pp = preprocessor_new(&src);
     /* Translation phases 1-2 */
     convert_to_logical_newline(&src);
     /* Translation phase 3-4 */
-    tokens = preprocessor_run(&src);
+    tokens = preprocessor_run(&pp);
     string_free(src);
+    preprocessor_free(pp);
     return tokens;
 }
 

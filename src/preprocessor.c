@@ -25,14 +25,14 @@ void preprocessor_free(preprocessor pp) {
     (void)tok;
     (void)e;
     (void)pp;
-    /* for (i = 0; i < pp.defines.filled; e = pp.defines.table[i++]) { */
-    /*     string_free(e.val); */
-    /* } */
-    /* hash_map_ident_string_free(pp.defines); */
-    /* for (i = 0; i < pp.tokens.len; tok = pp.tokens.inner[i++]) { */
-    /*     pp_token_free(tok); */
-    /* } */
-    /* vector_pp_token_free(pp.tokens); */
+    for (i = 0; i < pp.defines.filled; e = pp.defines.table[i++]) {
+        string_free(e.val);
+    }
+    hash_map_ident_string_free(pp.defines);
+    for (i = 0; i < pp.tokens.len; tok = pp.tokens.inner[i++]) {
+        pp_token_free(tok);
+    }
+    vector_pp_token_free(pp.tokens);
 }
 
 bool preprocessor_if(preprocessor *pp, ident *ident);
@@ -95,40 +95,39 @@ void preprocessor_skip(preprocessor *pp, skip_info i) {
     pp->scanner.curr = pp->scanner.index;
 }
 
-vector_pp_token preprocessor_run(string *src) {
-    preprocessor pp = preprocessor_new(src);
+vector_pp_token preprocessor_run(preprocessor *pp) {
     bool exit = false;
     while (!exit) {
         pp_token t;
-        t = scanner_next(&pp.scanner);
+        t = scanner_next(&pp->scanner);
         switch (t.e) {
         case punct_e: {
             pp_token directive;
             if (t.p.punct_p == hash_punct) {
-                directive = scanner_next(&pp.scanner);
+                directive = scanner_next(&pp->scanner);
                 assert(directive.e == ident_e);
                 if (string_eq_char_star(&directive.p.ident_p, "if")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "ifdef")) {
                     bool present;
-                    pp_token t = scanner_skip_ws(&pp.scanner);
+                    pp_token t = scanner_skip_ws(&pp->scanner);
                     assert(t.e == ident_e);
-                    present = preprocessor_ifdef(&pp, t.p.ident_p);
+                    present = preprocessor_ifdef(pp, t.p.ident_p);
                     if (present) {
-                        pp.ifs++;
+                        pp->ifs++;
                     } else {
-                        preprocessor_skip(&pp, to_elif_else);
+                        preprocessor_skip(pp, to_elif_else);
                     }
                     break;
                 } else if (string_eq_char_star(&directive.p.ident_p, "ifndef")) {
                     bool present;
                     pp_token t;
-                    t = scanner_skip_ws(&pp.scanner);
+                    t = scanner_skip_ws(&pp->scanner);
                     assert(t.e == ident_e);
-                    present = preprocessor_ifdef(&pp, t.p.ident_p);
+                    present = preprocessor_ifdef(pp, t.p.ident_p);
                     if (present) {
-                        preprocessor_skip(&pp, to_elif_else);
+                        preprocessor_skip(pp, to_elif_else);
                     } else {
-                        pp.ifs++;
+                        pp->ifs++;
                     }
                     break;
                 } else if (string_eq_char_star(&directive.p.ident_p, "elif")) {
@@ -136,19 +135,19 @@ vector_pp_token preprocessor_run(string *src) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "endif")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "include")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "define")) {
-                    pp_token t = scanner_skip_ws(&pp.scanner);
+                    pp_token t = scanner_skip_ws(&pp->scanner);
                     assert(t.e == ident_e);
-                    while (pp.scanner.src->inner[pp.scanner.index++] != '\n') {
+                    while (pp->scanner.src->inner[pp->scanner.index++] != '\n') {
                     }
-                    preprocessor_define(&pp, t.p.ident_p, pp.scanner.curr,
-                                        pp.scanner.index - pp.scanner.curr);
+                    preprocessor_define(pp, t.p.ident_p, pp->scanner.curr,
+                                        pp->scanner.index - pp->scanner.curr);
                 } else if (string_eq_char_star(&directive.p.ident_p, "undef")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "line")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "error")) {
                 } else if (string_eq_char_star(&directive.p.ident_p, "pragma")) {
                 } else {
-                    vector_pp_token_add(&pp.tokens, pp_error(directive.start, directive.end,
-                                                             "Unknown preprocessing directive"));
+                    vector_pp_token_add(&pp->tokens, pp_error(directive.start, directive.end,
+                                                              "Unknown preprocessing directive"));
                 }
             } else {
                 goto def;
@@ -159,7 +158,7 @@ vector_pp_token preprocessor_run(string *src) {
             if (t.p.whitespace_p == eof_ws) {
                 exit = true;
             } else if (t.p.whitespace_p == nl_ws) {
-                pp.start_of_line = true;
+                pp->start_of_line = true;
             }
             break;
         case ident_e:
@@ -170,12 +169,11 @@ vector_pp_token preprocessor_run(string *src) {
             goto def;
         default:
         def:
-            pp.start_of_line = false;
-            vector_pp_token_add(&pp.tokens, t);
+            pp->start_of_line = false;
+            vector_pp_token_add(&pp->tokens, t);
             break;
         }
         pp_token_free(t);
     }
-    preprocessor_free(pp);
-    return pp.tokens;
+    return pp->tokens;
 }

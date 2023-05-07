@@ -1,7 +1,10 @@
 #include "../src/preprocessor.h"
 #include <criterion/criterion.h>
 
-const char *SRC = "\
+void init_expected_tokens(vector_pp_token *v);
+
+Test(PREPROCESSOR, PARSING) {
+    string src = string_new_raw("\
 #define HELLO 3\n\
 int main() {\n\
     /* */\n\
@@ -10,16 +13,11 @@ int main() {\n\
     char *c = \"hi\";\n\
     float f = 0.3;\n\
     return 0;\n\
-}";
-
-void init_expected_tokens(vector_pp_token *v);
-
-Test(PREPROCESSOR, PARSING) {
-    vector_pp_token tokens;
+}");
+    preprocessor pp = preprocessor_new(&src);
+    vector_pp_token tokens = preprocessor_run(&pp);
     vector_pp_token tokens_expect = vector_pp_token_new();
-    string src = string_new_raw(SRC);
     init_expected_tokens(&tokens_expect);
-    tokens = preprocessor_run(&src);
     for (unsigned int i = 0; i < tokens.len; i++) {
         cr_assert(pp_token_eq(&tokens.inner[i], &tokens_expect.inner[i]));
     }

@@ -13,6 +13,8 @@ typedef struct {
     int ifs;
 } preprocessor;
 
-vector_pp_token preprocessor_run(string *src);
+preprocessor preprocessor_new(string *src);
+vector_pp_token preprocessor_run(preprocessor *pp);
+void preprocessor_free(preprocessor pp);
 
 #endif
