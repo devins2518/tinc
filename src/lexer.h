@@ -4,6 +4,12 @@
 #include "ast.h"
 #include "token.h"
 
-translation_unit *generate_ast(vector_pp_token *tokens);
+typedef struct {
+    vector_pp_token *pp_tokens;
+    uintptr_t pp_idx;
+    ll_ast_token *ast_tokens;
+} lexer;
+
+lexer lexer_new(vector_pp_token *tokens);
 
 #endif

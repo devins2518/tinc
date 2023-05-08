@@ -63,12 +63,9 @@ struct type_specifier;
 struct struct_or_union_specifier;
 typedef enum struct_or_union { struct_sou_e, union_sou_e } struct_or_union;
 struct struct_declaration;
-struct struct_declaration_list;
 struct _specifier_qualifier;
-struct struct_declarator_list;
 struct struct_declarator;
 struct enum_specifier;
-struct enumerator_list;
 struct enumerator;
 typedef enum type_qualifier { const_tq_e, volatile_tq_e } type_qualifier;
 DECLARE_VECTOR(type_qualifier)
@@ -236,7 +233,7 @@ typedef struct type_specifier {
     union {
         struct struct_or_union_specifier *sou_spec;
         struct enum_specifier *enum_spec;
-        ident type_name;
+        ident *type_name;
     } p;
     enum {
         void_ts_e,
@@ -253,10 +250,17 @@ typedef struct type_specifier {
         type_name_ts_e
     } e;
 } type_specifier;
+typedef struct struct_declarator {
+    struct declarator *decl;
+    struct constant_expression *const_expr;
+    enum { decl_only_sd_e, colon_const_expr_sd_e, decl_const_expr_sd_e } e;
+} struct_declarator;
+DECLARE_VECTOR(struct_declarator)
+TYPEDEF_VECTOR(struct_declarator, struct_declarator_list)
 typedef struct struct_or_union_specifier {
-    bool present;
-    struct specifier_qualifier_list *specs;
-    struct struct_declarator_list *fields;
+    struct_declarator_list *fields;
+    ident *ident;
+    struct_or_union *sou;
 } struct_or_union_specifier;
 typedef struct struct_declaration {
     struct specifier_qualifier_list *specs;
@@ -273,19 +277,6 @@ typedef struct _specifier_qualifier {
 } _specifier_qualifier;
 DECLARE_VECTOR(_specifier_qualifier)
 TYPEDEF_VECTOR(_specifier_qualifier, specifier_qualifier_list)
-typedef struct struct_declarator {
-    struct declarator *decl;
-    struct constant_expression *const_expr;
-    enum { decl_only_sd_e, colon_const_expr_sd_e, decl_const_expr_sd_e } e;
-} struct_declarator;
-DECLARE_VECTOR(struct_declarator)
-TYPEDEF_VECTOR(struct_declarator, struct_declarator_list)
-typedef struct enum_specifier {
-    ident ident;
-    bool ident_present;
-    struct enumerator_list *enumerator;
-    bool enumerator_present;
-} enum_specifier;
 typedef struct enumerator {
     ident ident;
     struct constant_expression *const_expr;
@@ -293,6 +284,10 @@ typedef struct enumerator {
 } enumerator;
 DECLARE_VECTOR(enumerator)
 TYPEDEF_VECTOR(enumerator, enumerator_list)
+typedef struct enum_specifier {
+    ident *ident;
+    enumerator_list *enumerator;
+} enum_specifier;
 typedef struct declarator {
     struct direct_declarator *direct_decl;
     struct pointer *ptr;
@@ -423,7 +418,6 @@ typedef struct compound_statement {
 typedef struct declaration {
     struct declaration_specifiers *decl_specs;
     struct init_declarator_list *decl_list;
-    bool decl_list_present;
 } declaration;
 DECLARE_VECTOR(declaration)
 TYPEDEF_VECTOR(declaration, declaration_list)
@@ -617,6 +611,7 @@ typedef struct {
     } e;
 } ast_token;
 
+// Small helper functions to convert an explicit language construct to an AST token
 ast_token *ast_expression(expression *expr);
 ast_token *ast_primary_expression(primary_expression *primary_expr);
 ast_token *ast_postfix_expression(postfix_expression *postfix_expr);

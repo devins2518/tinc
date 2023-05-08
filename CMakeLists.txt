@@ -10,6 +10,7 @@ set(SRCS
     src/ast.c
     src/compiler.c
     src/lexer.c
+    src/parser.c
     src/preprocessor.c
     src/scanner.c
     src/string.c
@@ -18,6 +19,7 @@ set(SRCS
 set(MAIN_SRCS
     src/main.c ${SRCS})
 set(TEST_SRCS
+    test/ast.c
     test/hash.c
     test/main.c
     test/preprocessor.c
@@ -49,5 +51,5 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     add_executable(tinc_tests ${TEST_SRCS})
     include_directories(${SOURCE_DIR})
-    add_test(tinc_tests tinc_tests)
+    add_test(test tinc_tests)
 endif()

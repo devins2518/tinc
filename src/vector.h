@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include <stdlib.h>
+#include <string.h>
 
 unsigned long int power2(unsigned int a);
 #define DECLARE_VECTOR(name)                                                                       \
@@ -48,7 +49,7 @@ unsigned long int power2(unsigned int a);
         vector_##from##_free(v);                                                                   \
     }                                                                                              \
     to to##_clone(vector_##from v) {                                                               \
-        vector_##from##_clone(v);                                                                  \
+        return vector_##from##_clone(v);                                                           \
     }
 
 #define IMPL_VECTOR(name)                                                                          \
