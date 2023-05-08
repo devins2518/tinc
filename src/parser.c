@@ -38,7 +38,7 @@ conditional_expression *try_parse_conditional_expression(lexer *l);
 assignment_operator *try_parse_assignment_operator(lexer *l);
 constant_expression *try_parse_constant_expression(lexer *l);
 declaration *try_parse_declaration(lexer *l);
-_decl_spec *try_parse_decl_spec(lexer *l);
+declaration_specifier *try_parse_declaration_specifier(lexer *l);
 declaration_specifiers *try_parse_declaration_specifiers(lexer *l);
 init_declarator *try_parse_init_declarator(lexer *l);
 init_declarator_list *try_parse_init_declarator_list(lexer *l);
@@ -213,12 +213,26 @@ constant_expression *try_parse_constant_expression(lexer *l) {
     exit(EXIT_FAILURE);
 }
 declaration *try_parse_declaration(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_declaration *");
-    exit(EXIT_FAILURE);
+    declaration *d;
+    declaration_specifiers *ds;
+    init_declarator_list *idl;
+
+    ds = try_parse_declaration_specifiers(l);
+    CHECK(ds);
+    idl = try_parse_init_declarator_list(l);
+    goto ret_succ;
+
+    ERRDEFER_FREE(ds);
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(d);
+    d->decl_specs = ds;
+    d->decl_list = idl;
+    return d;
 }
-_decl_spec *try_parse_decl_spec(lexer *l) {
-    _decl_spec *ds = NULL;
+declaration_specifier *try_parse_declaration_specifier(lexer *l) {
+    declaration_specifier *ds = NULL;
     storage_class_specifier *scs;
     type_specifier *ts;
     type_qualifier *tq;
@@ -238,14 +252,14 @@ _decl_spec *try_parse_decl_spec(lexer *l) {
     return ds;
 }
 declaration_specifiers *try_parse_declaration_specifiers(lexer *l) {
-    declaration_specifiers *ds = malloc(sizeof(*ds));
-    _decl_spec *_ds;
-    *ds = declaration_specifiers_new();
-    while ((_ds = try_parse_decl_spec(l))) {
-        declaration_specifiers_add(ds, *_ds);
+    declaration_specifiers *dss = malloc(sizeof(*dss));
+    declaration_specifier *ds;
+    *dss = declaration_specifiers_new();
+    while ((ds = try_parse_declaration_specifier(l))) {
+        declaration_specifiers_add(dss, *ds);
     }
-    ENSURE_NOT_EMPTY(declaration_specifiers, ds);
-    return ds;
+    ENSURE_NOT_EMPTY(declaration_specifiers, dss);
+    return dss;
 }
 init_declarator *try_parse_init_declarator(lexer *l) {
     (void)l;

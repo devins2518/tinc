@@ -49,7 +49,6 @@ typedef enum assignment_operator {
 } assignment_operator;
 struct constant_expression;
 struct declaration;
-struct declaration_specifiers;
 struct init_declarator;
 struct init_declarator_list;
 typedef enum storage_class_specifier {
@@ -320,8 +319,18 @@ typedef struct pointer {
     struct pointer *ptr;
     enum { empty_ptr_e, tql_ptr_e, ptr_ptr_e, tql_ptr_ptr_e } e;
 } pointer;
+typedef struct declaration_specifier {
+    union {
+        enum storage_class_specifier *scs;
+        struct type_specifier *specifier;
+        enum type_qualifier *qualifier;
+    } p;
+    enum { scs_ds_e, type_specifier_ds_e, type_qualifier_ds_e } e;
+} declaration_specifier;
+DECLARE_VECTOR(declaration_specifier)
+TYPEDEF_VECTOR(declaration_specifier, declaration_specifiers)
 typedef struct parameter_declaration {
-    struct declaration_specifiers *decl_specs;
+    declaration_specifiers *decl_specs;
     union {
         struct declarator *decl;
         struct abstract_declarator *abstract_declarator;
@@ -416,21 +425,11 @@ typedef struct compound_statement {
     struct statement_list *statements;
 } compound_statement;
 typedef struct declaration {
-    struct declaration_specifiers *decl_specs;
-    struct init_declarator_list *decl_list;
+    declaration_specifiers *decl_specs;
+    init_declarator_list *decl_list;
 } declaration;
 DECLARE_VECTOR(declaration)
 TYPEDEF_VECTOR(declaration, declaration_list)
-typedef struct _decl_spec {
-    union {
-        enum storage_class_specifier *scs;
-        struct type_specifier *specifier;
-        enum type_qualifier *qualifier;
-    } p;
-    enum { scs_ds_e, type_specifier_ds_e, type_qualifier_ds_e } e;
-} _decl_spec;
-DECLARE_VECTOR(_decl_spec)
-TYPEDEF_VECTOR(_decl_spec, declaration_specifiers)
 typedef struct expression_statement {
     struct expression *expr;
     bool expr_present;
