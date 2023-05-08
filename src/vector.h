@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <stdlib.h>
+
 unsigned long int power2(unsigned int a);
 #define DECLARE_VECTOR(name)                                                                       \
     typedef struct vector_##name {                                                                 \
@@ -13,7 +15,8 @@ unsigned long int power2(unsigned int a);
     void vector_##name##_reserve(vector_##name *v, unsigned int len);                              \
     bool vector_##name##_add(vector_##name *v, name n);                                            \
     name *vector_##name##_get_inner(vector_##name *v);                                             \
-    void vector_##name##_free(vector_##name v);
+    void vector_##name##_free(vector_##name v);                                                    \
+    vector_##name vector_##name##_clone(vector_##name v);
 
 #define TYPEDEF_VECTOR(from, to)                                                                   \
     typedef struct vector_##from to;                                                               \
@@ -22,7 +25,8 @@ unsigned long int power2(unsigned int a);
     void to##_reserve(to *v, unsigned int len);                                                    \
     bool to##_add(to *v, from f);                                                                  \
     from *to##_get_inner(to *v);                                                                   \
-    void to##_free(to v);
+    void to##_free(to v);                                                                          \
+    to to##_clone(vector_##from v);
 
 #define IMPL_TYPEDEF_VECTOR(from, to)                                                              \
     to to##_new(void) {                                                                            \
@@ -42,6 +46,9 @@ unsigned long int power2(unsigned int a);
     }                                                                                              \
     void to##_free(to v) {                                                                         \
         vector_##from##_free(v);                                                                   \
+    }                                                                                              \
+    to to##_clone(vector_##from v) {                                                               \
+        vector_##from##_clone(v);                                                                  \
     }
 
 #define IMPL_VECTOR(name)                                                                          \
@@ -94,6 +101,14 @@ unsigned long int power2(unsigned int a);
     }                                                                                              \
     void vector_##name##_free(vector_##name v) {                                                   \
         free(v.inner);                                                                             \
+    }                                                                                              \
+    vector_##name vector_##name##_clone(vector_##name v) {                                         \
+        vector_##name clone;                                                                       \
+        clone.len = v.len;                                                                         \
+        clone.cap = v.cap;                                                                         \
+        clone.inner = (name *)calloc(clone.cap, sizeof(name));                                     \
+        memcpy(clone.inner, v.inner, clone.cap);                                                   \
+        return clone;                                                                              \
     }
 
 #endif
