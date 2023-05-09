@@ -311,35 +311,35 @@ type_specifier *try_parse_type_specifier(lexer *l) {
             ADV_TOK(l);
         } else if (curr.p.keyword_p == char_kw) {
             LATE_MALLOC(ts);
-            ts->e = char_kw;
+            ts->e = char_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == short_kw) {
             LATE_MALLOC(ts);
-            ts->e = short_kw;
+            ts->e = short_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == int_kw) {
             LATE_MALLOC(ts);
-            ts->e = int_kw;
+            ts->e = int_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == long_kw) {
             LATE_MALLOC(ts);
-            ts->e = long_kw;
+            ts->e = long_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == float_kw) {
             LATE_MALLOC(ts);
-            ts->e = float_kw;
+            ts->e = float_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == double_kw) {
             LATE_MALLOC(ts);
-            ts->e = double_kw;
+            ts->e = double_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == signed_kw) {
             LATE_MALLOC(ts);
-            ts->e = signed_kw;
+            ts->e = signed_ts_e;
             ADV_TOK(l);
         } else if (curr.p.keyword_p == unsigned_kw) {
             LATE_MALLOC(ts);
-            ts->e = unsigned_kw;
+            ts->e = unsigned_ts_e;
             ADV_TOK(l);
         }
     } else if ((sous = try_parse_struct_or_union_specifier(l))) {
