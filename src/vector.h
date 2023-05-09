@@ -94,7 +94,7 @@ unsigned long int power2(unsigned int a);
             if (v->inner == NULL)                                                                  \
                 return false;                                                                      \
         }                                                                                          \
-        v->inner[v->len++] = n;                                                                    \
+        v->inner[(v->len)++] = n;                                                                  \
         return true;                                                                               \
     }                                                                                              \
     name *vector_##name##_get_inner(vector_##name *v) {                                            \

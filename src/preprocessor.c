@@ -109,7 +109,7 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
                     assert(t.e == ident_e);
                     present = preprocessor_ifdef(pp, t.p.ident_p);
                     if (present) {
-                        pp->ifs++;
+                        (pp->ifs)++;
                     } else {
                         preprocessor_skip(pp, to_elif_else);
                     }
@@ -123,7 +123,7 @@ vector_pp_token preprocessor_run(preprocessor *pp) {
                     if (present) {
                         preprocessor_skip(pp, to_elif_else);
                     } else {
-                        pp->ifs++;
+                        (pp->ifs)++;
                     }
                     break;
                 } else if (string_eq_char_star(&directive.p.ident_p, "elif")) {
