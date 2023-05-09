@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool ident_eq(const ident *self, const ident *other) {
+    return string_eq(self, other);
+}
+
 string pp_token_to_string(pp_token *t) {
     string s;
     switch (t->e) {

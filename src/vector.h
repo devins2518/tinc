@@ -15,7 +15,7 @@ unsigned long int power2(unsigned int a);
     vector_##name vector_##name##_new_reserve(unsigned int len);                                   \
     void vector_##name##_reserve(vector_##name *v, unsigned int len);                              \
     bool vector_##name##_add(vector_##name *v, name n);                                            \
-    name *vector_##name##_get_inner(vector_##name *v);                                             \
+    name *vector_##name##_get_inner(const vector_##name *v);                                       \
     void vector_##name##_free(vector_##name v);                                                    \
     vector_##name vector_##name##_clone(vector_##name v);
 
@@ -25,7 +25,7 @@ unsigned long int power2(unsigned int a);
     to to##_new_reserve(unsigned int len);                                                         \
     void to##_reserve(to *v, unsigned int len);                                                    \
     bool to##_add(to *v, from f);                                                                  \
-    from *to##_get_inner(to *v);                                                                   \
+    from *to##_get_inner(const to *v);                                                             \
     void to##_free(to v);                                                                          \
     to to##_clone(vector_##from v);
 
@@ -42,7 +42,7 @@ unsigned long int power2(unsigned int a);
     bool to##_add(to *v, from f) {                                                                 \
         return vector_##from##_add(v, f);                                                          \
     }                                                                                              \
-    from *to##_get_inner(to *v) {                                                                  \
+    from *to##_get_inner(const to *v) {                                                            \
         return vector_##from##_get_inner(v);                                                       \
     }                                                                                              \
     void to##_free(to v) {                                                                         \
@@ -97,7 +97,7 @@ unsigned long int power2(unsigned int a);
         v->inner[(v->len)++] = n;                                                                  \
         return true;                                                                               \
     }                                                                                              \
-    name *vector_##name##_get_inner(vector_##name *v) {                                            \
+    name *vector_##name##_get_inner(const vector_##name *v) {                                      \
         return v->inner;                                                                           \
     }                                                                                              \
     void vector_##name##_free(vector_##name v) {                                                   \

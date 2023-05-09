@@ -41,6 +41,7 @@ typedef enum {
 } keyword;
 
 typedef string ident;
+bool ident_eq(const ident *self, const ident *other);
 
 typedef enum { float_const, int_const, enum_const, char_const } constant_tk;
 

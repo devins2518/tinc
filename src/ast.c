@@ -4,25 +4,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IMPL_VECTOR_EQ(list, base)                                                                 \
+    bool list##_eq(const list *self, const list *other) {                                          \
+        uint64_t i;                                                                                \
+        bool ret = true;                                                                           \
+        if (!self || !other || self->len != other->len)                                            \
+            return false;                                                                          \
+        for (i = 0; ret && i < self->len; i++) {                                                   \
+            ret = base##_eq(&list##_get_inner(self)[i], &list##_get_inner(other)[i]);              \
+        }                                                                                          \
+        return ret;                                                                                \
+    }
+
 IMPL_VECTOR(type_qualifier)
 IMPL_TYPEDEF_VECTOR(type_qualifier, type_qualifier_list)
+IMPL_VECTOR_EQ(type_qualifier_list, type_qualifier)
 IMPL_VECTOR(assignment_expression)
 IMPL_TYPEDEF_VECTOR(assignment_expression, argument_expression_list)
+IMPL_VECTOR_EQ(argument_expression_list, assignment_expression)
 IMPL_TYPEDEF_VECTOR(assignment_expression, expression)
+IMPL_VECTOR_EQ(expression, assignment_expression)
 IMPL_VECTOR(init_declarator)
 IMPL_TYPEDEF_VECTOR(init_declarator, init_declarator_list)
 IMPL_VECTOR(struct_declaration)
 IMPL_TYPEDEF_VECTOR(struct_declaration, struct_declaration_list)
 IMPL_VECTOR(_specifier_qualifier)
 IMPL_TYPEDEF_VECTOR(_specifier_qualifier, specifier_qualifier_list)
+IMPL_VECTOR_EQ(specifier_qualifier_list, _specifier_qualifier)
 IMPL_VECTOR(struct_declarator)
 IMPL_TYPEDEF_VECTOR(struct_declarator, struct_declarator_list)
+IMPL_VECTOR_EQ(struct_declarator_list, struct_declarator)
 IMPL_VECTOR(enumerator)
 IMPL_TYPEDEF_VECTOR(enumerator, enumerator_list)
+IMPL_VECTOR_EQ(enumerator_list, enumerator)
 IMPL_VECTOR(parameter_declaration)
 IMPL_TYPEDEF_VECTOR(parameter_declaration, parameter_list)
+IMPL_VECTOR_EQ(parameter_list, parameter_declaration)
 IMPL_VECTOR(ident)
 IMPL_TYPEDEF_VECTOR(ident, identifier_list)
+IMPL_VECTOR_EQ(identifier_list, ident)
 IMPL_VECTOR(initializer)
 IMPL_TYPEDEF_VECTOR(initializer, initializer_list)
 IMPL_VECTOR(statement)
@@ -31,9 +51,241 @@ IMPL_VECTOR(declaration)
 IMPL_TYPEDEF_VECTOR(declaration, declaration_list)
 IMPL_VECTOR(declaration_specifier)
 IMPL_TYPEDEF_VECTOR(declaration_specifier, declaration_specifiers)
+IMPL_VECTOR_EQ(declaration_specifiers, declaration_specifier)
 IMPL_VECTOR(external_declaration)
 IMPL_TYPEDEF_VECTOR(external_declaration, translation_unit)
 IMPL_LINKED_LIST(ast_token)
+
+bool type_specifier_eq(const type_specifier *self, const type_specifier *other) {
+    return self->e == other->e &&
+           ((self->e == void_ts_e || self->e == char_ts_e || self->e == short_ts_e ||
+             self->e == int_ts_e || self->e == long_ts_e || self->e == float_ts_e ||
+             self->e == double_ts_e || self->e == signed_ts_e || self->e == unsigned_ts_e) ||
+            (self->e == struct_or_union_specifier_ts_e &&
+             struct_or_union_specifier_eq(self->p.sou_spec, other->p.sou_spec)) ||
+            (self->e == enum_specifier_ts_e &&
+             enum_specifier_eq(self->p.enum_spec, other->p.enum_spec)) ||
+            (self->e == type_name_ts_e && ident_eq(self->p.type_name, other->p.type_name)));
+}
+bool enum_specifier_eq(const enum_specifier *self, const enum_specifier *other) {
+    return ((!self->ident && !other->ident) || ident_eq(self->ident, other->ident)) &&
+           ((!self->enumerator && !other->enumerator) ||
+            enumerator_list_eq(self->enumerator, other->enumerator));
+}
+bool enumerator_eq(const enumerator *self, const enumerator *other) {
+    return ident_eq(self->ident, other->ident) &&
+           (!self->const_expr || constant_expression_eq(self->const_expr, other->const_expr));
+}
+bool constant_expression_eq(const constant_expression *self, const constant_expression *other) {
+    return conditional_expression_eq(self, other);
+}
+bool struct_or_union_specifier_eq(const struct_or_union_specifier *self,
+                                  const struct_or_union_specifier *other) {
+    return (!self->fields || struct_declarator_list_eq(self->fields, other->fields)) &&
+           (!self->ident || ident_eq(self->ident, other->ident)) &&
+           struct_or_union_eq(self->sou, other->sou);
+}
+bool struct_or_union_eq(const struct_or_union *self, const struct_or_union *other) {
+    return *self == *other;
+}
+bool struct_declarator_eq(const struct_declarator *self, const struct_declarator *other) {
+    return (!self->decl || declarator_eq(self->decl, other->decl)) &&
+           (!self->const_expr || constant_expression_eq(self->const_expr, other->const_expr));
+}
+bool declarator_eq(const declarator *self, const declarator *other) {
+    return (!self->ptr || pointer_eq(self->ptr, other->ptr)) &&
+           direct_declarator_eq(self->direct_decl, other->direct_decl);
+}
+bool pointer_eq(const pointer *self, const pointer *other) {
+    return (!self->tql || type_qualifier_list_eq(self->tql, other->tql)) &&
+           (!self->ptr || pointer_eq(self->ptr, other->ptr));
+}
+bool type_qualifier_eq(const type_qualifier *self, const type_qualifier *other) {
+    return *self == *other;
+}
+bool direct_declarator_eq(const direct_declarator *self, const direct_declarator *other) {
+    return self->e == other->e &&
+           ((self->e == ident_dd_e && ident_eq(self->p.ident, other->p.ident)) ||
+            (self->e == decl_dd_e && declarator_eq(self->p.decl, other->p.decl)) ||
+            (self->e == dd_dd_e && direct_declarator_eq(self->p.dd.dd, other->p.dd.dd) &&
+             (self->p.dd.dd_type == other->p.dd.dd_type &&
+              ((self->p.dd.dd_type == const_expr_bracket_ddt_e &&
+                constant_expression_eq(self->p.dd.post.bracket, other->p.dd.post.bracket)) ||
+               (self->p.dd.dd_type == parameter_list_paren_ddt_e &&
+                parameter_type_list_eq(self->p.dd.post.params, other->p.dd.post.params)) ||
+               (self->p.dd.dd_type == ident_list_paren_ddt_e &&
+                identifier_list_eq(self->p.dd.post.idents, other->p.dd.post.idents))))));
+}
+bool parameter_type_list_eq(const parameter_type_list *self, const parameter_type_list *other) {
+    return parameter_list_eq(self->params, other->params) && self->ellipsis == other->ellipsis;
+}
+bool parameter_declaration_eq(const parameter_declaration *self,
+                              const parameter_declaration *other) {
+    return self->e == other->e && declaration_specifiers_eq(self->decl_specs, other->decl_specs) &&
+           ((self->e == decl_pd_e && declarator_eq(self->p.decl, other->p.decl)) ||
+            (self->e == abstract_decl_pd_e &&
+             abstract_declarator_eq(self->p.abstract_declarator, other->p.abstract_declarator)));
+}
+bool abstract_declarator_eq(const abstract_declarator *self, const abstract_declarator *other) {
+    return (!self->ptr && !other->ptr && pointer_eq(self->ptr, other->ptr)) &&
+           (!self->direct_abstract_decl && !other->direct_abstract_decl &&
+            direct_abstract_declarator_eq(self->direct_abstract_decl, other->direct_abstract_decl));
+}
+bool declaration_specifier_eq(const declaration_specifier *self,
+                              const declaration_specifier *other) {
+    return self->e == other->e &&
+           ((self->e == scs_ds_e && storage_class_specifier_eq(self->p.scs, other->p.scs)) ||
+            (self->e == type_specifier_ds_e &&
+             type_specifier_eq(self->p.specifier, other->p.specifier)) ||
+            (self->e == type_qualifier_ds_e &&
+             type_qualifier_eq(self->p.qualifier, other->p.qualifier)));
+}
+bool storage_class_specifier_eq(const storage_class_specifier *self,
+                                const storage_class_specifier *other) {
+    return *self == *other;
+}
+bool direct_abstract_declarator_eq(const direct_abstract_declarator *self,
+                                   const direct_abstract_declarator *other) {
+    return self->e == other->e &&
+           ((self->e == paren_ad_dad_e &&
+             abstract_declarator_eq(self->p.paren_dad, other->p.paren_dad)) ||
+            (self->e == const_expr_bracket_dad_e &&
+             constant_expression_eq(self->p.bracket_dad, other->p.bracket_dad)) ||
+            (self->e == self_empty_bracket_dad_e &&
+             direct_abstract_declarator_eq(self->p.dad_dad, other->p.dad_dad)) ||
+            (self->e == self_const_expr_bracket_dad_e &&
+             direct_abstract_declarator_eq(self->p.dad_const_expr_dad.dad,
+                                           other->p.dad_const_expr_dad.dad) &&
+             constant_expression_eq(self->p.dad_const_expr_dad.const_expr,
+                                    other->p.dad_const_expr_dad.const_expr)) ||
+            (self->e == paren_paramater_type_list_dad_e &&
+             parameter_type_list_eq(self->p.paren_list, other->p.paren_list)) ||
+            (self->e == self_empty_paren_dad_e &&
+             direct_abstract_declarator_eq(self->p.dad_param_list_dad.dad,
+                                           other->p.dad_param_list_dad.dad)) ||
+            (self->e == self_empty_paren_dad_e &&
+             direct_abstract_declarator_eq(self->p.dad_param_list_dad.dad,
+                                           other->p.dad_param_list_dad.dad) &&
+             parameter_type_list_eq(self->p.dad_param_list_dad.paren_list,
+                                    other->p.dad_param_list_dad.paren_list)));
+}
+bool conditional_expression_eq(const conditional_expression *self,
+                               const conditional_expression *other) {
+    return logical_or_expression_eq(self->cond, other->cond) &&
+           ((!self->ter_que && !self->ter_col) ||
+            (expression_eq(self->ter_que, other->ter_que) &&
+             conditional_expression_eq(self->ter_col, other->ter_col)));
+}
+bool logical_or_expression_eq(const logical_or_expression *self,
+                              const logical_or_expression *other) {
+    return logical_and_expression_eq(self->logand_expr, other->logand_expr) &&
+           (!self->logor_expr || logical_or_expression_eq(self->logor_expr, other->logor_expr));
+}
+bool logical_and_expression_eq(const logical_and_expression *self,
+                               const logical_and_expression *other) {
+    return inclusive_or_expression_eq(self->ior_expr, other->ior_expr) &&
+           (!self->logand_expr || logical_and_expression_eq(self->logand_expr, other->logand_expr));
+}
+bool inclusive_or_expression_eq(const inclusive_or_expression *self,
+                                const inclusive_or_expression *other) {
+    return exclusive_or_expression_eq(self->xor_expr, other->xor_expr) &&
+           (!self->ior_expr || inclusive_or_expression_eq(self->ior_expr, other->ior_expr));
+}
+bool exclusive_or_expression_eq(const exclusive_or_expression *self,
+                                const exclusive_or_expression *other) {
+    return and_expression_eq(self->and_expr, other->and_expr) &&
+           (!self->xor_expr || exclusive_or_expression_eq(self->xor_expr, other->xor_expr));
+}
+bool and_expression_eq(const and_expression *self, const and_expression *other) {
+    return equality_expression_eq(self->eq_expr, other->eq_expr) &&
+           (!self->and_expr || and_expression_eq(self->and_expr, other->and_expr));
+}
+bool equality_expression_eq(const equality_expression *self, const equality_expression *other) {
+    return self->e == other->e && relational_expression_eq(self->rel_expr, other->rel_expr) &&
+           (self->e == rel_expr_only_ee_e || equality_expression_eq(self->eq_expr, other->eq_expr));
+}
+bool relational_expression_eq(const relational_expression *self,
+                              const relational_expression *other) {
+    return self->e == other->e && shift_expression_eq(self->sft_expr, other->sft_expr) &&
+           (self->e == sft_expr_only_re_e ||
+            relational_expression_eq(self->rel_expr, other->rel_expr));
+}
+bool shift_expression_eq(const shift_expression *self, const shift_expression *other) {
+    return self->e == other->e && additive_expression_eq(self->add_expr, other->add_expr) &&
+           (self->e == add_expr_only_ae_e || shift_expression_eq(self->sft_expr, other->sft_expr));
+}
+bool additive_expression_eq(const additive_expression *self, const additive_expression *other) {
+    return self->e == other->e && multiplicative_expression_eq(self->mul_expr, other->mul_expr) &&
+           (self->e == mul_expr_only_ae_e ||
+            additive_expression_eq(self->add_expr, other->add_expr));
+}
+bool multiplicative_expression_eq(const multiplicative_expression *self,
+                                  const multiplicative_expression *other) {
+    return self->e == other->e && cast_expression_eq(self->cast_expr, other->cast_expr) &&
+           (self->e == cast_expr_only_me_e ||
+            multiplicative_expression_eq(self->mul_expr, other->mul_expr));
+}
+bool cast_expression_eq(const cast_expression *self, const cast_expression *other) {
+    return self->e == other->e &&
+           ((self->e == unary_expr_ce_e &&
+             unary_expression_eq(self->p.unary_expr, other->p.unary_expr)) ||
+            (self->e == ty_name_ce_e && type_name_eq(self->p.ty, other->p.ty)));
+}
+bool unary_expression_eq(const unary_expression *self, const unary_expression *other) {
+    return self->e == other->e &&
+           ((self->e == expr_ue_e && postfix_expression_eq(self->p.expr, other->p.expr)) ||
+            ((self->e == inc_unary_expr_ue_e || self->e == dec_unary_expr_ue_e ||
+              self->e == sizeof_unary_expr_ue_e) &&
+             unary_expression_eq(self->p.unary_expr, other->p.unary_expr)) ||
+            (self->e == sizeof_type_name_ue_e &&
+             type_name_eq(self->p.type_name, other->p.type_name)));
+}
+bool postfix_expression_eq(const postfix_expression *self, const postfix_expression *other) {
+    return self->e == other->e &&
+           ((self->e == primary_expr_poste_e &&
+             primary_expression_eq(self->p.expr, other->p.expr)) ||
+            (postfix_expression_eq(self->post, other->post) &&
+             ((self->e == array_poste_e && expression_eq(self->p.array_idx, other->p.array_idx)) ||
+              (self->e == function_poste_e &&
+               argument_expression_list_eq(self->p.function_args, other->p.function_args)) ||
+              (self->e == field_poste_e && ident_eq(self->p.field_op, other->p.field_op)) ||
+              (self->e == deref_poste_e && ident_eq(self->p.deref_op, other->p.deref_op)) ||
+              (self->e == inc_poste_e || self->e == dec_poste_e))));
+}
+bool primary_expression_eq(const primary_expression *self, const primary_expression *other) {
+    return self->e == other->e &&
+           ((self->e == ident_pe_e && ident_eq(self->p.ident, other->p.ident)) ||
+            (self->e == constant_pe_e && ident_eq(self->p.constant, other->p.constant)) ||
+            (self->e == string_lit_pe_e && ident_eq(self->p.string_lit, other->p.string_lit)) ||
+            (self->e == expr_pe_e && expression_eq(self->p.expr, other->p.expr)));
+}
+bool assignment_expression_eq(const assignment_expression *self,
+                              const assignment_expression *other) {
+    return self->e == other->e &&
+           ((self->e == cond_expr_ae_e &&
+             conditional_expression_eq(self->p.cond_expr_p, other->p.cond_expr_p)) ||
+            (self->e == unary_assignment_ae_e &&
+             (unary_expression_eq(self->p.unary_assignment_p.expr,
+                                  other->p.unary_assignment_p.expr) &&
+              assignment_operator_eq(self->p.unary_assignment_p.op,
+                                     other->p.unary_assignment_p.op) &&
+              assignment_expression_eq(self->p.unary_assignment_p.assignment,
+                                       other->p.unary_assignment_p.assignment))));
+}
+bool assignment_operator_eq(const assignment_operator *self, const assignment_operator *other) {
+    return *self == *other;
+}
+bool type_name_eq(const type_name *self, const type_name *other) {
+    return specifier_qualifier_list_eq(self->sql, other->sql) &&
+           ((!self->abstract_decl && !other->abstract_decl) ||
+            abstract_declarator_eq(self->abstract_decl, other->abstract_decl));
+}
+bool _specifier_qualifier_eq(const _specifier_qualifier *self, const _specifier_qualifier *other) {
+    return self->e == other->e && ((self->e == type_specifier_sq_e &&
+                                    type_specifier_eq(self->p.specifier, other->p.specifier)) ||
+                                   (self->e == type_qualifier_sq_e &&
+                                    type_qualifier_eq(self->p.qualifier, other->p.qualifier)));
+}
 
 ast_token *ast_expression(expression *expr) {
     ast_token *t = malloc(sizeof(expression));
