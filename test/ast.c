@@ -5,7 +5,7 @@
 
 extern type_specifier *try_parse_type_specifier(lexer *);
 
-CTEST_SKIP(AST, TEST_GENERATE_AST) {
+CTEST(AST, TEST_GENERATE_AST) {
     string src = string_new_raw("#define HELLO\n"
                                 "int main() {\n"
                                 "    int x = 3;\n"
@@ -18,9 +18,9 @@ CTEST_SKIP(AST, TEST_GENERATE_AST) {
     ASSERT_TRUE(ast->p.translation_unit->len == 1);
 }
 
-#define SIZE 12
+#define PARSE_TYPE_SPECIFIER_SIZE 12
 CTEST(PARSER, TEST_PARSE_TYPE_SPECIFIER) {
-    string src[SIZE] = {
+    string src[PARSE_TYPE_SPECIFIER_SIZE] = {
         string_new_raw("void\n"),      string_new_raw("char\n"),
         string_new_raw("short\n"),     string_new_raw("int\n"),
         string_new_raw("long\n"),      string_new_raw("float\n"),
@@ -29,7 +29,7 @@ CTEST(PARSER, TEST_PARSE_TYPE_SPECIFIER) {
         string_new_raw("enum hey;\n"), string_new_raw("hey;\n"),
     };
     string hey = string_new_raw("hey");
-    type_specifier expected[SIZE] = {
+    type_specifier expected[PARSE_TYPE_SPECIFIER_SIZE] = {
         {{0}, void_ts_e},
         {{0}, char_ts_e},
         {{0}, short_ts_e},
@@ -49,7 +49,7 @@ CTEST(PARSER, TEST_PARSE_TYPE_SPECIFIER) {
               }},
          enum_specifier_ts_e},
         {{.type_name = &hey}, type_name_ts_e}};
-    for (int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < PARSE_TYPE_SPECIFIER_SIZE; i++) {
         preprocessor pp = preprocessor_new(&src[i]);
         vector_pp_token tokens = preprocessor_run(&pp);
         lexer l = lexer_new(&tokens);

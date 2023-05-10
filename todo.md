@@ -4,3 +4,4 @@
     - audit parser
     - segregate index increment from commit
     - audit error message and parsing warning generation
+    - hit 100% coverage
