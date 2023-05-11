@@ -60,7 +60,6 @@ type_qualifier_list *try_parse_type_qualifier_list(lexer *l);
 declarator *try_parse_declarator(lexer *l);
 direct_declarator *try_parse_direct_declarator(lexer *l);
 pointer *try_parse_pointer(lexer *l);
-type_qualifier_list *try_parse_type_qualifier_list(lexer *l);
 parameter_type_list *try_parse_parameter_type_list(lexer *l);
 parameter_list *try_parse_parameter_list(lexer *l);
 parameter_declaration *try_parse_parameter_declaration(lexer *l);
@@ -827,16 +826,10 @@ external_declaration *try_parse_external_declaration(lexer *l) {
 function_definition *try_parse_function_definition(lexer *l) {
     function_definition *fd;
     declaration_specifiers *decl_specs;
-    bool decl_specs_present;
-    declaration_list *decl_list;
-    bool decl_list_present;
     declarator *sig;
     compound_statement *body;
 
     decl_specs = try_parse_declaration_specifiers(l);
-    decl_specs_present = decl_specs != NULL;
-    decl_list = try_parse_declaration_list(l);
-    decl_list_present = decl_list != NULL;
     sig = try_parse_declarator(l);
     CHECK(sig)
     body = try_parse_compound_statement(l);
@@ -850,9 +843,6 @@ function_definition *try_parse_function_definition(lexer *l) {
 ret_succ:
     LATE_MALLOC(fd);
     fd->decl_specs = decl_specs;
-    fd->decl_specs_present = decl_specs_present;
-    fd->decl_list = decl_list;
-    fd->decl_list_present = decl_list_present;
     fd->sig = sig;
     fd->body = body;
     return fd;
