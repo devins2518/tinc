@@ -620,9 +620,14 @@ type_qualifier *try_parse_type_qualifier(lexer *l) {
     return tq;
 }
 type_qualifier_list *try_parse_type_qualifier_list(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_type_qualifier_list *");
-    exit(EXIT_FAILURE);
+    type_qualifier_list *tql = malloc(sizeof(*tql));
+    type_qualifier *tq;
+    *tql = type_qualifier_list_new();
+    while ((tq = try_parse_type_qualifier(l))) {
+        type_qualifier_list_add(tql, *tq);
+    }
+    ENSURE_NOT_EMPTY(type_qualifier_list, tql);
+    return tql;
 }
 declarator *try_parse_declarator(lexer *l) {
     declarator *d;

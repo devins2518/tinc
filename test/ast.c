@@ -660,14 +660,19 @@ CTEST_SKIP(AST, TEST_PARSE_DIRECT_DECLARATOR) {
 }
 
 #define PARSE_POINTER_SIZE 4
-CTEST_SKIP(AST, TEST_PARSE_POINTER) {
+CTEST(AST, TEST_PARSE_POINTER) {
     string src[PARSE_POINTER_SIZE] = {
         string_new_raw("*\n"),
         string_new_raw("*const\n"),
         string_new_raw("**\n"),
         string_new_raw("*const *\n"),
     };
-    pointer expected[PARSE_POINTER_SIZE] = {0};
+    pointer expected[PARSE_POINTER_SIZE] = {
+        {NULL, NULL},
+        {&(type_qualifier_list){1, 1, &(type_qualifier){const_tq_e}}, NULL},
+        {NULL, &(pointer){NULL, NULL}},
+        {&(type_qualifier_list){1, 1, &(type_qualifier){const_tq_e}}, &(pointer){NULL, NULL}},
+    };
     for (int i = 0; i < PARSE_POINTER_SIZE; i++) {
         preprocessor pp = preprocessor_new(&src[i]);
         vector_pp_token tokens = preprocessor_run(&pp);
