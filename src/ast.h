@@ -116,7 +116,7 @@ bool expression_eq(const expression *self, const expression *other);
 typedef struct primary_expression {
     union {
         ident *ident;
-        string_lit *constant;
+        uint64_t *constant;
         string_lit *string_lit;
         expression *expr;
     } p;

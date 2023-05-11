@@ -261,7 +261,7 @@ bool postfix_expression_eq(const postfix_expression *self, const postfix_express
 bool primary_expression_eq(const primary_expression *self, const primary_expression *other) {
     return self->e == other->e &&
            ((self->e == ident_pe_e && ident_eq(self->p.ident, other->p.ident)) ||
-            (self->e == constant_pe_e && ident_eq(self->p.constant, other->p.constant)) ||
+            (self->e == constant_pe_e && *self->p.constant == *other->p.constant) ||
             (self->e == string_lit_pe_e && ident_eq(self->p.string_lit, other->p.string_lit)) ||
             (self->e == expr_pe_e && expression_eq(self->p.expr, other->p.expr)));
 }
