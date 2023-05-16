@@ -68,17 +68,25 @@ cast_expression
 	;
 
 multiplicative_expression
-	: cast_expression
-	| multiplicative_expression '*' cast_expression
-	| multiplicative_expression '/' cast_expression
-	| multiplicative_expression '%' cast_expression
+	: cast_expression multiplicative_expression'
 	;
 
+multiplicative_expression'
+    : '*' cast_expression multiplicative_expression'
+    | '/' cast_expression multiplicative_expression'
+    | '%' cast_expression multiplicative_expression'
+    | <end>
+    ;
+
 additive_expression
-	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+    : multiplicative_expression additive_expression'
 	;
+
+additive_expression'
+    : '+' multiplicative_expression additive_expression'
+    | '-' multiplicative_expression additive_expression'
+    | <end>
+    ;
 
 shift_expression
 	: additive_expression
