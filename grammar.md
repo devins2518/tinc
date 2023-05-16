@@ -190,8 +190,12 @@ assignment_operator
     ;
 
 expression
-    : assignment_expression
-    | expression ',' assignment_expression
+    : assignment_expression expression'
+    ;
+
+expression'
+    : ',' expression
+    | <end>
     ;
 
 constant_expression
@@ -213,8 +217,11 @@ declaration_specifiers
     ;
 
 init_declarator_list
-    : init_declarator
-    | init_declarator_list ',' init_declarator
+    : init_declarator init_declarator_list'
+
+init_declarator_list'
+    : ',' init_declarator_list
+    | <end>
     ;
 
 init_declarator
@@ -257,8 +264,12 @@ struct_or_union
     ;
 
 struct_declaration_list
-    : struct_declaration
-    | struct_declaration_list struct_declaration
+    : struct_declaration struct_declaration_list'
+    ;
+
+struct_declaration_list'
+    : struct_declaration struct_declaration_list
+    <end>
     ;
 
 struct_declaration
@@ -273,8 +284,12 @@ specifier_qualifier_list
     ;
 
 struct_declarator_list
-    : struct_declarator
-    | struct_declarator_list ',' struct_declarator
+    : struct_declarator struct_declarator_list'
+    ;
+
+struct_declarator_list'
+    : ',' struct_declarator_list
+    | <end>
     ;
 
 struct_declarator
@@ -290,8 +305,12 @@ enum_specifier
     ;
 
 enumerator_list
-    : enumerator
-    | enumerator_list ',' enumerator
+    : enumerator enumerator_list'
+    ;
+
+enumerator_list'
+    : ',' enumerator_list
+    | <end>
     ;
 
 enumerator
@@ -310,13 +329,17 @@ declarator
     ;
 
 direct_declarator
-    : IDENTIFIER
-    | '(' declarator ')'
-    | direct_declarator '[' constant_expression ']'
-    | direct_declarator '[' ']'
-    | direct_declarator '(' parameter_type_list ')'
-    | direct_declarator '(' identifier_list ')'
-    | direct_declarator '(' ')'
+    : IDENTIFIER direct_declarator'
+    | '(' declarator ')' direct_declarator'
+    ;
+
+direct_declarator'
+    : '[' constant_expression ']' direct_declarator'
+    | '[' ']' direct_declarator'
+    | '(' parameter_type_list ')' direct_declarator'
+    | '(' identifier_list ')' direct_declarator'
+    | '(' ')' direct_declarator'
+    | <end>
     ;
 
 pointer
@@ -338,8 +361,12 @@ parameter_type_list
     ;
 
 parameter_list
-    : parameter_declaration
-    | parameter_list ',' parameter_declaration
+    : parameter_declaration parameter_list'
+    ;
+
+parameter_list'
+    : ',' parameter_list 
+    | <end>
     ;
 
 parameter_declaration
@@ -349,8 +376,12 @@ parameter_declaration
     ;
 
 identifier_list
-    : IDENTIFIER
-    | identifier_list ',' IDENTIFIER
+    : IDENTIFIER identifier_list'
+    ;
+
+identifier_list'
+    : ',' identifier_list
+    | <end>
     ;
 
 type_name
@@ -365,15 +396,19 @@ abstract_declarator
     ;
 
 direct_abstract_declarator
-    : '(' abstract_declarator ')'
-    | '[' ']'
-    | '[' constant_expression ']'
-    | direct_abstract_declarator '[' ']'
-    | direct_abstract_declarator '[' constant_expression ']'
-    | '(' ')'
-    | '(' parameter_type_list ')'
-    | direct_abstract_declarator '(' ')'
-    | direct_abstract_declarator '(' parameter_type_list ')'
+    : '(' abstract_declarator ')' direct_abstract_declarator'
+    | '[' ']' direct_abstract_declarator'
+    | '[' constant_expression ']' direct_abstract_declarator'
+    | '(' ')' direct_abstract_declarator'
+    | '(' parameter_type_list ')' direct_abstract_declarator'
+    ;
+
+direct_abstract_declarator'
+    : '[' ']' direct_abstract_declarator'
+    | '[' constant_expression ']' direct_abstract_declarator'
+    | '(' ')' direct_abstract_declarator'
+    | '(' parameter_type_list ')' direct_abstract_declarator'
+    | <end>
     ;
 
 initializer
@@ -383,8 +418,12 @@ initializer
     ;
 
 initializer_list
-    : initializer
-    | initializer_list ',' initializer
+    : initializer initializer_list'
+    ;
+
+initializer_list'
+    : ',' initializer_list
+    | <end>
     ;
 
 statement
@@ -410,13 +449,21 @@ compound_statement
     ;
 
 declaration_list
-    : declaration
-    | declaration_list declaration
+    : declaration declaration_list'
+    ;
+
+declaration_list'
+    : declaration_list
+    | <end>
     ;
 
 statement_list
-    : statement
-    | statement_list statement
+    : statement statement_list'
+    ;
+
+statement_list'
+    : statement_list 
+    | <end>
     ;
 
 expression_statement
