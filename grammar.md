@@ -89,48 +89,80 @@ additive_expression'
     ;
 
 shift_expression
-    : additive_expression
-    | shift_expression LEFT_OP additive_expression
-    | shift_expression RIGHT_OP additive_expression
+    : additive_expression shift_expression'
+    ;
+
+shift_expression'
+    : LEFT_OP shift_expression
+    | RIGHT_OP shift_expression
+    | <end>
     ;
 
 relational_expression
-    : shift_expression
-    | relational_expression '<' shift_expression
-    | relational_expression '>' shift_expression
-    | relational_expression LE_OP shift_expression
-    | relational_expression GE_OP shift_expression
+    : shift_expression relational_expression'
+    ;
+
+relational_expression'
+    : '<' relational_expression
+    | '>' relational_expression
+    | LE_OP relational_expression
+    | GE_OP relational_expression
+    | <end>
     ;
 
 equality_expression
-    : relational_expression
-    | equality_expression EQ_OP relational_expression
-    | equality_expression NE_OP relational_expression
+    : relational_expression equality_expression'
+    ;
+
+equality_expression
+    : EQ_OP equality_expression
+    | NE_OP equality_expression
+    | <end>
     ;
 
 and_expression
-    : equality_expression
-    | and_expression '&' equality_expression
+    : equality_expression and_expression'
+    ;
+
+and_expression'
+    : '&' and_expression
+    | <end>
     ;
 
 exclusive_or_expression
-    : and_expression
-    | exclusive_or_expression '^' and_expression
+    : and_expression exclusive_or_expression'
+    ;
+
+exclusive_or_expression'
+    : '^' exclusive_or_expression
+    : <end>
     ;
 
 inclusive_or_expression
-    : exclusive_or_expression
-    | inclusive_or_expression '|' exclusive_or_expression
+    : exclusive_or_expression inclusive_or_expression'
+    ;
+
+inclusive_or_expression'
+    : '|' inclusive_or_expression
+    | <end>
     ;
 
 logical_and_expression
-    : inclusive_or_expression
-    | logical_and_expression AND_OP inclusive_or_expression
+    : inclusive_or_expression logical_and_expression'
+    ;
+
+logical_and_expression'
+    : logical_and_expression AND_OP inclusive_or_expression
+    | <end>
     ;
 
 logical_or_expression
-    : logical_and_expression
-    | logical_or_expression OR_OP logical_and_expression
+    : logical_and_expression logical_or_expression'
+    ;
+
+logical_or_expression'
+    : OR_OP logical_or_expression
+    | <end>
     ;
 
 conditional_expression
