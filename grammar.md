@@ -72,9 +72,9 @@ multiplicative_expression
     ;
 
 multiplicative_expression'
-    : '*' cast_expression multiplicative_expression'
-    | '/' cast_expression multiplicative_expression'
-    | '%' cast_expression multiplicative_expression'
+    : '*' multiplicative_expression
+    | '/' multiplicative_expression
+    | '%' multiplicative_expression
     | <end>
     ;
 
@@ -83,8 +83,8 @@ additive_expression
     ;
 
 additive_expression'
-    : '+' multiplicative_expression additive_expression'
-    | '-' multiplicative_expression additive_expression'
+    : '+' additive_expression
+    | '-' additive_expression
     | <end>
     ;
 
