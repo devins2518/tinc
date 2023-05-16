@@ -36,8 +36,12 @@ postfix_expression'
     ;
 
 argument_expression_list
-	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	: assignment_expression assignment_expression_list'
+	;
+
+argument_expression_list'
+	| ',' argument_expression_list assignment_expression_list'
+    | <end>
 	;
 
 unary_expression
