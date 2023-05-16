@@ -21,15 +21,19 @@ primary_expression
 	;
 
 postfix_expression
-	: primary_expression
-	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
-	| postfix_expression '.' IDENTIFIER
-	| postfix_expression PTR_OP IDENTIFIER
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
+	: primary_expression postfix_expression'
 	;
+
+postfix_expression'
+	: '[' expression ']' postfix_expression'
+	| '(' ')' postfix_expression'
+	| '(' argument_expression_list ')' postfix_expression'
+	| '.' IDENTIFIER postfix_expression'
+	| PTR_OP IDENTIFIER postfix_expression'
+	| INC_OP postfix_expression'
+	| DEC_OP postfix_expression'
+    | <end>
+    ;
 
 argument_expression_list
 	: assignment_expression
