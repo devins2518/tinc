@@ -173,13 +173,40 @@ CTEST_SKIP(AST, TEST_PARSE_ARGUMENT_EXPRESSION_LIST) {
     ASSERT_TRUE(argument_expression_list_eq(ael, &expected));
 }
 
-#define PARSE_UNARY_EXPRESSION_SIZE 6
+#define PARSE_UNARY_EXPRESSION_SIZE 5
 CTEST_SKIP(AST, TEST_PARSE_UNARY_EXPRESSION) {
     string src[PARSE_UNARY_EXPRESSION_SIZE] = {
-        string_new_raw("++a;\n"),       string_new_raw("--b;\n"),
-        string_new_raw("~a;\n"),        string_new_raw("!(int)a;\n"),
+        string_new_raw("++a;\n"), string_new_raw("--a;\n"), string_new_raw("~a;\n"),
         string_new_raw("sizeof *a;\n"), string_new_raw("sizeof(*a);\n")};
-    unary_expression expected[PARSE_UNARY_EXPRESSION_SIZE] = {0};
+    unary_expression expected[PARSE_UNARY_EXPRESSION_SIZE] = {
+        {{.unary_expr =
+              &(unary_expression){
+                  {&(postfix_expression){&(primary_expression){{&(ident){1, 1, "a"}}, ident_pe_e},
+                                         NULL}},
+                  expr_ue_e}},
+         inc_unary_expr_ue_e},
+        {{.unary_expr =
+              &(unary_expression){
+                  {&(postfix_expression){&(primary_expression){{&(ident){1, 1, "a"}}, ident_pe_e},
+                                         NULL}},
+                  expr_ue_e}},
+         dec_unary_expr_ue_e},
+        {{.cast_expr = {approx_uo_e,
+                        &(cast_expression){
+                            {&(unary_expression){
+                                {&(postfix_expression){
+                                    &(primary_expression){{&(ident){1, 1, "a"}}, ident_pe_e},
+                                    NULL}},
+                                expr_ue_e}},
+                            unary_expr_ce_e}}},
+         unary_op_cast_expr_ue_e},
+        {{.unary_expr =
+              &(unary_expression){
+                  {&(postfix_expression){&(primary_expression){{&(ident){1, 1, "a"}}, ident_pe_e},
+                                         NULL}},
+                  expr_ue_e}},
+         sizeof_unary_expr_ue_e},
+    };
     for (int i = 0; i < PARSE_UNARY_EXPRESSION_SIZE; i++) {
         preprocessor pp = preprocessor_new(&src[i]);
         vector_pp_token tokens = preprocessor_run(&pp);

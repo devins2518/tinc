@@ -10,6 +10,7 @@
 
 struct primary_expression;
 struct postfix_expression;
+struct postfix_expression_term;
 struct assignment_expression;
 struct unary_expression;
 typedef enum unary_operator {
@@ -96,11 +97,11 @@ struct function_definition;
 
 typedef struct assignment_expression {
     union {
-        struct conditional_expression *cond_expr_p;
+        nonnullable struct conditional_expression *cond_expr_p;
         struct {
-            struct unary_expression *expr;
-            assignment_operator *op;
-            struct assignment_expression *assignment;
+            nonnullable struct unary_expression *expr;
+            nonnullable assignment_operator *op;
+            nonnullable struct assignment_expression *assignment;
         } unary_assignment_p;
     } p;
     enum { cond_expr_ae_e, unary_assignment_ae_e } e;
@@ -115,34 +116,38 @@ TYPEDEF_VECTOR(assignment_expression, expression)
 bool expression_eq(const expression *self, const expression *other);
 typedef struct primary_expression {
     union {
-        ident *ident;
-        uint64_t *constant;
-        string_lit *string_lit;
-        expression *expr;
+        nonnullable ident *ident;
+        nonnullable uint64_t *constant;
+        nonnullable string_lit *string_lit;
+        nonnullable expression *expr;
     } p;
     enum { ident_pe_e, constant_pe_e, string_lit_pe_e, expr_pe_e } e;
 } primary_expression;
 bool primary_expression_eq(const primary_expression *self, const primary_expression *other);
 typedef struct postfix_expression {
-    union {
-        primary_expression *expr;
-        expression *array_idx;
-        argument_expression_list *function_args;
-        ident *field_op;
-        ident *deref_op;
-    } p;
-    struct postfix_expression *post;
-    enum {
-        primary_expr_poste_e,
-        array_poste_e,
-        function_poste_e,
-        field_poste_e,
-        deref_poste_e,
-        inc_poste_e,
-        dec_poste_e
-    } e;
+    nonnullable primary_expression *pe;
+    nullable struct postfix_expression_term *pet;
 } postfix_expression;
 bool postfix_expression_eq(const postfix_expression *self, const postfix_expression *other);
+typedef struct postfix_expression_term {
+    union {
+        nonnullable expression *array_idx;
+        nonnullable argument_expression_list *function_args;
+        nonnullable ident *field_op;
+        nonnullable ident *deref_op;
+    } p;
+    nullable struct postfix_expression_term *pet;
+    enum {
+        array_poste_term_e,
+        function_poste_term_e,
+        field_poste_term_e,
+        deref_poste_term_e,
+        inc_poste_term_e,
+        dec_poste_term_e
+    } e;
+} postfix_expression_term;
+bool postfix_expression_term_eq(const postfix_expression_term *self,
+                                const postfix_expression_term *other);
 typedef struct cast_expression {
     union {
         struct unary_expression *unary_expr;
@@ -241,6 +246,7 @@ typedef struct unary_expression {
         expr_ue_e,
         inc_unary_expr_ue_e,
         dec_unary_expr_ue_e,
+        unary_op_cast_expr_ue_e,
         sizeof_unary_expr_ue_e,
         sizeof_type_name_ue_e
     } e;

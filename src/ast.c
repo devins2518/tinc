@@ -247,16 +247,20 @@ bool unary_expression_eq(const unary_expression *self, const unary_expression *o
              type_name_eq(self->p.type_name, other->p.type_name)));
 }
 bool postfix_expression_eq(const postfix_expression *self, const postfix_expression *other) {
+    return primary_expression_eq(self->pe, self->pe) &&
+           (!self->pet || postfix_expression_term_eq(self->pet, other->pet));
+}
+bool postfix_expression_term_eq(const postfix_expression_term *self,
+                                const postfix_expression_term *other) {
     return self->e == other->e &&
-           ((self->e == primary_expr_poste_e &&
-             primary_expression_eq(self->p.expr, other->p.expr)) ||
-            (postfix_expression_eq(self->post, other->post) &&
-             ((self->e == array_poste_e && expression_eq(self->p.array_idx, other->p.array_idx)) ||
-              (self->e == function_poste_e &&
-               argument_expression_list_eq(self->p.function_args, other->p.function_args)) ||
-              (self->e == field_poste_e && ident_eq(self->p.field_op, other->p.field_op)) ||
-              (self->e == deref_poste_e && ident_eq(self->p.deref_op, other->p.deref_op)) ||
-              (self->e == inc_poste_e || self->e == dec_poste_e))));
+           (!self->pet || postfix_expression_term_eq(self->pet, other->pet)) &&
+           ((self->e == array_poste_term_e &&
+             expression_eq(self->p.array_idx, other->p.array_idx)) ||
+            (self->e == function_poste_term_e &&
+             argument_expression_list_eq(self->p.function_args, other->p.function_args)) ||
+            (self->e == field_poste_term_e && ident_eq(self->p.field_op, other->p.field_op)) ||
+            (self->e == deref_poste_term_e && ident_eq(self->p.deref_op, other->p.deref_op)) ||
+            (self->e == inc_poste_term_e || self->e == dec_poste_term_e));
 }
 bool primary_expression_eq(const primary_expression *self, const primary_expression *other) {
     return self->e == other->e &&
