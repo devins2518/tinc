@@ -227,9 +227,12 @@ bool additive_expression_eq(const additive_expression *self, const additive_expr
 }
 bool multiplicative_expression_eq(const multiplicative_expression *self,
                                   const multiplicative_expression *other) {
-    return self->e == other->e && cast_expression_eq(self->cast_expr, other->cast_expr) &&
-           (self->e == cast_expr_only_me_e ||
-            multiplicative_expression_eq(self->mul_expr, other->mul_expr));
+    return cast_expression_eq(self->cast_expr, other->cast_expr) &&
+           (!self->post || multiplicative_expression_post_eq(self->post, other->post));
+}
+bool multiplicative_expression_post_eq(const multiplicative_expression_post *self,
+                                       const multiplicative_expression_post *other) {
+    return self->e == other->e && multiplicative_expression_eq(self->mul_expr, other->mul_expr);
 }
 bool cast_expression_eq(const cast_expression *self, const cast_expression *other) {
     return self->e == other->e &&

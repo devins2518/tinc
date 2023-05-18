@@ -24,10 +24,15 @@ typedef enum unary_operator {
 bool unary_operator_eq(const unary_operator *self, const unary_operator *other);
 struct cast_expression;
 struct multiplicative_expression;
+struct multiplicative_expression_post;
 struct additive_expression;
+struct additive_expression_post;
 struct shift_expression;
+struct shift_expression_post;
 struct relational_expression;
+struct relational_expression_post;
 struct equality_expression;
+struct equality_expression_post;
 struct and_expression;
 struct exclusive_or_expression;
 struct inclusive_or_expression;
@@ -157,12 +162,17 @@ typedef struct cast_expression {
 } cast_expression;
 bool cast_expression_eq(const cast_expression *self, const cast_expression *other);
 typedef struct multiplicative_expression {
-    struct cast_expression *cast_expr;
-    struct multiplicative_expression *mul_expr;
-    enum { cast_expr_only_me_e, mul_expr_mul_me_e, mul_expr_div_me_e, mul_expr_per_me_e } e;
+    nonnullable struct cast_expression *cast_expr;
+    nullable struct multiplicative_expression_post *post;
 } multiplicative_expression;
 bool multiplicative_expression_eq(const multiplicative_expression *self,
                                   const multiplicative_expression *other);
+typedef struct multiplicative_expression_post {
+    nonnullable multiplicative_expression *mul_expr;
+    enum { mul_mul_expr_post_e, div_mul_expr_post_e, mod_mul_expr_post_e } e;
+} multiplicative_expression_post;
+bool multiplicative_expression_post_eq(const multiplicative_expression_post *self,
+                                       const multiplicative_expression_post *other);
 typedef struct additive_expression {
     struct multiplicative_expression *mul_expr;
     struct additive_expression *add_expr;
@@ -494,13 +504,13 @@ typedef struct compound_statement {
 } compound_statement;
 bool compound_statement_eq(const compound_statement *self, const compound_statement *other);
 typedef struct expression_statement {
-    expression *expr;
+    nonnullable expression *expr;
 } expression_statement;
 bool expression_statement_eq(const expression_statement *self, const expression_statement *other);
 typedef struct selection_statement {
-    struct statement *statement;
-    expression *expr;
-    struct statement *else_statement;
+    nonnullable struct statement *statement;
+    nonnullable expression *expr;
+    nonnullable struct statement *else_statement;
     enum { if_ss_e, if_else_ss_e, switch_ss_e } e;
 } selection_statement;
 bool selection_statement_eq(const selection_statement *self, const selection_statement *other);
