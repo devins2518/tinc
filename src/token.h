@@ -124,7 +124,8 @@ typedef enum {
 
 typedef string error;
 
-typedef string pp_number;
+// TODO: support floats
+typedef uint64_t pp_number;
 
 typedef string char_cons;
 

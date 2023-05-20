@@ -204,12 +204,12 @@ pp_token scanner_next(scanner *s) {
             case number_state: {
                 if ((!scanner_is_digit(c) && !scanner_is_nondigit(c)) && c != '.' && c != '+' &&
                     c != '-') {
-                    t = pp_pp_number(s->curr, s->index,
-                                     string_new_len(&s->src->inner[s->curr], s->index - s->curr));
+                    t = pp_pp_number(s->curr, s->index, strtoll(&s->src->inner[s->curr], NULL, 10));
                     goto exit;
                 }
                 break;
             }
+            // TODO: complete
             case wide_string_lit_state:
                 if (c != '"') {
                     s->state = start_state;

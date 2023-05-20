@@ -119,10 +119,13 @@ string pp_token_to_string(pp_token *t) {
         s = string_new_raw("ident: ");
         string_append_string(&s, &t->p.ident_p);
         break;
-    case pp_number_e:
+    case pp_number_e: {
+        char buf[1000];
+        snprintf(buf, 1000, "%llu", t->p.pp_number_p);
         s = string_new_raw("pp_number: ");
-        string_append_string(&s, &t->p.pp_number_p);
+        string_append_char_star(&s, buf);
         break;
+    }
     case char_const_e:
         s = string_new_raw("char_const: ");
         string_append_string(&s, &t->p.char_const_p);
@@ -372,7 +375,6 @@ void pp_token_free(pp_token tok) {
     switch (tok.e) {
         FREE_CASE(header_name)
         FREE_CASE(ident)
-        FREE_CASE(pp_number)
         FREE_CASE(char_const)
         FREE_CASE(error)
     default:
@@ -396,7 +398,7 @@ bool pp_token_eq(pp_token *a, pp_token *b) {
             ret = string_eq(&a->p.ident_p, &b->p.ident_p);
             break;
         case pp_number_e:
-            ret = string_eq(&a->p.pp_number_p, &b->p.pp_number_p);
+            ret = a->p.pp_number_p == b->p.pp_number_p;
             break;
         case char_const_e:
             ret = string_eq(&a->p.char_const_p, &b->p.char_const_p);

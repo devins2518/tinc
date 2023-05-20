@@ -3,6 +3,7 @@
 
 void init_expected_tokens(vector_pp_token *v);
 
+// TODO: test and support floats
 CTEST(PREPROCESSOR, PARSING) {
     string src = string_new_raw("\
 #define HELLO 3\n\
@@ -11,7 +12,6 @@ int main() {\n\
     int i = 0;\n\
     int k = HELLO;\n\
     char *c = \"hi\";\n\
-    float f = 0.3;\n\
     return 0;\n\
 }");
     preprocessor pp = preprocessor_new(&src);
@@ -39,14 +39,14 @@ void init_expected_tokens(vector_pp_token *v) {
     vector_pp_token_add(v, t);
     vector_pp_token_add(v, pp_ident(47, 47, string_new_raw("i")));
     vector_pp_token_add(v, pp_multi(49, 49, eq_multi));
-    vector_pp_token_add(v, pp_pp_number(51, 51, string_new_raw("0")));
+    vector_pp_token_add(v, pp_pp_number(51, 51, 0));
     vector_pp_token_add(v, pp_punct(52, 52, semicolon_punct));
     t.start = 58;
     t.end = 60;
     vector_pp_token_add(v, t);
     vector_pp_token_add(v, pp_ident(62, 62, string_new_raw("k")));
     vector_pp_token_add(v, pp_multi(64, 64, eq_multi));
-    vector_pp_token_add(v, pp_pp_number(67, 67, string_new_raw("3")));
+    vector_pp_token_add(v, pp_pp_number(67, 67, 3));
     vector_pp_token_add(v, pp_punct(68, 68, semicolon_punct));
     t.start = 74;
     t.end = 77;
@@ -58,18 +58,10 @@ void init_expected_tokens(vector_pp_token *v) {
     vector_pp_token_add(v, pp_string_lit(84, 87, string_new_raw("\"hi\""), false));
     vector_pp_token_add(v, pp_punct(88, 88, semicolon_punct));
     t.start = 94;
-    t.end = 98;
-    t.p.keyword_p = float_kw;
-    vector_pp_token_add(v, t);
-    vector_pp_token_add(v, pp_ident(100, 100, string_new_raw("f")));
-    vector_pp_token_add(v, pp_multi(102, 102, eq_multi));
-    vector_pp_token_add(v, pp_pp_number(104, 106, string_new_raw("0.3")));
-    vector_pp_token_add(v, pp_punct(107, 107, semicolon_punct));
-    t.start = 113;
-    t.end = 118;
+    t.end = 99;
     t.p.keyword_p = return_kw;
     vector_pp_token_add(v, t);
-    vector_pp_token_add(v, pp_pp_number(120, 120, string_new_raw("0")));
-    vector_pp_token_add(v, pp_punct(121, 121, semicolon_punct));
-    vector_pp_token_add(v, pp_punct(123, 123, rbrace_punct));
+    vector_pp_token_add(v, pp_pp_number(101, 101, 0));
+    vector_pp_token_add(v, pp_punct(102, 102, semicolon_punct));
+    vector_pp_token_add(v, pp_punct(103, 103, rbrace_punct));
 }
