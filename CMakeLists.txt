@@ -41,6 +41,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         CONFIGURE_COMMAND ""
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
+        UPDATE_DISCONNECTED TRUE
         )
     ExternalProject_Get_property(ctest SOURCE_DIR)
 
