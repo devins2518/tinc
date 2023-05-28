@@ -299,8 +299,8 @@ bool _specifier_qualifier_eq(const _specifier_qualifier *self, const _specifier_
                                    (self->e == type_qualifier_sq_e &&
                                     type_qualifier_eq(self->p.qualifier, other->p.qualifier)));
 }
-bool unary_operator_eq(const unary_operator *self, const unary_operator *other) {
-    return *self == *other;
+bool unary_operator_eq(unary_operator self, unary_operator other) {
+    return self == other;
 }
 bool declaration_eq(const declaration *self, const declaration *other) {
     return declaration_specifiers_eq(self->decl_specs, other->decl_specs) &&

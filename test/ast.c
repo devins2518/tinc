@@ -9,7 +9,7 @@ extern postfix_expression *try_parse_postfix_expression(lexer *l);
 extern assignment_expression *try_parse_assignment_expression(lexer *l);
 extern argument_expression_list *try_parse_argument_expression_list(lexer *l);
 extern unary_expression *try_parse_unary_expression(lexer *l);
-extern unary_operator *try_parse_unary_operator(lexer *l);
+extern unary_operator try_parse_unary_operator(lexer *l);
 extern cast_expression *try_parse_cast_expression(lexer *l);
 extern multiplicative_expression *try_parse_multiplicative_expression(lexer *l);
 extern additive_expression *try_parse_additive_expression(lexer *l);
@@ -226,8 +226,8 @@ CTEST_SKIP(AST, TEST_PARSE_UNARY_OPERATOR) {
         preprocessor pp = preprocessor_new(&src[i]);
         vector_pp_token tokens = preprocessor_run(&pp);
         lexer l = lexer_new(&tokens);
-        unary_operator *uo = try_parse_unary_operator(&l);
-        ASSERT_TRUE(unary_operator_eq(uo, &expected[i]));
+        unary_operator uo = try_parse_unary_operator(&l);
+        ASSERT_TRUE(unary_operator_eq(uo, expected[i]));
     }
 }
 

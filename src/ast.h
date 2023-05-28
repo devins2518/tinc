@@ -21,7 +21,7 @@ typedef enum unary_operator {
     approx_uo_e,
     bang_uo_e
 } unary_operator;
-bool unary_operator_eq(const unary_operator *self, const unary_operator *other);
+bool unary_operator_eq(unary_operator self, unary_operator other);
 struct cast_expression;
 struct multiplicative_expression;
 struct multiplicative_expression_post;
