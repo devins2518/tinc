@@ -174,10 +174,10 @@ CTEST_SKIP(AST, TEST_PARSE_ARGUMENT_EXPRESSION_LIST) {
 }
 
 #define PARSE_UNARY_EXPRESSION_SIZE 5
-CTEST_SKIP(AST, TEST_PARSE_UNARY_EXPRESSION) {
+CTEST(AST, TEST_PARSE_UNARY_EXPRESSION) {
     string src[PARSE_UNARY_EXPRESSION_SIZE] = {
         string_new_raw("++a;\n"), string_new_raw("--a;\n"), string_new_raw("~a;\n"),
-        string_new_raw("sizeof *a;\n"), string_new_raw("sizeof(*a);\n")};
+        string_new_raw("sizeof a;\n"), string_new_raw("sizeof(int);\n")};
     unary_expression expected[PARSE_UNARY_EXPRESSION_SIZE] = {
         {{.unary_expr =
               &(unary_expression){
@@ -206,8 +206,15 @@ CTEST_SKIP(AST, TEST_PARSE_UNARY_EXPRESSION) {
                                          NULL}},
                   expr_ue_e}},
          sizeof_unary_expr_ue_e},
+        {{.type_name =
+              &(type_name){&(specifier_qualifier_list){
+                               1, 1,
+                               &(_specifier_qualifier){{&(type_specifier){{NULL}, int_ts_e}},
+                                                       type_specifier_sq_e}},
+                           NULL}},
+         sizeof_type_name_ue_e},
     };
-    for (int i = 0; i < PARSE_UNARY_EXPRESSION_SIZE; i++) {
+    for (int i = 0; i < 5; i++) {
         preprocessor pp = preprocessor_new(&src[i]);
         vector_pp_token tokens = preprocessor_run(&pp);
         lexer l = lexer_new(&tokens);

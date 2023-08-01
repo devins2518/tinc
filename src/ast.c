@@ -233,7 +233,8 @@ bool cast_expression_eq(const cast_expression *self, const cast_expression *othe
     return self->e == other->e &&
            ((self->e == unary_expr_ce_e &&
              unary_expression_eq(self->p.unary_expr, other->p.unary_expr)) ||
-            (self->e == ty_name_ce_e && type_name_eq(self->p.ty, other->p.ty)));
+            (self->e == ty_name_ce_e && type_name_eq(self->p.cast.ty, other->p.cast.ty) &&
+             cast_expression_eq(self->p.cast.ce, other->p.cast.ce)));
 }
 bool unary_expression_eq(const unary_expression *self, const unary_expression *other) {
     return self->e == other->e &&
@@ -241,6 +242,9 @@ bool unary_expression_eq(const unary_expression *self, const unary_expression *o
             ((self->e == inc_unary_expr_ue_e || self->e == dec_unary_expr_ue_e ||
               self->e == sizeof_unary_expr_ue_e) &&
              unary_expression_eq(self->p.unary_expr, other->p.unary_expr)) ||
+            (self->e == unary_op_cast_expr_ue_e &&
+             unary_operator_eq(self->p.cast_expr.unary_op, other->p.cast_expr.unary_op) &&
+             cast_expression_eq(self->p.cast_expr.cast_expr, other->p.cast_expr.cast_expr)) ||
             (self->e == sizeof_type_name_ue_e &&
              type_name_eq(self->p.type_name, other->p.type_name)));
 }

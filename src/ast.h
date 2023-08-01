@@ -142,7 +142,7 @@ typedef struct postfix_expression_term {
         nonnullable ident *deref_op;
     } p;
     nullable struct postfix_expression_term *pet;
-    enum {
+    enum postfix_expression_term_disriminant {
         array_poste_term_e,
         function_poste_term_e,
         field_poste_term_e,
@@ -156,7 +156,10 @@ bool postfix_expression_term_eq(const postfix_expression_term *self,
 typedef struct cast_expression {
     union {
         struct unary_expression *unary_expr;
-        struct type_name *ty;
+        struct {
+            struct type_name *ty;
+            struct cast_expression *ce;
+        } cast;
     } p;
     enum { unary_expr_ce_e, ty_name_ce_e } e;
 } cast_expression;
@@ -252,7 +255,7 @@ typedef struct unary_expression {
         } cast_expr;
         struct type_name *type_name;
     } p;
-    enum {
+    enum unary_expression_discriminant {
         expr_ue_e,
         inc_unary_expr_ue_e,
         dec_unary_expr_ue_e,

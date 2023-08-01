@@ -10,11 +10,14 @@
         ty##_free(*var);                                                                           \
         free(var);                                                                                 \
         var = NULL;                                                                                \
+        RESTORE;                                                                                   \
     }
 #define GET_CURR_TOK(l) l->pp_tokens->inner[l->pp_idx]
 #define ADV_TOK(l) (l->pp_idx)++
 #define LATE_MALLOC(var) (var) = malloc(sizeof(*(var)))
 #define VOID_FN_CAST(fn) (void *(*)(lexer *))(&fn)
+#define SAVE lexer old_l = *l
+#define RESTORE *l = old_l;
 
 ident *try_parse_ident(lexer *l);
 expression *try_parse_expression(lexer *l);
@@ -24,7 +27,8 @@ postfix_expression_term *try_parse_postfix_expression_term(lexer *l);
 assignment_expression *try_parse_assignment_expression(lexer *l);
 argument_expression_list *try_parse_argument_expression_list(lexer *l);
 unary_expression *try_parse_unary_expression(lexer *l);
-unary_operator *try_parse_unary_operator(lexer *l);
+type_name *try_parse_type_name(lexer *l);
+unary_operator try_parse_unary_operator(lexer *l);
 cast_expression *try_parse_cast_expression(lexer *l);
 multiplicative_expression *try_parse_multiplicative_expression(lexer *l);
 additive_expression *try_parse_additive_expression(lexer *l);
@@ -51,6 +55,7 @@ struct_or_union *try_parse_struct_or_union(lexer *l);
 struct_declaration *try_parse_struct_declaration(lexer *l);
 struct_declaration_list *try_parse_struct_declaration_list(lexer *l);
 _specifier_qualifier *try_parse__specifier_qualifier(lexer *l);
+specifier_qualifier_list *try_parse_specifier_qualifier_list(lexer *l);
 struct_declarator_list *try_parse_struct_declarator_list(lexer *l);
 struct_declarator *try_parse_struct_declarator(lexer *l);
 enum_specifier *try_parse_enum_specifier(lexer *l);
@@ -67,6 +72,7 @@ parameter_declaration *try_parse_parameter_declaration(lexer *l);
 identifier_list *try_parse_identifier_list(lexer *l);
 abstract_declarator *try_parse_abstract_declarator(lexer *l);
 direct_abstract_declarator *try_parse_direct_abstract_declarator(lexer *l);
+direct_abstract_declarator_term *try_parse_direct_abstract_declarator_term(lexer *l);
 initializer *try_parse_initializer(lexer *l);
 initializer_list *try_parse_initializer_list(lexer *l);
 statement *try_parse_statement(lexer *l);
@@ -88,6 +94,66 @@ ast_token *generate_ast(vector_pp_token *tokens) {
     return ast_translation_unit(tu);
 }
 
+bool try_parse_inc_op(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e && curr.p.op_p == dblplus_op) {
+        ADV_TOK(l);
+        return true;
+    } else
+        return false;
+}
+bool try_parse_dec_op(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e && curr.p.op_p == dblminus_op) {
+        ADV_TOK(l);
+        return true;
+    } else
+        return false;
+}
+bool try_parse_period(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e && curr.p.op_p == period_op) {
+        ADV_TOK(l);
+        return true;
+    } else
+        return false;
+}
+bool try_parse_deref_op(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e && curr.p.op_p == arrow_op) {
+        ADV_TOK(l);
+        return true;
+    } else
+        return false;
+}
+bool next_is_unary_operator(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e) {
+        switch (curr.p.op_p) {
+        case logand_op:
+        case star_op:
+        case plus_op:
+        case minus_op:
+        case approx_op:
+        case bang_op:
+            return true;
+        default:
+            return false;
+        }
+    } else if (curr.e == multi_e && curr.p.multi_p == star_multi) {
+        return true;
+    } else
+        return false;
+}
+bool try_parse_sizeof(lexer *l) {
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == keyword_e && curr.p.keyword_p == sizeof_kw) {
+        ADV_TOK(l);
+        return true;
+    } else {
+        return false;
+    }
+}
 bool try_parse_empty_braced(lexer *l) {
     bool ret = false;
     uint64_t idx = l->pp_idx;
@@ -175,20 +241,22 @@ bool try_parse_empty_parened(lexer *l) {
 }
 void *try_parse_parened(lexer *l, void *(fn)(lexer *)) {
     void *ret = NULL;
-    uint64_t idx = l->pp_idx;
-    pp_token curr = l->pp_tokens->inner[idx];
+    pp_token curr = GET_CURR_TOK(l);
+    SAVE;
+
     if (curr.e == multi_e && curr.p.multi_p == lparen_multi) {
-        idx++;
+        ADV_TOK(l);
         ret = fn(l);
-        curr = l->pp_tokens->inner[idx];
+        curr = GET_CURR_TOK(l);
         if (curr.e == multi_e && curr.p.multi_p == rparen_multi) {
-            idx++;
-            l->pp_idx = idx;
+            ADV_TOK(l);
             goto ret_succ;
         } else {
             goto errdefer_ret;
         }
     }
+
+    RESTORE;
     ERRDEFER_FREE(ret)
 ret_succ:
     return ret;
@@ -198,10 +266,13 @@ ret_succ:
 translation_unit *try_parse_translation_unit(lexer *l) {
     translation_unit *tu = malloc(sizeof(*tu));
     external_declaration *ed;
+    SAVE;
+
     *tu = translation_unit_new();
     while ((ed = try_parse_external_declaration(l))) {
         translation_unit_add(tu, *ed);
     }
+
     ENSURE_NOT_EMPTY(translation_unit, tu);
     return tu;
 }
@@ -224,15 +295,115 @@ expression *try_parse_expression(lexer *l) {
 }
 /* TODO: check */
 primary_expression *try_parse_primary_expression(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_primary_expression *");
-    exit(EXIT_FAILURE);
+    primary_expression *pe;
+    ident *i = NULL;
+    uint64_t *constant = NULL;
+    string_lit *string_lit = NULL;
+    expression *e = NULL;
+
+    pp_token curr = GET_CURR_TOK(l);
+    if ((i = try_parse_ident(l))) {
+        goto ret_succ;
+    } else if (curr.e == pp_number_e) {
+        LATE_MALLOC(constant);
+        *constant = curr.p.pp_number_p;
+        goto ret_succ;
+    }
+
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(pe);
+    if (i) {
+        pe->e = ident_pe_e;
+        pe->p.ident = i;
+    } else if (constant) {
+        pe->e = constant_pe_e;
+        pe->p.constant = constant;
+    } else if (string_lit) {
+        pe->e = string_lit_pe_e;
+        pe->p.string_lit = string_lit;
+    } else if (e) {
+        pe->e = expr_pe_e;
+        pe->p.expr = e;
+    }
+    return pe;
 }
 /* TODO: check */
 postfix_expression *try_parse_postfix_expression(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_postfix_expression *");
-    exit(EXIT_FAILURE);
+    postfix_expression *pe;
+    primary_expression *primary_e = NULL;
+    postfix_expression_term *pet = NULL;
+    SAVE;
+
+    primary_e = try_parse_primary_expression(l);
+    CHECK(primary_e);
+    pet = try_parse_postfix_expression_term(l);
+    goto ret_succ;
+
+    ERRDEFER_FREE(primary_e);
+    RESTORE;
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(pe);
+    pe->pe = primary_e;
+    pe->pet = pet;
+    return pe;
+}
+/* TODO: check */
+postfix_expression_term *try_parse_postfix_expression_term(lexer *l) {
+    postfix_expression_term *pet = NULL;
+    expression *ai = NULL;
+    argument_expression_list *fa = NULL;
+    ident *fo = NULL;
+    ident *deref_op = NULL;
+    postfix_expression_term *child_pet = NULL;
+    enum postfix_expression_term_disriminant petd;
+
+    if ((ai = try_parse_bracketed(l, VOID_FN_CAST(try_parse_expression)))) {
+        petd = array_poste_term_e;
+    } else if (try_parse_empty_parened(l)) {
+        petd = function_poste_term_e;
+    } else if ((fa = try_parse_parened(l, VOID_FN_CAST(try_parse_argument_expression_list)))) {
+        petd = function_poste_term_e;
+    } else if (try_parse_period(l)) {
+        petd = field_poste_term_e;
+        fo = try_parse_ident(l);
+        CHECK(fo);
+    } else if (try_parse_deref_op(l)) {
+        petd = deref_poste_term_e;
+        deref_op = try_parse_ident(l);
+        CHECK(deref_op);
+    } else if (try_parse_inc_op(l)) {
+        petd = inc_poste_term_e;
+    } else if (try_parse_dec_op(l)) {
+        petd = dec_poste_term_e;
+    } else {
+        goto ret_fail;
+    }
+    child_pet = try_parse_postfix_expression_term(l);
+    goto ret_succ;
+
+ret_fail:
+    ERRDEFER_FREE(deref_op);
+    ERRDEFER_FREE(fo);
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(pet);
+    pet->e = petd;
+    pet->pet = child_pet;
+    if (ai) {
+        pet->p.array_idx = ai;
+    } else if (fa) {
+        pet->p.function_args = fa;
+    } else if (fo) {
+        pet->p.field_op = fo;
+    } else if (deref_op) {
+        pet->p.deref_op = deref_op;
+    }
+    return pet;
 }
 /* TODO: check */
 assignment_expression *try_parse_assignment_expression(lexer *l) {
@@ -248,21 +419,150 @@ argument_expression_list *try_parse_argument_expression_list(lexer *l) {
 }
 /* TODO: check */
 unary_expression *try_parse_unary_expression(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_unary_expression *");
-    exit(EXIT_FAILURE);
+    unary_expression *ue;
+    postfix_expression *pe = NULL;
+    unary_expression *child_ue = NULL;
+    unary_operator uo;
+    cast_expression *ce = NULL;
+    type_name *tn = NULL;
+    enum unary_expression_discriminant ued;
+    SAVE;
+
+    if ((pe = try_parse_postfix_expression(l))) {
+        ued = expr_ue_e;
+    } else if (try_parse_inc_op(l)) {
+        ued = inc_unary_expr_ue_e;
+        child_ue = try_parse_unary_expression(l);
+        CHECK(child_ue);
+    } else if (try_parse_dec_op(l)) {
+        ued = dec_unary_expr_ue_e;
+        child_ue = try_parse_unary_expression(l);
+        CHECK(child_ue);
+    } else if ((next_is_unary_operator(l))) {
+        ued = unary_op_cast_expr_ue_e;
+        uo = try_parse_unary_operator(l);
+        ce = try_parse_cast_expression(l);
+        CHECK(ce);
+    } else if ((try_parse_sizeof(l))) {
+        if ((child_ue = try_parse_unary_expression(l))) {
+            ued = sizeof_unary_expr_ue_e;
+        } else {
+            tn = try_parse_parened(l, VOID_FN_CAST(try_parse_type_name));
+            CHECK(tn);
+            ued = sizeof_type_name_ue_e;
+        }
+    } else {
+        goto ret_fail;
+    }
+    goto ret_succ;
+
+ret_fail:
+    ERRDEFER_FREE(tn)
+    ERRDEFER_FREE(ce)
+    ERRDEFER_FREE(child_ue)
+    RESTORE;
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(ue);
+    ue->e = ued;
+    if (pe) {
+        ue->p.expr = pe;
+    } else if (child_ue) {
+        ue->p.unary_expr = child_ue;
+    } else if (ce) {
+        ue->p.cast_expr.unary_op = uo;
+        ue->p.cast_expr.cast_expr = ce;
+    } else if (tn) {
+        ue->p.type_name = tn;
+    }
+    return ue;
 }
 /* TODO: check */
-unary_operator *try_parse_unary_operator(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_unary_operator *");
-    exit(EXIT_FAILURE);
+type_name *try_parse_type_name(lexer *l) {
+    type_name *tn;
+    specifier_qualifier_list *sql = NULL;
+    abstract_declarator *ad = NULL;
+    SAVE;
+
+    sql = try_parse_specifier_qualifier_list(l);
+    CHECK(sql);
+    ad = try_parse_abstract_declarator(l);
+    goto ret_succ;
+
+    ERRDEFER_FREE(sql);
+    RESTORE;
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(tn);
+    tn->sql = sql;
+    tn->abstract_decl = ad;
+    return tn;
+}
+/* TODO: check */
+unary_operator try_parse_unary_operator(lexer *l) {
+    unary_operator uo = bang_uo_e + 1;
+    pp_token curr = GET_CURR_TOK(l);
+    if (curr.e == op_e) {
+        switch (curr.p.op_p) {
+        case logand_op:
+            uo = and_uo_e;
+            break;
+        case star_op:
+            uo = star_uo_e;
+            break;
+        case plus_op:
+            uo = plus_uo_e;
+            break;
+        case minus_op:
+            uo = minus_uo_e;
+            break;
+        case approx_op:
+            uo = approx_uo_e;
+            break;
+        case bang_op:
+            uo = bang_uo_e;
+            break;
+        default:
+            break;
+        }
+    } else if (curr.e == multi_e && curr.p.multi_p == star_multi) {
+        uo = star_uo_e;
+    }
+    ADV_TOK(l);
+    return uo;
 }
 /* TODO: check */
 cast_expression *try_parse_cast_expression(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_cast_expression *");
-    exit(EXIT_FAILURE);
+    cast_expression *ce;
+    unary_expression *ue = NULL;
+    type_name *tn = NULL;
+    cast_expression *child_ce = NULL;
+
+    if ((ue = try_parse_unary_expression(l))) {
+        goto ret_succ;
+    } else if ((tn = try_parse_parened(l, VOID_FN_CAST(try_parse_type_name)))) {
+        child_ce = try_parse_cast_expression(l);
+        CHECK(child_ce);
+        goto ret_succ;
+    }
+
+    ERRDEFER_FREE(child_ce);
+    free(tn);
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(ce);
+    if (ue) {
+        ce->e = unary_expr_ce_e;
+        ce->p.unary_expr = ue;
+    } else if (tn) {
+        ce->e = ty_name_ce_e;
+        ce->p.cast.ty = tn;
+        ce->p.cast.ce = child_ce;
+    }
+    return ce;
 }
 /* TODO: check */
 multiplicative_expression *try_parse_multiplicative_expression(lexer *l) {
@@ -387,10 +687,13 @@ declaration_specifier *try_parse_declaration_specifier(lexer *l) {
 declaration_specifiers *try_parse_declaration_specifiers(lexer *l) {
     declaration_specifiers *dss = malloc(sizeof(*dss));
     declaration_specifier *ds;
+    SAVE;
+
     *dss = declaration_specifiers_new();
     while ((ds = try_parse_declaration_specifier(l))) {
         declaration_specifiers_add(dss, *ds);
     }
+
     ENSURE_NOT_EMPTY(declaration_specifiers, dss);
     return dss;
 }
@@ -548,18 +851,56 @@ struct_declaration_list *try_parse_struct_declaration_list(lexer *l) {
 }
 /* TODO: check */
 _specifier_qualifier *try_parse__specifier_qualifier(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse__specifier_qualifier *");
-    exit(EXIT_FAILURE);
+    _specifier_qualifier *sq;
+    type_specifier *ts = NULL;
+    type_qualifier *tq = NULL;
+    SAVE;
+
+    ts = try_parse_type_specifier(l);
+    if (ts)
+        goto ret_succ;
+    tq = try_parse_type_qualifier(l);
+    if (tq)
+        goto ret_succ;
+
+    RESTORE;
+    return NULL;
+
+ret_succ:
+    LATE_MALLOC(sq);
+    if (ts) {
+        sq->p.specifier = ts;
+        sq->e = type_specifier_sq_e;
+    } else if (ts) {
+        sq->p.qualifier = tq;
+        sq->e = type_qualifier_sq_e;
+    }
+    return sq;
+}
+specifier_qualifier_list *try_parse_specifier_qualifier_list(lexer *l) {
+    specifier_qualifier_list *sql = malloc(sizeof(*sql));
+    _specifier_qualifier *sq;
+    SAVE;
+
+    *sql = specifier_qualifier_list_new();
+    while ((sq = try_parse__specifier_qualifier(l))) {
+        specifier_qualifier_list_add(sql, *sq);
+    }
+
+    ENSURE_NOT_EMPTY(specifier_qualifier_list, sql);
+    return sql;
 }
 /* TODO: check */
 struct_declarator_list *try_parse_struct_declarator_list(lexer *l) {
     struct_declarator_list *sdl = malloc(sizeof(*sdl));
     struct_declarator *sd;
+    SAVE;
+
     *sdl = struct_declarator_list_new();
     while ((sd = try_parse_struct_declarator(l))) {
         struct_declarator_list_add(sdl, *sd);
     }
+
     ENSURE_NOT_EMPTY(struct_declarator_list, sdl);
     return sdl;
 }
@@ -608,10 +949,13 @@ ret_succ:
 enumerator_list *try_parse_enumerator_list(lexer *l) {
     enumerator_list *el = malloc(sizeof(*el));
     enumerator *e;
+    SAVE;
+
     *el = enumerator_list_new();
     while ((e = try_parse_enumerator(l))) {
         enumerator_list_add(el, *e);
     }
+
     ENSURE_NOT_EMPTY(enumerator_list, el);
     return el;
 }
@@ -665,10 +1009,13 @@ type_qualifier *try_parse_type_qualifier(lexer *l) {
 type_qualifier_list *try_parse_type_qualifier_list(lexer *l) {
     type_qualifier_list *tql = malloc(sizeof(*tql));
     type_qualifier *tq;
+    SAVE;
+
     *tql = type_qualifier_list_new();
     while ((tq = try_parse_type_qualifier(l))) {
         type_qualifier_list_add(tql, *tq);
     }
+
     ENSURE_NOT_EMPTY(type_qualifier_list, tql);
     return tql;
 }
@@ -878,10 +1225,13 @@ compound_statement *try_parse_compound_statement(lexer *l) {
 declaration_list *try_parse_declaration_list(lexer *l) {
     declaration_list *dl = malloc(sizeof(*dl));
     declaration *d;
+    SAVE;
+
     *dl = declaration_list_new();
     while ((d = try_parse_declaration(l))) {
         declaration_list_add(dl, *d);
     }
+
     ENSURE_NOT_EMPTY(declaration_list, dl);
     return dl;
 }
