@@ -157,23 +157,18 @@ bool direct_abstract_declarator_eq(const direct_abstract_declarator *self,
              abstract_declarator_eq(self->p.paren_dad, other->p.paren_dad)) ||
             (self->e == const_expr_bracket_dad_e &&
              constant_expression_eq(self->p.bracket_dad, other->p.bracket_dad)) ||
-            (self->e == self_empty_bracket_dad_e &&
-             direct_abstract_declarator_eq(self->p.dad_dad, other->p.dad_dad)) ||
-            (self->e == self_const_expr_bracket_dad_e &&
-             direct_abstract_declarator_eq(self->p.dad_const_expr_dad.dad,
-                                           other->p.dad_const_expr_dad.dad) &&
-             constant_expression_eq(self->p.dad_const_expr_dad.const_expr,
-                                    other->p.dad_const_expr_dad.const_expr)) ||
             (self->e == paren_paramater_type_list_dad_e &&
-             parameter_type_list_eq(self->p.paren_list, other->p.paren_list)) ||
-            (self->e == self_empty_paren_dad_e &&
-             direct_abstract_declarator_eq(self->p.dad_param_list_dad.dad,
-                                           other->p.dad_param_list_dad.dad)) ||
-            (self->e == self_empty_paren_dad_e &&
-             direct_abstract_declarator_eq(self->p.dad_param_list_dad.dad,
-                                           other->p.dad_param_list_dad.dad) &&
-             parameter_type_list_eq(self->p.dad_param_list_dad.paren_list,
-                                    other->p.dad_param_list_dad.paren_list)));
+             parameter_type_list_eq(self->p.paren_list, other->p.paren_list))) &&
+           (!self->dad_t || direct_abstract_declarator_term_eq(self->dad_t, other->dad_t));
+}
+bool direct_abstract_declarator_term_eq(const direct_abstract_declarator_term *self,
+                                        const direct_abstract_declarator_term *other) {
+    return self->e == other->e &&
+           ((self->e == const_expr_dad_e &&
+             constant_expression_eq(self->p.const_expr, other->p.const_expr)) ||
+            (self->e == ptl_dad_e && parameter_type_list_eq(self->p.ptl, other->p.ptl))) &&
+           ((!self->dad_t && !other->dad_t) ||
+            direct_abstract_declarator_term_eq(self->dad_t, other->dad_t));
 }
 bool conditional_expression_eq(const conditional_expression *self,
                                const conditional_expression *other) {

@@ -409,45 +409,42 @@ typedef struct parameter_type_list {
 } parameter_type_list;
 bool parameter_type_list_eq(const parameter_type_list *self, const parameter_type_list *other);
 typedef struct type_name {
-    specifier_qualifier_list *sql;
-    struct abstract_declarator *abstract_decl;
-    bool abstract_decl_present;
+    nonnullable specifier_qualifier_list *sql;
+    nullable struct abstract_declarator *abstract_decl;
 } type_name;
 bool type_name_eq(const type_name *self, const type_name *other);
 typedef struct abstract_declarator {
-    struct pointer *ptr;
-    struct direct_abstract_declarator *direct_abstract_decl;
+    nullable struct pointer *ptr;
+    nullable struct direct_abstract_declarator *direct_abstract_decl;
 } abstract_declarator;
 bool abstract_declarator_eq(const abstract_declarator *self, const abstract_declarator *other);
 typedef struct direct_abstract_declarator {
     union {
         struct abstract_declarator *paren_dad;
         constant_expression *bracket_dad;
-        struct direct_abstract_declarator *dad_dad;
-        struct {
-            struct direct_abstract_declarator *dad;
-            constant_expression *const_expr;
-        } dad_const_expr_dad;
         struct parameter_type_list *paren_list;
-        struct {
-            struct direct_abstract_declarator *dad;
-            struct parameter_type_list *paren_list;
-        } dad_param_list_dad;
     } p;
     enum {
         paren_ad_dad_e,
         empty_bracket_dad_e,
         const_expr_bracket_dad_e,
-        self_empty_bracket_dad_e,
-        self_const_expr_bracket_dad_e,
         empty_paren_dad_e,
-        paren_paramater_type_list_dad_e,
-        self_empty_paren_dad_e,
-        self_const_paramater_type_dad_e
+        paren_paramater_type_list_dad_e
     } e;
+    nullable struct direct_abstract_delcarator_term *dad_t;
 } direct_abstract_declarator;
 bool direct_abstract_declarator_eq(const direct_abstract_declarator *self,
                                    const direct_abstract_declarator *other);
+typedef struct direct_abstract_delcarator_term {
+    union {
+        nullable constant_expression *const_expr;
+        nullable parameter_type_list *ptl;
+    } p;
+    enum { const_expr_dad_e, ptl_dad_e } e;
+    nullable struct direct_abstract_delcarator_term *dad_t;
+} direct_abstract_declarator_term;
+bool direct_abstract_declarator_term_eq(const direct_abstract_declarator_term *self,
+                                        const direct_abstract_declarator_term *other);
 typedef struct initializer {
     union {
         struct assignment_expression *assignment;

@@ -20,6 +20,7 @@ ident *try_parse_ident(lexer *l);
 expression *try_parse_expression(lexer *l);
 primary_expression *try_parse_primary_expression(lexer *l);
 postfix_expression *try_parse_postfix_expression(lexer *l);
+postfix_expression_term *try_parse_postfix_expression_term(lexer *l);
 assignment_expression *try_parse_assignment_expression(lexer *l);
 argument_expression_list *try_parse_argument_expression_list(lexer *l);
 unary_expression *try_parse_unary_expression(lexer *l);
@@ -794,14 +795,53 @@ identifier_list *try_parse_identifier_list(lexer *l) {
 }
 /* TODO: check */
 abstract_declarator *try_parse_abstract_declarator(lexer *l) {
-    (void)l;
-    printf("unimplemented try_parse_abstract_declarator *");
-    exit(EXIT_FAILURE);
+    abstract_declarator *ad;
+    pointer *p = NULL;
+    direct_abstract_declarator *dad = NULL;
+    SAVE;
+
+    p = try_parse_pointer(l);
+    dad = try_parse_direct_abstract_declarator(l);
+    if (!p && !dad) {
+        RESTORE;
+        return NULL;
+    }
+
+    LATE_MALLOC(ad);
+    ad->ptr = p;
+    ad->direct_abstract_decl = dad;
+    return ad;
 }
 /* TODO: check */
 direct_abstract_declarator *try_parse_direct_abstract_declarator(lexer *l) {
+    direct_abstract_declarator *dad = malloc(sizeof(*dad));
+    abstract_declarator *ad = NULL;
+    constant_expression *ce = NULL;
+    parameter_type_list *ptl = NULL;
+
+    if ((ad = try_parse_parened(l, VOID_FN_CAST(try_parse_abstract_declarator)))) {
+        dad->e = paren_ad_dad_e;
+        dad->p.paren_dad = ad;
+    } else if (try_parse_empty_bracketed(l)) {
+        dad->e = empty_bracket_dad_e;
+    } else if ((ce = try_parse_bracketed(l, VOID_FN_CAST(try_parse_constant_expression)))) {
+        dad->e = const_expr_bracket_dad_e;
+        dad->p.bracket_dad = ce;
+    } else if (try_parse_empty_parened(l)) {
+        dad->e = empty_paren_dad_e;
+    } else if ((ptl = try_parse_parened(l, VOID_FN_CAST(try_parse_parameter_type_list)))) {
+        dad->e = paren_paramater_type_list_dad_e;
+        dad->p.paren_list = ptl;
+    } else {
+        return NULL;
+    }
+    dad->dad_t = try_parse_direct_abstract_declarator_term(l);
+    return dad;
+}
+/* TODO: check */
+direct_abstract_declarator_term *try_parse_direct_abstract_declarator_term(lexer *l) {
     (void)l;
-    printf("unimplemented try_parse_direct_abstract_declarator *");
+    printf("unimplemented try_parse_direct_abstract_declarator_term *");
     exit(EXIT_FAILURE);
 }
 /* TODO: check */
