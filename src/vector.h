@@ -108,7 +108,7 @@ unsigned long int power2(unsigned int a);
         clone.len = v.len;                                                                         \
         clone.cap = v.cap;                                                                         \
         clone.inner = (name *)calloc(clone.cap, sizeof(name));                                     \
-        memcpy(clone.inner, v.inner, clone.cap);                                                   \
+        memcpy(clone.inner, v.inner, clone.cap * sizeof(name));                                    \
         return clone;                                                                              \
     }
 
